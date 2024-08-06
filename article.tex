@@ -1,0 +1,300 @@
+
+ 
+\documentclass[sn-mathphys,Numbered]{sn-jnl}% Math and Physical Sciences Reference Style
+%\documentclass[sn-mathphys,Numbered,draft]{sn-jnl}% Math and Physical Sciences Reference Style
+
+%%\documentclass[sn-nature]{sn-jnl}% Style for submissions to Nature Portfolio journals
+%%\documentclass[sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
+%%\documentclass[sn-aps]{sn-jnl}% American Physical Society (APS) Reference Style
+%%\documentclass[sn-vancouver,Numbered]{sn-jnl}% Vancouver Reference Style
+%%\documentclass[sn-apa]{sn-jnl}% APA Reference Style 
+%%\documentclass[sn-chicago]{sn-jnl}% Chicago-based Humanities Reference Style
+%%\documentclass[default]{sn-jnl}% Default
+%%\documentclass[default,iicol]{sn-jnl}% Default with double column layout
+
+%%%% Standard Packages
+%%<additional latex packages, if required can be included here>
+
+\setlength{\parskip}{\baselineskip}
+
+\usepackage{graphicx}%
+\usepackage{amsmath,amssymb,amsfonts,bm}%
+\usepackage{multirow}
+\usepackage{amsthm}%
+%\usepackage{subcaption}
+\usepackage{mathrsfs}%
+\usepackage[title]{appendix}%
+\usepackage{xcolor}%
+\usepackage{textcomp}%
+\usepackage{manyfoot}%
+\usepackage{booktabs}%
+%\usepackage{algorithm}%
+%\usepackage{algorithmicx}%
+\usepackage{algpseudocode}%
+\usepackage{listings}%
+\usepackage{bigints}
+\usepackage{outlines}
+\usepackage{geometry}
+\usepackage{subfigure}
+\usepackage{siunitx}
+\geometry
+{
+a4paper,         % or letterpaper
+textwidth=15cm,  % llncs has 12.2cm
+textheight=24cm, % llncs has 19.3cm
+% heightrounded,   % integer number of lines
+% hratio=1:1,      % horizontally centered
+% vratio=2:3,      % not vertically centered
+}
+\setlength{\tabcolsep}{0.5cm}
+\usepackage[onehalfspacing]{setspace}
+% \usepackage{lineno}
+% \linenumbers
+%%%%
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{amsmath}
+%\usepackage{movie15} %to allow movie embedding
+\usepackage[section]{placeins}
+\usepackage{enumitem}
+\usepackage{color,soul}
+\usepackage{xfrac}
+
+%% New math commands
+\newcommand{\s}[1]{\overset{*}{#1}}
+\newcommand{\RM}{\bm{\Lambda}}
+\newcommand{\RMI}{\bm{\Lambda}_0}
+\newcommand{\RMT}{\bm{\Lambda}_t}
+\newcommand{\RV}{\bm{\psi}}
+\newcommand{\magRV}{\psi}
+\newcommand{\RMTS}{\s{\bm{\Lambda}}_t}
+\newcommand{\bb}{\boldsymbol}
+
+%% For contact
+\newcommand{\rbar}{\bar{\bm{r}}}
+\newcommand{\xibar}{\bar{\xi}}
+%\newcommand{\magRV}{\bbit{\psi}}
+\newcommand{\diag}{\rm diag}
+
+\begin{document}
+
+\title[Article Title]{Assessing the potential of Jacobian-free Newton-Krylov methods for cell-centred finite volume solid mechanics}
+
+\author*[1,2,3]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
+\author[4]{\fnm{Ivan} \sur{Batisti\'{c}}}
+
+\affil*[1]{\orgdiv{School of Mechanical and Materials Engineering}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
+\affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
+\affil[3]{\orgdiv{SFI I-Form Centre}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
+\affil[4]{\orgdiv{University of Zagreb}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
+%\affil[6]{\orgdiv{UCD Centre of Adhesion and Adhesives'}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
+
+%Idea:
+%- We need a clinical perspective: ask Peter de Jaeger. If he thinks the paper is in good shape, I could ask Emer again and/or Maryland.
+%- Invite creators of CirculatorySystems Julia package.
+
+
+\abstract
+{
+In this study, we explore the efficacy of Jacobian-free Newton-Krylov methods within the context of finite-volume solid mechanics.
+Traditional Newton-based approaches to solving nonlinear systems often require explicit formation and storage of the Jacobian matrix, which can be computationally expensive and memory-intensive. The Jacobian-free Newton-Krylov method circumvents this by employing Krylov subspace iterative solvers, such as GMRES, in conjunction with a Newton iteration scheme that approximates the action of the Jacobian through finite difference evaluations.
+This approach promises significant computational savings, especially for large-scale, complex simulations prevalent in solid mechanics.
+This article research systematically evaluates the performance of Jacobian-free Newton-Krylov methods by benchmarking them against conventional segregated methods on a suite of test problems, including elastic, plastic, linear and nonlinear geometry deformation scenarios.
+Key metrics such as convergence rate, computational cost, and robustness are analysed.
+Additionally, we investigate the impact of various preconditioning strategies on the efficiency of the Jacobian-free Newton-Krylov method.
+Our findings indicate that Jacobian-free Newton-Krylov methods can achieve comparable/superior/XXX convergence behaviour relative to traditional segregated methods, particularly in cases where YYYY.
+The results suggest that Jacobian-free Newton-Krylov methods are promising for advancing finite-volume solid mechanics simulations, offering a viable pathway for enhancing computational efficiency and scalability.
+EMPHASISE: easy to extend segregated frameworks, on contrast to exact Jacobian methoods.
+%This study provides critical insights and practical guidelines for implementing JFNK methods in engineering and scientific applications.
+
+Key FV points:
+- many FV codes were developed around a segregated solution procedure, which requires significant effort to extend to a full Newton method, e.g. in terms of Jacobian assembly, storage, and linear system solution.
+- this paper examines Jacobian-free Newton-Krylov as a straight-forward extension of the segregated approach, without the need for a full Jacobian based method.
+- compact approximate Jacobian for preconditioner (more compact than FE approach)
+- implemented in OpenFOAM, and code and cases are made publicly available.
+}
+
+
+
+\keywords{Jacobian-free Newton-Krylov, Finite volume method, GMRES, OpenFOAM}
+
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}\label{sec:intro}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Paper outline:
+%
+%Intro
+%- FV is of interest for CSM
+%- Most methods use segregated algorithms, stemming from CFD algorithms
+%- Extension to block-coupled Newton methods is not easy, in terms of derivation, and code refactoring (matrix storage, extended stencil, linear solver, etc.).
+%- JFNK promises the performance of Newton methods, but without the need to form the full Jacobian. Define JFNK method. Hence, an existing segregated code can easily be adapted to use JFNK without major refactoring, albeit this process is made easier by the availability of open-source JFNK implementations.
+%- this paper examines JFNK for linear and nonlinear FV CSM procedures, where the compact stencil approximate Jacobian is used for preconditioning.
+%- Various cases examined with direct comparison to a segregated procedure:
+%	- linear elastic cases
+%	- small-strain plasticity
+%	- large strain hyperelastic and hyperelastoplasticity
+%	- parallel scaling
+
+
+Finite volume formulations for solid mechanics are heavily influenced by their fluid mechanics counterparts, favouring segregated implicit and fully explicit methods.
+Segregated approaches, where the governing momentum equation is temporarily decomposed into scalar component equations, offer memory efficiency and simplicity of implementation, but the outer coupling Picard iterations often suffer from slow convergence.
+Explicit formulations are equally straightforward to implement and offer superior robustness but are only efficient for fast dynamics.
+In contrast, the finite element community commonly employs Newton-Raphson-type solution algorithms, which necessitate repeated assembly of the exact Jacobian and solution of the resulting block-coupled non-diagonally dominant linear system.
+Traditional Newton-based approaches, as commonly employed with finite element approaches, often require explicit formation and storage of the Jacobian matrix, which can be computationally expensive and memory-intensive.
+In addition, from a finite volume perspective, derivation, assembly, storage and solution of the resulting block-coupled system often require major refactoring of existing segregated frameworks or creating entirely new implementations.
+Consequently, similar block-coupled solution finite volume methods are rare in the literature \citep{Das2012, Cardiff2016, Castrillo2024};
+The motivation of the current work is to seek (or exceed) the robustness and efficiency of block-coupled Newton-Raphons approaches in a way that can be easily incorporated into existing segregated solution frameworks.
+To this end, the current article examines the efficacy of Jacobian-free Newton-Krylov methods, where the quadratic convergence of Newton methods can potentially be achieved without deriving, assembling and storing the exact Jacobian.
+
+Jacobian-free Newton-Krylov methods circumvent the need for the Jacobian matrix by combining the Newton-Raphson method with Krylov subspace iterative linear solvers, such as GMRES, and noticing that such Krylov solvers do not explicitly require the Jacobian matrix.
+Instead, only the action of the Jacobian matrix on a solution-type vector is required.
+The key step in Jacobian-free Newton-Krylov methods is the approximation of products between the Jacobian matrix and vectors using the finite difference method; that is
+\begin{eqnarray}
+	\mathbf{J} \mathbf{v} \approx \frac{\mathbf{F}(\mathbf{x} + \epsilon \mathbf{v}) - \mathbf{F}(\mathbf{x})}{\epsilon}
+\end{eqnarray}
+where $\mathbf{J}$ is the Jacobian matrix, $\mathbf{x}$ is the current solution vector (e.g. nodal displacements), $\mathbf{v}$ is a vector (e.g., from a Krylov subspace), and $\epsilon$ is a small scalar perturbation.
+%Determining the appropriate value for $\epsilon$ requires balancing the truncation error of the finite difference approximation and round-off (numerical precision) error.
+With an appropriate choice of $\epsilon$ (balancing truncation and round-off errors), the characteristic quadratic convergence of Newton methods can be achieved without the Jacobian, hence the prefix \emph{Jacobian-free}.
+This approach promises significant memory savings over Jacobian-based methods, especially for large-scale, but also potentially for execution time, with appropriate choice of solution components.
+
+A crucial aspect of ensuring the efficiency and robustness of the Jacobian-free Newton-Krylov method is the choice of a suitable preconditioner for the Krylov iterations.
+This preconditioner is often derived from the exact Jacobian matrix to accelerate convergence in traditional Newton methods.
+However, we do not have direct access to the full Jacobian matrix in the Jacobian-free approach, necessitating an alternative strategy to approximate its action.
+
+To this end, and to extend existing segregated frameworks, we propose using a compact-stencil approximate Jacobian as the preconditioner. This approximate Jacobian corresponds to the matrix typically employed in segregated approaches; similar approaches are successful in fluid mechanics applications \citep{NishikawaPaper, nonNewtonianJFNKPaper}; however, it is unclear if such an approach is suitable for solid mechanics - a question which we hope to answer in this work.
+By leveraging this compact-stencil approximate Jacobian, we aim to effectively precondition the Krylov iterations, enhancing convergence while maintaining the memory and computational savings that define the Jacobian-free method.
+Similarly, if such an approach is efficient, it would naturally fit into existing segregated frameworks, as existing matrix storage and assembly can be reused.
+
+The remainder of the paper is structured as follows:
+Section 2 summarises a typical solid mechanics mathematical model and its cell-centred finite volume discretisation.
+Section 3 presents the solution algorithms, starting with the classic segregated solution algorithm, followed by the proposed Jacobian-free Newton-Krylov solution algorithm.
+The performance of the proposed Jacobian-free Newton-Krylov approach is compared with the segregated approach on several varying benchmark cases in Section 4, where the effect of several factors are examined, including problem dimension, mesh, material model, nonlinear geometry, choice of preconditioner, and other solution parameter.
+Finally, the article ends with a summary of the main conclusions of the work.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mathematical Model and Numerical Methods}\label{sec:math_model}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+%Math model and numerical methods
+%- General governing equation -> unknown D; limit ourselves to compressibility
+
+\subsection{Governing Equations} \label{sec:governing_eqn}
+
+WIP
+
+\subsection{Cell-Centred Finite Volume Discretisation} \label{sec:discretisation}
+
+WIP
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Solution Algorithms}\label{sec:sol_alg}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%- Seg approach summary
+%- JFNK approach summary
+%	- implementation via PETSc. Newton with line search, GMRes with MG preconditioner.
+
+\subsection{Segregated Solution Algorithm} \label{sec:seg_alg}
+
+WIP
+
+\subsection{Jacobian-free Newton-Krylov Algorithm} \label{sec:JFNK_alg}
+
+WIP
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Test Cases}\label{sec:test_cases}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%	
+%Cases
+%Focus on times, rather than accuracy => same discretisation error and seg already verified.
+% What features do I want to examine?
+% 2-D and 3-D
+% Meshes: structured vs unstructured (tet but poly would be cool)
+% NLGeom: small vs large strains
+% material: elasticity vs other physics, e.g. elastoplasticity
+% transient vs static
+% BCs types:
+% 	- NOT contact or cracks or other nonlinear BCS
+%	- disp, traction, symmetry
+
+% Possible cases
+% Compare seg and JFNK; maybe also Abaqus, just for reference
+% Show times/results for successively refined meshes
+%- cantilever
+%- narrowTmember
+%- ellipticPlate
+%- Other
+%	- cooks membrane (small or large strain)
+%	- necking -> Andrew's flatBar 3-D case, maybe even with his damage model?
+%	- bi-material
+%	- industrial case: bad/real mesh and show parallel scaling
+%	- ideal ventricle (problem 2, Land et al.)
+%	
+%Effects that could be studied:
+%- stabilisation magnitude (scaleFactor with RhieChow or alpha)
+%- globalisation strategies, e.g. predictor, segregated solution, time-step, composite snes
+%- parallel scaling
+%- preconditioner: LU, ILU (what N?), MG (HYPRE)
+%- mesh types: uniform mesh vs large gradients in refinement; structured vs unstructured
+
+
+WIP
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions} \label{sec:conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+WIP
+
+The main conclusions of the work are:
+\begin{itemize}
+	\item WIP
+	\item WIP 
+\end{itemize}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\backmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bmhead{Acknowledgments}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This work has emanated from research conducted with the financial support of/supported in part by a grant from Science Foundation Ireland (SFI) under Grant number {RC2302\_2}.
+Philip Cardiff gratefully acknowledges financial support from the Irish Research Council through the Laureate program, grant number IRCLA/2017/45, and the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme (Grant agreement No. 101088740).
+Vikram Pakrashi would also like to acknowledge FlowDyn RDD/966 and SiSDATA EAPA\_0040/2022.
+Additionally, the authors want to acknowledge project affiliates, Bekaert, through the Bekaert University Technology Centre (UTC) at University College Dublin (www.ucd.ie/bekaert), I-Form, funded by SFI Grant Number 16/RC/3872, co-funded under European Regional Development Fund and by I-Form industry partners, NexSys, funded by SFI Grant Number 21/SPP/3756, and the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie). Finally, part of this work has been carried out using the UCD ResearchIT Sonic cluster funded by UCD IT Services and the UCD Research Office.
+
+
+
+\newpage
+
+\begin{appendices}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{WIP} \label{app:one}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+WIP
+
+
+
+\end{appendices}
+
+
+\bibliography{bibliography}% common bib file
+
+
+\end{document}
