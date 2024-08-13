@@ -403,7 +403,7 @@ The discretised expressions on boundary faces are modified to account for either
 
 
 
-\hl{comment on traction boundaries} \hl{extrapolate to get value or use constitutive law}
+\hl{Comment on traction boundaries} \hl{extrapolate to get value or use constitutive law}
 
 
 
@@ -668,6 +668,19 @@ Several common features of modern solid mechanics procedures, including contact 
 %%--------------------------------------------------------------------------------------------------------------------%%
 
 \hl{This should show that JFNK does not affect the answers: one case is fine}
+
+The "Local Stresses Around a Spherical Cavity" case from Timoshenko could be suitable:
+\begin{itemize}
+	\item spherical cavity in an infinite solid subjected to distant uniaxial stress in the Z direction (it is like a 3-D version of plateHole) 
+	\item Analytical solution for the stresses are given in Timoshenko and Goodier, 1986, Section 122. I think it is straight-forward to implement them as a function object. Let me check.
+	\item The solution is 2-D; it does vary around the hole when looking in the +/-Z direction, but we can model one eight of it with three symmetry planes to allow us to verify the solver in 3-D.
+	\item It is more interesting than plateHole; I used this case in my PhD but I only plotted the stress along a line and I did not implement the far-field analytical stress conditions.
+	\item Compared with plateHole, the stresses decrease more rapidly away from the cavity in this case, with higher stress gradients. It is presumably a more difficult test for the solver's accuracy.
+	\item The mesh should be easy to create, e.g. use Gmsh to make an unstructured tet mesh and optionally a poly mesh via polyDualMesh, but also cfMesh and snappy. Let's get one mesh working first.
+	\item We can plot the average and max errors in the stresses (e.g. in sigma x or sigma r) as the mesh is refined.
+	\item A disadvantage is I am do not know of the analytical solution for the displacement field, although ChatGPT says it exists and is called the "Michell solution"; I think it is OK without this; we can check later.
+	\item MMS would also be suitable, but then we would need to implement the source term
+\end{itemize}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
