@@ -255,12 +255,11 @@ In Newton-type methods, a Taylor expansion about a current point $\bb{u}_k$ can 
 	\bb{R}(\bb{u}_{k+1}) = \bb{R}(\bb{u}_{k}) \;+\;  \bb{R}'(\bb{u}_{k}) (\bb{u}_{k+1} - \bb{u}_{k}) \;+\; \text{H.O.T.} = \bb{0}
 \end{eqnarray}
 Neglecting the higher-order terms ($\text{H.O.T.}$) yields the strict Newton method in terms of an iteration over a sequence of linear systems: 
-\begin{eqnarray}
-	\bb{J}(\bb{u}_k) \delta \bb{u} = -\bb{R}(\bb{u}_n),
+\begin{eqnarray} \label{eq:NewtonRaphson}
+	\bb{J}(\bb{u}_k) \delta \bb{u} &=& -\bb{R}(\bb{u}_n), \notag \\
+	\bb{u}_{k+1} &=& \bb{u}_k + s \, \delta \bb{u}, \notag \\
 	\quad
-	\bb{u}_{k+1} = \bb{u}_k + \alpha \, \delta \bb{u},
-	\quad
-	k = 0,1,...
+	k &=& 0,1,...
 %    \label{eq:NewtonRaphsonA}
 %    \overbrace{\left[ \frac{\partial \mathcal{R}(\bb{u})}{\partial \bb{u}} \right]_n}^{\mathcal{J}} \Delta \bb{u} = -\mathcal{R}(\bb{u})_n \\
 %    \label{eq:NewtonRaphsonB}
@@ -276,7 +275,7 @@ Starting the Newton procedure requires the specification of $\bb{u}_0$.
 %    \bb{u}_{n+1} = \bb{u}_{n} + \alpha \Delta \bb{u}
 %\end{eqnarray}
 %where subscript $n$ indicates the outer (Newton) iteration index.
-The scalar $\alpha > 0$ can be chosen to improve convergence, for example, using a line search or under-relaxation procedure, and is equal to unity in the classic Newton-Raphson approach.
+The scalar $s > 0$ can be chosen to improve convergence, for example, using a line search or under-relaxation procedure, and is equal to unity in the classic Newton-Raphson approach.
 Iterations are performed over this system until the residual $\bb{R}(\bb{u}_n)$ and solution correction $\delta \bb{u}$ are sufficiently small, with appropriate normalisation.
 
 %\hl{$\Delta u$: we are using in two ways: increment and correction. Fix this!}
@@ -370,7 +369,7 @@ The term introduces numerical diffusion to the discretisation, which reduces at 
 In the current approach, the Rhie-Chow stabilisation term $\mathcal{D}_{\text {Rhie-Chow }}$ for a cell $P$ takes the following form:
 \begin{equation} \label{eq:RhieChow}
 	\mathcal{D}_{\text {Rhie-Chow}}
-	= \sum_{f \in N_f} \beta \bar{K}_f
+	= \sum_{f \in N_f} \alpha \bar{K}_f
 	\left[
 	\left|\bb{\Delta}_f\right| \frac{ \bb{u}_{N_f} - \bb{u}_P}{\left|\bb{d}_f\right|}
 	- \bb{\Delta}_f \cdot \left(\bb{\nabla} \bb{u} \right)_f
@@ -378,8 +377,8 @@ In the current approach, the Rhie-Chow stabilisation term $\mathcal{D}_{\text {R
 	\left|\bb{\Gamma}_{f}\right| 
 \end{equation}
 %which comes from the difference between Equations \ref{eq:diffusion} and \ref{eq:diffusion_exp}.
-where $\beta > 0$ is a user-defined parameter for globally scaling the amount of stabilisation.
-Parameter $\bar{K}_f$ is a stiffness-type parameter that gives the stabilisation the appropriate scale and dimension.
+where $\alpha > 0$ is a user-defined parameter for globally scaling the amount of stabilisation.
+Parameter $\bar{K}_f$ is a stiffness-type parameter that gives the stabilisation an appropriate scale and dimension.
 Here, $\bar{K}_f = \frac{4}{3}\mu + \kappa = 2\mu + \lambda$ following previous work \cite{Jasak2008, Cardiff, etc}, where $\mu$ is the shear modulus (first Lam\'{e} parameter), $\kappa$ is the bulk modulus, and $\lambda$ is the second Lam\'{e} parameter.
 %where $N_f$ represents the set of faces $f$ in cell $P$, and neighbouring cell centre $N_f$ shares face $f$ with the cell $P$.
 Vector $\bb{d}_{f}$ connects cell centre $P$ with the other cell sharing face $f$, and $\bb{n}_{f}$ is the outward-facing unit normal to the face $f$.
@@ -464,10 +463,12 @@ Algebraic multigrid can be used to accelerate convergence.
 In literature, the segregated solution algorithm is typically formulated in terms of the total displacement vector (or its difference between time steps) as the primary unknown; in contrast, in the quasi-Newton interpretation presented here, the primary unknown is the correction to the displacement vector, which goes to zero at convergence.
 Nonetheless, both approaches are equivalent and neither formulation displays superior performance.
 
+The current procedure is implemented and publicly shared in the solids4foam toolbox of OpenFOAM.
+\hl{Add a section about code sharing: appendix?}
+
 \hl{Comment: we have two implementations of segregated: native OpenFOAM (solves Eqs 16-18) and PETSc SNES (solves Eq 15)}
 \hl{Do we need to comment on this? Maybe we should use only PETSc SNES for a fair comparison}
 
-\hl{Add a section about code sharing: appendix?}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
@@ -550,27 +551,41 @@ Several preconditioners are available in the literature, incomplete Cholesky/LU 
 \citet{Knoll2004} noted that algorithmic simplifications within a multigrid procedure, which may result in loss of convergence for multigrid as a solver, have a much weaker effect when multigrid is the preconditioner.
 In this work, three preconditioners are considered:
 \begin{enumerate}
-	\item ILU(N): incomplete LU with fill-in. The segregated solver uses ILU(0), that is, ILU with zero fill-in.
+	\item ILU(N): incomplete LU with fill-in $N$. The segregated solver uses ILU(0), that is, ILU with zero fill-in.
 	\item Multigrid: here, we use the HYPRE Boomerang multigrid implementation.
 	\item LU: for comparison, we consider a direct LU decomposition solver as the preconditioner.
 \end{enumerate}
 
 
-\hl{4 - globalisation}
+%\hl{4 - globalisation}
+A challenge with Newton-type methods, including Jacobian-free versions, is convergence can be poor when far from the true solution, and divergence is often possible.
+Globalisation refers to steering an initial solution towards the quadratic convergence range of the Newton method.
+Several strategies are possible, and it is common to combine approaches \cite{Knoell2004}.
+In the current work, a line search procedure is used to select the $\alpha$ parameter in the solution update step (the second line in Equations \ref{eq:NewtonRaphson}).
+Line search methods assume the Newton update direction is correction and aim to find a scalar $s > 0$ that decreases the residual $\bb{R}(\bb{u}_k + s \delta \bb{u}) < \bb{R}(\bb{u}_k)$.
+The scalar s is typically $\leq 1$, but extrapolation ($>1$) is also possible for accelerating convergence, albeit at the expense of robustness.
 
-Globalisation => continuation => predictor step.
-
-At the start of a new time step, a prediction for the displacement field at time $t + \Delta t$ is performed as:
-\begin{eqnarray}
+In addition to a line search approach, a \emph{transient continuation} globalisation approach is used, where a prediction for the solution (displacement) field at time $t + \Delta t$ is performed at the start of a new time step:
+\begin{eqnarray} \label{eq:predictor}
 	\bb{u}_{t+\Delta t} = \bb{u}_t + \Delta t \left(\frac{\partial \bb{u}}{\partial t}\right)_t + \frac{1}{2} \Delta t^2 \left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)_t
 \end{eqnarray}
 where $\Delta t$ is the time increment (assumed constant here), $\left(\frac{\partial \bb{u}}{\partial t}\right)_t$ is the velocity at time $t$, and $\left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)_t$ is the acceleration at time $t$.
+In this way, for highly nonlinear problems, the user can decrease the time step $\Delta$ as a globalisation approach to improve the performance of the Newton method.
+The predictor step in Equation \ref{eq:predictor} has been chosen to be consistent with the assumed discretisation of the temporal term in the governing equation; that is, the second order backwards scheme is assumed.
 
 
-\hl{5 - oversolving}
+%\hl{5 - oversolving}
+%Comment on over-solving => also applies to the segregated system.
+%This could be a parameter we look at.
+A final comment on the Jacobian-free Newton-Krylov solution algorithm is the potential importance of \emph{oversolving}.
+Here, oversolving refers to solving the linear system to too tight a tolerance during the early Newton iterations, essentially wasting time when the solution is far from the true solution.
+In addition, some authors \cite{See164_and_176_in_Knoll2004} have shown Newton convergence to be worse when the earlier iterations are solved to too tight a tolerance.
+The concept of oversolving also applies to segregated solution procedures and has been well-known since the early work of Demird\v{z}i\'{c} and co-workers \cite{Demirdzic}, where the residuals are typically reduced by one order of magnitude in the inner linear system.
+The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}.
 
-Comment on over-solving => also applies to the segregated system.
-This could be a parameter we look at.
+
+%Knoll2004:
+%The forcing term and the issue of ‘‘oversolving’’ a Newton step has recently gained interest [164,176]. The concept of ‘‘oversolving’’ implies that at early Newton iterations c is too small. Then one may obtain an accurate linear solution to an inaccurate Newton correction. This may result in a poor Newton update and degradation in the Newton convergence. In [164,176] it has been demonstrated that in some situations the Newton convergence may actually suffer if c is too small in early Newton iterations.
 
 
 
