@@ -99,21 +99,25 @@ textheight=24cm, % llncs has 19.3cm
 \abstract
 {
 In this study, we explore the efficacy of Jacobian-free Newton-Krylov methods within the context of finite-volume solid mechanics.
-Traditional Newton-based approaches to solving nonlinear systems often require explicit formation and storage of the Jacobian matrix, which can be computationally expensive and memory-intensive. The Jacobian-free Newton-Krylov method circumvents this by employing Krylov subspace iterative solvers, such as GMRES, in conjunction with a Newton iteration scheme that approximates the action of the Jacobian through finite difference evaluations.
-This approach promises significant computational savings, especially for large-scale, complex simulations prevalent in solid mechanics.
-This article research systematically evaluates the performance of Jacobian-free Newton-Krylov methods by benchmarking them against conventional segregated methods on a suite of test problems, including elastic, plastic, linear and nonlinear geometry deformation scenarios.
-Key metrics such as convergence rate, computational cost, and robustness are analysed.
-Additionally, we investigate the impact of various preconditioning strategies on the efficiency of the Jacobian-free Newton-Krylov method.
-Our findings indicate that Jacobian-free Newton-Krylov methods can achieve comparable/superior/XXX convergence behaviour relative to traditional segregated methods, particularly in cases where YYYY.
-The results suggest that Jacobian-free Newton-Krylov methods are promising for advancing finite-volume solid mechanics simulations, offering a viable pathway for enhancing computational efficiency and scalability.
-EMPHASISE: easy to extend segregated frameworks, on contrast to exact Jacobian methoods.
+Traditional Newton-based approaches to solving nonlinear systems typically require explicit formation and storage of the Jacobian matrix, which can be computationally expensive and memory-intensive.
+The Jacobian-free Newton-Krylov method circumvents this by employing Krylov subspace iterative solvers, such as GMRES, in conjunction with a Newton iteration scheme that approximates the action of the Jacobian through finite difference evaluations.
+A further potential advantage of the Jacobian-free Newton-Krylov method is that it is readily applicable to existing segregated finite volume frameworks, where forming and storing the exact Jacobian would require major code refactoring.
+%This approach promises significant computational savings, especially for large-scale, complex simulations prevalent in solid mechanics.
+This article research systematically evaluates the performance of Jacobian-free Newton-Krylov methods by benchmarking them against conventional segregated methods on a suite of benchmark cases of varying geometric dimension, geometric nonlinearity, dynamic response, and material behaviour.
+Key metrics such as computational cost, memory and robustness are analysed.
+Additionally, we investigate the impact of various solution algorithm choices, such as preconditioning strategy, on the efficiency of the Jacobian-free Newton-Krylov method.
+Our findings indicate that Jacobian-free Newton-Krylov methods can achieve \hl{comparable/superior/XXX convergence behaviour} relative to traditional segregated methods, particularly in cases where YYYY.
+\hl{Summarise key findings: time, memory, important choices, JFNK vs SEG vs FE, ...}
+The results suggest that Jacobian-free Newton-Krylov methods are promising for advancing finite-volume solid mechanics simulations and are particularly attractive for existing segregated frameworks where minimal code changes would be required to exploit openly available Jacobian-free Newton-Krylov implementations.
+The described implementations are made publicly available in the solids4foam toolbox for OpenFOAM, allowing the community to examine, extend and compare the procedures with the our codes.
+%offering a viable pathway for enhancing computational efficiency and scalability.
+%EMPHASISE: easy to extend segregated frameworks, on contrast to exact Jacobian methoods.
 %This study provides critical insights and practical guidelines for implementing JFNK methods in engineering and scientific applications.
-
-Key FV points:
-- many FV codes were developed around a segregated solution procedure, which requires significant effort to extend to a full Newton method, e.g. in terms of Jacobian assembly, storage, and linear system solution.
-- this paper examines Jacobian-free Newton-Krylov as a straight-forward extension of the segregated approach, without the need for a full Jacobian based method.
-- compact approximate Jacobian for preconditioner (more compact than FE approach)
-- implemented in OpenFOAM, and code and cases are made publicly available.
+%Key FV points:
+%- many FV codes were developed around a segregated solution procedure, which requires significant effort to extend to a full Newton method, e.g. in terms of Jacobian assembly, storage, and linear system solution.
+%- this paper examines Jacobian-free Newton-Krylov as a straight-forward extension of the segregated approach, without the need for a full Jacobian based method.
+%- compact approximate Jacobian for preconditioner (more compact than FE approach)
+%- implemented in OpenFOAM, and code and cases are made publicly available.
 }
 
 
@@ -468,6 +472,7 @@ The current procedure is implemented and publicly shared in the solids4foam tool
 
 \hl{Comment: we have two implementations of segregated: native OpenFOAM (solves Eqs 16-18) and PETSc SNES (solves Eq 15)}
 \hl{Do we need to comment on this? Maybe we should use only PETSc SNES for a fair comparison}
+\hl{Or we could use both on the verification case and then stick with just one afterwards}
 
 
 
@@ -476,7 +481,7 @@ The current procedure is implemented and publicly shared in the solids4foam tool
 \label{sec:JFNK_alg}
 %%--------------------------------------------------------------------------------------------------------------------%%
 
-\hl{cite KnollKeyes2004}
+%\hl{cite KnollKeyes2004}
 
 As noted in the introduction, the Jacobian-free Newton-Krylov avoids the need to construct the Jacobian matrix explicitly by approximating its action on a solution vector using the finite difference method, repeated here:
 \begin{eqnarray} \label{eq:JF}
@@ -536,9 +541,9 @@ Concretely, the preconditioner needs to approximately solve the linear system $\
 %\hl{3}
 %- we use approx J to form precon
 %- many precon used in lit, we will consider ILU(N) and MG, where MG is expected to be better, but also LU since direct solvers are popular in FE solid mechanics
-In the current work, we proposed to use the compact stencil approximate Jacobian from the segregated algorithm $\tilde{\bb{J}}$ as the preconditioning matrix $\bb{P}$ for the preconditioned Jacobian-free Newton-Krylov method.
+In the current work, we proposed to use the compact-stencil approximate Jacobian from the segregated algorithm $\tilde{\bb{J}}$ as the preconditioning matrix $\bb{P}$ for the preconditioned Jacobian-free Newton-Krylov method.
 \hl{Comment on literature: used before but not yet for solids}.
-This preconditioning approach can be considered as a "physics-based" preconditioner in the classifications of \cite{Knoll}.
+This preconditioning approach can be considered as a ``physics-based" preconditioner in the classifications of \cite{Knoll}.
 The approach is conceptually similar to an approximation of the Jacobian of a higher-order advection scheme by a compact-stencil lower-order upwind scheme.
 A benefit of the proposed approach is that existing segregated frameworks can re-use their existing discretisation and storage implementations.
 Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for forming this preconditioning matrix and a procedure for explicitly evaluating the residual.
@@ -558,19 +563,19 @@ In this work, three preconditioners are considered:
 
 
 %\hl{4 - globalisation}
-A challenge with Newton-type methods, including Jacobian-free versions, is convergence can be poor when far from the true solution, and divergence is often possible.
+A challenge with Newton-type methods, including Jacobian-free versions, is convergence can be poor when far from the true solution, and divergence is often a real possibility.
 Globalisation refers to steering an initial solution towards the quadratic convergence range of the Newton method.
 Several strategies are possible, and it is common to combine approaches \cite{Knoell2004}.
 In the current work, a line search procedure is used to select the $\alpha$ parameter in the solution update step (the second line in Equations \ref{eq:NewtonRaphson}).
 Line search methods assume the Newton update direction is correction and aim to find a scalar $s > 0$ that decreases the residual $\bb{R}(\bb{u}_k + s \delta \bb{u}) < \bb{R}(\bb{u}_k)$.
 The scalar s is typically $\leq 1$, but extrapolation ($>1$) is also possible for accelerating convergence, albeit at the expense of robustness.
 
-In addition to a line search approach, a \emph{transient continuation} globalisation approach is used, where a prediction for the solution (displacement) field at time $t + \Delta t$ is performed at the start of a new time step:
+In addition to a line search approach, a \emph{transient continuation} globalisation approach is used in the current work, where a prediction for the solution (displacement) field at time $t + \Delta t$ is performed at the start of a new time step, based on a truncated second-order Taylor series expansion:
 \begin{eqnarray} \label{eq:predictor}
 	\bb{u}_{t+\Delta t} = \bb{u}_t + \Delta t \left(\frac{\partial \bb{u}}{\partial t}\right)_t + \frac{1}{2} \Delta t^2 \left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)_t
 \end{eqnarray}
 where $\Delta t$ is the time increment (assumed constant here), $\left(\frac{\partial \bb{u}}{\partial t}\right)_t$ is the velocity at time $t$, and $\left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)_t$ is the acceleration at time $t$.
-In this way, for highly nonlinear problems, the user can decrease the time step $\Delta$ as a globalisation approach to improve the performance of the Newton method.
+In this way, for highly nonlinear problems, the user can decrease the time step size $\Delta t$ as a globalisation approach to improve the performance of the Newton method.
 The predictor step in Equation \ref{eq:predictor} has been chosen to be consistent with the assumed discretisation of the temporal term in the governing equation; that is, the second order backwards scheme is assumed.
 
 
@@ -581,7 +586,7 @@ A final comment on the Jacobian-free Newton-Krylov solution algorithm is the pot
 Here, oversolving refers to solving the linear system to too tight a tolerance during the early Newton iterations, essentially wasting time when the solution is far from the true solution.
 In addition, some authors \cite{See164_and_176_in_Knoll2004} have shown Newton convergence to be worse when the earlier iterations are solved to too tight a tolerance.
 The concept of oversolving also applies to segregated solution procedures and has been well-known since the early work of Demird\v{z}i\'{c} and co-workers \cite{Demirdzic}, where the residuals are typically reduced by one order of magnitude in the inner linear system.
-The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}.
+The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}. \hl{Check: do we examine this?}
 
 
 %Knoll2004:
@@ -629,30 +634,94 @@ The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finit
 %	- effect of GMRES "restart": Knoll shows that lower restarts can be used with a better preconditioner
 %- mesh types: uniform mesh vs large gradients in refinement; structured vs unstructured
 
-WIP
+This section assesses the performance of the proposed Jacobian-free Newton-Krylov solution approach and several benchmark cases.
+The cases have been chosen to exhibit a variety of characteristics in terms of
+\begin{itemize}
+	\item Geometric dimension (2-D vs. 3-D),
+	\item Geometric nonlinearity (small strain vs. large strain)
+	\item Statics vs. dynamics, and
+	\item Material behaviour (elasticity, elastoplasticity, hyperelasticity).
+\end{itemize}
+
+In addition, through the analysis of the benchmark cases above, the effect of several parameters will be examined, including the mesh types, Rhie-Chow stabilisation scaling, preconditioner choices, linear solver settings, the effect of globalisation strategies, and multi-CPU-core parallelisation.
+The performance of the Jacobian-free Newton-Krylov algorithm is compared with that of the segregated algorithm in terms of computational time and memory requirements.
+Metrics from a commercial finite element software (Abaqus) are included for reference \hl{ask Dylan to run Abaqus cases once we have our results}.
+
+The presented analyses aim to be extensive; however, they are not exhaustive.
+Several common features of modern solid mechanics procedures, including contact mechanics and incompressibility, where mixed formulations are required, are left for future work.
+
 
 %%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Benchmark Cases}
+\subsection{Description of the Selected Benchmark Cases}
 %%--------------------------------------------------------------------------------------------------------------------%%
 
-WIP
+\hl{Here, for the selected 4-6 cases, we should describe:}
+\hl{- geometry (+ image) and meshes (maybe image of one type of mesh)}
+\hl{- material properties}
+\hl{- loading conditions}
+
+\hl{I suggest we aim to keep the descriptions above concise}
+\hl{we can use tables where appropriate and can include the loading conditions in the geometry figure}
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Accuracy and Order of Accuracy Verification}
+%%--------------------------------------------------------------------------------------------------------------------%%
+
+\hl{This should show that JFNK does not affect the answers: one case is fine}
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Time and Memory Requirements}
+%%--------------------------------------------------------------------------------------------------------------------%%
+
+\hl{Present a table of time and memory for meshes and cases}
+
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Effect of XXXX}
+%%--------------------------------------------------------------------------------------------------------------------%%
+
+\hl{There are many parameters we could examine; here are ideas}
+\begin{itemize}
+	\item \textbf{Mesh types}: tet, hex, poly. MAYBE. We would pick one case and show its timings and memory (and maybe compare residual convergence) for tet (Gmsh is a good option), hex and poly (Gmsh + polyDualMesh, or maybe Fluent?).
+	 Alternatively, we can use different meshes for different cases in the "time and memory requirements" section, e.g. ellipticPlate could use hex, but narrowTmember uses tet. However, then it would not be clear if the differences come from the cases or the mesh.
+	\item \textbf{Rhie-Chow stabilisation scaling}: MAYBE. from a quick check, the value of $s$ greatly affects the convergence of the linear solver: $s=1$ shows good convergence, $s=0.1$ is poor convergence. It might be a nice insight to show that smoothing is equally important for the linear solver and the solution stability.
+	\item \textbf{Preconditioner choices}: YES: compare ILU, LU, and multigrid. This should be easy to do. We can use multigrid for all other sections (I think it will be the best), but here, we can show the differences (time and memory) for some or all of the cases and mesh densities.
+	\item \textbf{Linear solver settings}: MAYBE: In GMRES, we must choose the value of the "restarts" parameter; the default in PETSc of 30 does not always seem good enough (I have been setting it to 100). We could show its affect on one case. I think the optimal choice is linked with the choice of preconditioner (a better preconditioner means we can use a small restart value) so maybe we include this with the "preconditioner choices" section.
+	\item \textbf{Linear solver oversolving}: MAYBE: this can also be considered a linear solver setting. For segregated, we always use a relative tolerance of 0.1, but initial tests for JFNK show that 0.1 is too loose and 1e-3 seems better, although maybe there is no difference with using 1e-6.
+	\item \textbf{The effect of globalisation strategies}: MAYBE: we could simply say that we use line search and a predictor step, or we could show their effect. Maybe pick one or more cases
+	\item \textbf{Multi-CPU-core parallelisation}: YES: final sub-section
+	\item \textbf{Something else?}
+\end{itemize}
+
+\hl{Let's prioritise these and complete the first few. I have added my thoughts above in CAPITALS.}
+
+
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Parallelisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-From \cite{Knoll2004}:
+
+\hl{Here, for one or more cases, we should show:}
+\hl{- strong scaling: largest mesh, speed vs number of cores: I can use Meluxina}
+\hl{- (optional) weak scaling: time vs number of cores as we keep the work-per-core constant}
+
+
+Comments from \cite{Knoll2004}:
 "The first is a scalable implementation, in the sense that time per iteration is reduced in inverse proportion to the number of processors (strong scaling), or that time per iteration is constant as problem size and processor number are scaled proportionally (weak scaling). The second is good per processor performance on contemporary cache-based microprocessors. The third is algorithmic scalability, in the sense that the number of iterations to convergence does not grow with increased numbers of processors (or problem size). The third factor arises because the requirement of a scalable implementation generally forces parameterized changes in the algorithm as the number of processors grows. If the convergence is allowed to degrade, however, the overall execution is not scalable, and this must be countered algorithmically."
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions} \label{sec:conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-WIP
-
-The main conclusions of the work are:
+In the current work, a Jacobian-free Newton-Krylov solution algorithm has been proposed for solid mechanics problems discretised using the cell-centred finite volume method.
+A compact-stencil discretisation of the diffusion term is proposed as the preconditioner matrix, allowing a straightforward extension of existing segregated solution frameworks.
+The key findings of the work are:
 \begin{itemize}
-	\item WIP
-	\item WIP 
+	\item Main results
+	\item Main important choices
+	\item How it compares to segregated methods and FE (Abaqus)
 \end{itemize}
 
 
@@ -663,25 +732,25 @@ The main conclusions of the work are:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bmhead{Acknowledgments}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-This work has emanated from research conducted with the financial support of/supported in part by a grant from Science Foundation Ireland (SFI) under Grant number {RC2302\_2}.
-Philip Cardiff gratefully acknowledges financial support from the Irish Research Council through the Laureate program, grant number IRCLA/2017/45, and the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme (Grant agreement No. 101088740).
-Vikram Pakrashi would also like to acknowledge FlowDyn RDD/966 and SiSDATA EAPA\_0040/2022.
-Additionally, the authors want to acknowledge project affiliates, Bekaert, through the Bekaert University Technology Centre (UTC) at University College Dublin (www.ucd.ie/bekaert), I-Form, funded by SFI Grant Number 16/RC/3872, co-funded under European Regional Development Fund and by I-Form industry partners, NexSys, funded by SFI Grant Number 21/SPP/3756, and the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie). Finally, part of this work has been carried out using the UCD ResearchIT Sonic cluster funded by UCD IT Services and the UCD Research Office.
+This project has received funding from the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme (Grant Agreement No. 101088740).
+Financial support is gratefully acknowledged from the Irish Research Council through the Laureate programme, grant number IRCLA/2017/45, from Bekaert through the University Technology Centre (UTC phases I and II) at UCD (www.ucd.ie/bekaert), from I-Form, funded by Science Foundation Ireland (SFI) Grant Numbers 16/RC/3872 and {RC2302\_2}, co-funded under European Regional Development Fund and by I-Form industry partners, and from NexSys, funded by SFI Grant Number 21/SPP/3756.
+Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie), and part of this work has been carried out using the UCD ResearchIT Sonic cluster which was funded by UCD IT Services and the UCD Research Office.
+\hl{Ivan: add any additional acknowledgements here}
 
 
 
 \newpage
 
-\begin{appendices}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{WIP} \label{app:one}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-WIP
-
-
-
-\end{appendices}
+%\begin{appendices}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{WIP} \label{app:one}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%WIP
+%
+%
+%
+%\end{appendices}
 
 
 \bibliography{bibliography}% common bib file
