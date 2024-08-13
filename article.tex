@@ -153,7 +153,7 @@ Jacobian-free Newton-Krylov methods circumvent the need for the Jacobian matrix 
 Instead, only the action of the Jacobian matrix on a solution-type vector is required.
 The key step in Jacobian-free Newton-Krylov methods is the approximation of products between the Jacobian matrix and a vector using the finite difference method; that is
 \begin{eqnarray}
-	\mathbf{J} \mathbf{v} \approx \frac{\mathbf{F}(\mathbf{x} + \epsilon \mathbf{v}) - \mathbf{F}(\mathbf{x})}{\epsilon}
+	\bb{J} \bb{v} \approx \frac{\bb{F}(\bb{x} + \epsilon \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
 \end{eqnarray}
 where $\mathbf{J}$ is the Jacobian matrix, $\mathbf{x}$ is the current solution vector (e.g. nodal displacements), $\mathbf{v}$ is a vector (e.g., from a Krylov subspace), and $\epsilon$ is a small scalar perturbation.
 %Determining the appropriate value for $\epsilon$ requires balancing the truncation error of the finite difference approximation and round-off (numerical precision) error.
@@ -477,41 +477,102 @@ Nonetheless, both approaches are equivalent and neither formulation displays sup
 
 \hl{cite KnollKeyes2004}
 
-As noted in the introduction, the Jacobian-free Newton-Krylov avoids the need to construct the Jacobian matrix explicitly by approximating its action on a solution vector using the finite difference method.
-Nonetheless, the literature indicates that the choice of preconditioner for the inner linearised system has a major impact on the efficiency and robustness of the overall solution procedure.
-
-The purpose of preconditioning the JFNK method is to reduce the number of GMRES (Krylov) iterations
-
-Left or right preconditioning, may be employed in a Jacobian-free context, and there are pros and cons to both.
-Using right preconditioning, one solves
-\begin{eqnarray}
-(\mathcal{J} \mathcal{P}^{-1}) (\mathcal{P} \delta \bb{u}) = -\mathcal{R}(\bb{u})
+As noted in the introduction, the Jacobian-free Newton-Krylov avoids the need to construct the Jacobian matrix explicitly by approximating its action on a solution vector using the finite difference method, repeated here:
+\begin{eqnarray} \label{eq:JF}
+	\bb{J} \bb{v} \approx \frac{\bb{F}(\bb{x} + \epsilon \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
 \end{eqnarray}
-Thus, while we may refer to the matrix P, operationally the algorithm only requires the action of $P^{-1}$ on a vector.
 
-\hl{It would be better if J and P were bold}
-
-Preconditioned JFNK is:
+%\hl{1}
+%Derive Jv for 2x2 system.
+The derivation of this approximation can be shown for a $2 \times 2$ system as \cite{Knoll20024}:
 \begin{eqnarray}
-	\mathbf{J} \bb{P}^{-1} \mathbf{v}
-	\approx \frac{\mathbf{F}(\mathbf{x} + \epsilon \bb{P}^{-1} \mathbf{v}) - \mathbf{F}(\mathbf{x})}{\epsilon}
+	\frac{\mathbf{F}(\mathbf{x} + \epsilon \mathbf{v}) - \mathbf{F}(\mathbf{x})}{\epsilon}
+	&=&
+	\begin{pmatrix}
+	\frac{F_1 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_1 (x_1, x_2)}{\epsilon}\\
+	\frac{F_2 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_2 (x_1, x_2)}{\epsilon}
+	\end{pmatrix} \notag \\
+	&\approx&
+	\begin{pmatrix}
+	\frac{F_1 (x_1,x_2) + \epsilon v_1 \frac{\partial F_1}{\partial u_1} + \epsilon v_2 \frac{\partial F_1}{\partial u_2} - F_1 (x_1, x_2)}{\epsilon}\\
+	\frac{F_2 (x_1, x_2) + \epsilon v_1 \frac{\partial F_2}{\partial u_1} + \epsilon v_2 \frac{\partial F_2}{\partial u_2}  - F_2 (x_1, x_2)}{\epsilon}
+	\end{pmatrix} \notag \\
+	&\approx&
+	\begin{pmatrix}
+	v_1 \frac{\partial F_1}{\partial u_1} +  v_2 \frac{\partial F_1}{\partial u_2} \\
+	v_1 \frac{\partial F_2}{\partial u_1} + v_2 \frac{\partial F_2}{\partial u_2}
+	\end{pmatrix} \notag \\
+	&\approx&
+	\bb{J} \bb{v}
 \end{eqnarray}
-Preconditioner needs to solve $\bb{y} = \bb{P}^{-1} \mathbf{v}$.
-We will consider ILU(N), LU and linear multigrid.
-Multigrid has been found to be a good preconditioner for JFNK \cite{Knoll}; in addition:
-"It is also demonstrated that the algorithmic simplifications which may result in loss of convergence for multigrid as a solver (such as piecewise constant prolongation in place of piecewise linear prolongation) have a much weaker effect when multigrid is the preconditioner."
+where a first-order truncated Taylor series expansion about $\bb{u}$ was used to approximate $\bb{F} (\bb{x} + \epsilon \bb{v})$.
+%\hl{1b}
+%Choosing $\epsilon$ is important.
+As noted above, choosing an appropriate value for $\epsilon$ is non-trivial, and care must be taken to balance truncation error (reduced by decreasing $\epsilon$) and round-off error (increased by decreasing $\epsilon$).
 
-Derive Jv for 2x2 system.
 
-Choosing $\epsilon$ is important.
+%\hl{2}
+%- preconditioner => important
+%- changes the JFNK approx.
+%- precon affects the JF approx
 
-Our preconditioning approach can be considered as a "physics-based" preconditioner as classified by \cite{Knoll}:
-"The motivation behind this approach is that there exist numerous, legacy algorithms to solve nonlinear systems, both IVPs and BVPs. These algorithms typically were developed with some insight into the time scales or physical behavior of the problem. As a benefit of this insight, a reduced implicit system, or a sequence of segregated explicit or implicit systems may be solved in place of the fully coupled system. "
+%The literature indicates that the choice of preconditioner for the inner linearised system has a major impact on the efficiency and robustness of the overall solution procedure.
+The purpose of preconditioning the Jacobian-free Newton-Krylov method is to reduce the number of inner linear solver iterations.
+In the current work, the GMRES linear solver is used for the inner system.
+%Left or right preconditioning, may be employed in a Jacobian-free context, and there are pros and cons to both.
+Using right preconditioning, the finite difference approximation of Equation \ref{eq:JF} becomes
+\begin{eqnarray}
+%	(\bb{J} \bb{P}^{-1}) (\bb{P} \delta \bb{u}) = -\bb{R}(\bb{u})
+	\bb{J} \bb{P}^{-1} \bb{v}
+	\approx
+	\frac{\bb{F}(\bb{x} + \epsilon \bb{P}^{-1} \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
+\end{eqnarray}
+where $\bb{P}$ is the preconditioning matrix or process.
+In practice, only the action of $\bb{P}^{-1}$ on a vector is required, and the $\bb{P}^{-1}$ may not be explicitly formed.
+Concretely, the preconditioner needs to approximately solve the linear system $\bb{y} = \bb{P}^{-1} \bb{v}$.
+%Thus, while we may refer to the matrix P, operationally the algorithm only requires the action of $P^{-1}$ on a vector.
+
+%\hl{3}
+%- we use approx J to form precon
+%- many precon used in lit, we will consider ILU(N) and MG, where MG is expected to be better, but also LU since direct solvers are popular in FE solid mechanics
+In the current work, we proposed to use the compact stencil approximate Jacobian from the segregated algorithm $\tilde{\bb{J}}$ as the preconditioning matrix $\bb{P}$ for the preconditioned Jacobian-free Newton-Krylov method.
+\hl{Comment on literature: used before but not yet for solids}.
+This preconditioning approach can be considered as a "physics-based" preconditioner in the classifications of \cite{Knoll}.
+The approach is conceptually similar to an approximation of the Jacobian of a higher-order advection scheme by a compact-stencil lower-order upwind scheme.
+A benefit of the proposed approach is that existing segregated frameworks can re-use their existing discretisation and storage implementations.
+Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for forming this preconditioning matrix and a procedure for explicitly evaluating the residual.
+Both routines are easily implemented in an existing segregated framework.
+The only additional required procedure is an interface to an existing Jacobian-free Newton-Krylov implementation.
+%"The motivation behind this approach is that there exist numerous, legacy algorithms to solve nonlinear systems, both IVPs and BVPs. These algorithms typically were developed with some insight into the time scales or physical behavior of the problem. As a benefit of this insight, a reduced implicit system, or a sequence of segregated explicit or implicit systems may be solved in place of the fully coupled system. "
+In the current work, the PETSc toolbox \cite{PETSc} is used as the nonlinear solver, where driven by a finite volume solver in the OpenFOAM toolbox \cite{OF}.
+
+Several preconditioners are available in the literature, incomplete Cholesky/LU being popular; however, multigrid methods offer the greatest potential for large-scale problems.
+\citet{Knoll2004} noted that algorithmic simplifications within a multigrid procedure, which may result in loss of convergence for multigrid as a solver, have a much weaker effect when multigrid is the preconditioner.
+In this work, three preconditioners are considered:
+\begin{enumerate}
+	\item ILU(N): incomplete LU with fill-in. The segregated solver uses ILU(0), that is, ILU with zero fill-in.
+	\item Multigrid: here, we use the HYPRE Boomerang multigrid implementation.
+	\item LU: for comparison, we consider a direct LU decomposition solver as the preconditioner.
+\end{enumerate}
+
+
+\hl{4 - globalisation}
+
+Globalisation => continuation => predictor step.
+
+At the start of a new time step, a prediction for the displacement field at time $t + \Delta t$ is performed as:
+\begin{eqnarray}
+	\bb{u}_{t+\Delta t} = \bb{u}_t + \Delta t \left(\frac{\partial \bb{u}}{\partial t}\right)_t + \frac{1}{2} \Delta t^2 \left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)_t
+\end{eqnarray}
+where $\Delta t$ is the time increment (assumed constant here), $\left(\frac{\partial \bb{u}}{\partial t}\right)_t$ is the velocity at time $t$, and $\left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)_t$ is the acceleration at time $t$.
+
+
+\hl{5 - oversolving}
 
 Comment on over-solving => also applies to the segregated system.
 This could be a parameter we look at.
 
-Globalisation => continuation => predictor step.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
