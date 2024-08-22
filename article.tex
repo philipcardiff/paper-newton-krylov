@@ -1,7 +1,7 @@
 
  
-\documentclass[sn-mathphys,Numbered]{sn-jnl}% Math and Physical Sciences Reference Style
-%\documentclass[sn-mathphys,Numbered,draft]{sn-jnl}% Math and Physical Sciences Reference Style
+%\documentclass[sn-mathphys,Numbered]{sn-jnl}% Math and Physical Sciences Reference Style
+\documentclass[sn-mathphys,Numbered,draft]{sn-jnl}% Math and Physical Sciences Reference Style
 
 %%\documentclass[sn-nature]{sn-jnl}% Style for submissions to Nature Portfolio journals
 %%\documentclass[sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
@@ -193,7 +193,7 @@ Assuming small strains, the linear geometry formulation is expressed in strong i
 \begin{eqnarray} \label{eqn:momentum_lingeom}
     \int_{\Omega} \rho \frac{\partial^2 \bb{u} }{\partial t^2} \, d\Omega
     =
-    \oint_{\Gamma} \bb{n} \cdot \bb{\sigma} \,  d\Gamma
+    \oint_{\Gamma} \bb{n} \cdot \bb{\sigma}_s \,  d\Gamma
     + \int_{\Omega}  \rho \bb{g} \, d\Omega
 \end{eqnarray}
 where $\Omega$ is the volume of an arbitrary body bounded by a surface $\Gamma$ with outwards pointing normal $\bb{n}$.
@@ -245,12 +245,12 @@ For example, in the linear geometry case, the residual is given as
 \begin{eqnarray}
     \bb{R}(\bb{u})
     \;=\;
-    \oint_{\Gamma} \bb{n} \cdot \bb{\sigma}(\bb{u}) \,  d\Gamma
+    \oint_{\Gamma} \bb{n} \cdot \bb{\sigma}_s(\bb{u}) \,  d\Gamma
     + \int_{\Omega}  \rho \bb{g} \, d\Omega
     -  \int_{\Omega} \rho \frac{\partial^2 \bb{u} }{\partial t^2} \, d\Omega
     \;=\; \bb{0}
 \end{eqnarray}
-where the dependence of the stress tensor on the solution vector is made explicitly clear: $\bb{\sigma}(\bb{u})$.
+where the dependence of the stress tensor on the solution vector is made explicitly clear: $\bb{\sigma}_s(\bb{u})$.
 
 
 
@@ -566,9 +566,9 @@ In this work, three preconditioners are considered:
 A challenge with Newton-type methods, including Jacobian-free versions, is convergence can be poor when far from the true solution, and divergence is often a real possibility.
 Globalisation refers to steering an initial solution towards the quadratic convergence range of the Newton method.
 Several strategies are possible, and it is common to combine approaches \cite{Knoell2004}.
-In the current work, a line search procedure is used to select the $\alpha$ parameter in the solution update step (the second line in Equations \ref{eq:NewtonRaphson}).
+In the current work, a line search procedure is used to select the $s$ parameter in the solution update step (the second line in Equations \ref{eq:NewtonRaphson}).
 Line search methods assume the Newton update direction is correction and aim to find a scalar $s > 0$ that decreases the residual $\bb{R}(\bb{u}_k + s \delta \bb{u}) < \bb{R}(\bb{u}_k)$.
-The scalar s is typically $\leq 1$, but extrapolation ($>1$) is also possible for accelerating convergence, albeit at the expense of robustness.
+The scalar $s$ is typically $\leq 1$, but extrapolation ($>1$) is also possible for accelerating convergence, albeit at the expense of robustness.
 
 In addition to a line search approach, a \emph{transient continuation} globalisation approach is used in the current work, where a prediction for the solution (displacement) field at time $t + \Delta t$ is performed at the start of a new time step, based on a truncated second-order Taylor series expansion:
 \begin{eqnarray} \label{eq:predictor}
@@ -615,9 +615,11 @@ The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finit
 % Possible cases
 % Compare seg and JFNK; maybe also Abaqus, just for reference
 % Show times/results for successively refined meshes
-%- cantilever
+%- cantilever -> dynamic 3-D from Zeljko paper
 %- narrowTmember
 %- ellipticPlate
+%- spherical cavity - uniaxial, static
+%- spherical cavity - dynamic, pressure
 %- Other
 %	- cooks membrane (small or large strain)
 %	- necking -> Andrew's flatBar 3-D case, maybe even with his damage model?
@@ -634,7 +636,7 @@ The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finit
 %	- effect of GMRES "restart": Knoll shows that lower restarts can be used with a better preconditioner
 %- mesh types: uniform mesh vs large gradients in refinement; structured vs unstructured
 
-This section assesses the performance of the proposed Jacobian-free Newton-Krylov solution approach and several benchmark cases.
+This section assesses the performance of the proposed Jacobian-free Newton-Krylov solution approach on several benchmark cases.
 The cases have been chosen to exhibit a variety of characteristics in terms of
 \begin{itemize}
 	\item Geometric dimension (2-D vs. 3-D),
@@ -647,73 +649,207 @@ In addition, through the analysis of the benchmark cases above, the effect of se
 The performance of the Jacobian-free Newton-Krylov algorithm is compared with that of the segregated algorithm in terms of computational time and memory requirements.
 Metrics from a commercial finite element software (Abaqus) are included for reference \hl{ask Dylan to run Abaqus cases once we have our results}.
 
-The presented analyses aim to be extensive; however, they are not exhaustive.
-Several common features of modern solid mechanics procedures, including contact mechanics and incompressibility, where mixed formulations are required, are left for future work.
+The presented analyses aim to be extensive but not exhaustive.
+Several common features of modern solid mechanics procedures are left for future work, including contact mechanics and incompressibility. %, where mixed formulations are required. 
+
+The remainder of this section is structured as follows:
+the order of accuracy of the proposed discretisation is assessed on a 3-D linear elastic case with a known analytical solution.
+This demonstrates that the predictions are unaffected by the solution algorithm choice.
+Subsequently, the remaining sub-sections assess the effect of several key parameters on the Jacobian-free Newton Krylov approach, including \hl{XXX}.
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Description of the Selected Benchmark Cases}
 %%--------------------------------------------------------------------------------------------------------------------%%
 
-\hl{Here, for the selected 4-6 cases, we should describe:}
-\hl{- geometry (+ image) and meshes (maybe image of one type of mesh)}
-\hl{- material properties}
-\hl{- loading conditions}
+%\hl{Here, for the selected 4-6 cases, we should describe:}
+%\hl{- geometry (+ image) and meshes (maybe image of one type of mesh)}
+%\hl{- material properties}
+%\hl{- loading conditions}
+%\hl{I suggest we aim to keep the descriptions above concise}
+%\hl{we can use tables where appropriate and can include the loading conditions in the geometry figure}
 
-\hl{I suggest we aim to keep the descriptions above concise}
-\hl{we can use tables where appropriate and can include the loading conditions in the geometry figure}
+This section concisely describes the benchmark cases examined in subsequent sections.
+Details of the geometry, mesh, loading conditions, material properties, and relevant numerical settings are given so that the results can be reproduced.
+ 
+\paragraph{Case 1: Spherical Cavity in an Infinite Solid Subjected to Remote Stress}
+This 3-D case consists of a spherical cavity with radius $a = 0.2$ m (Figure \ref{fig:spherical_cavity}) in an infinite, isotropic linear elastic solid ($E = 200$ GPa, $\nu = 0.3$).
+Far from the cavity, the solid is subjected to a tensile stress $\sigma_{zz} = T = 1$ MPa, with all other stress components zero.
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity.pdf} 
+   \caption{Spherical cavity case geometry, mesh and loading conditions \hl{geometry + loading conditions + maybe an example mesh. Show x/y/z axes}}
+   \label{fig:spherical_cavity}
+\end{figure}
+The analytical expressions for the stress distributions around the cavity, first derived by \cite{Southwell1926}, are
+\begin{eqnarray}
+	\sigma_{rr} &=&
+		\frac{T}{14 - 10\nu} \frac{a^3}{R^3}
+		\left[ 9 - 15\nu - 12 \frac{a^2}{R^2}  - \frac{r^2}{R^2} \left( 72 - 15\nu - 105 \frac{a^2}{R^2} \right) + 15 \frac{r^4}{R^4} \left( 5 - 7 \frac{a^2}{R^2} \right) \right], \\
+	\sigma_{\theta\theta} &=&
+		\frac{T}{14 - 10\nu} \frac{a^3}{R^3}
+		\left[ 9 - 15\nu - 12 \frac{a^2}{R^2}  - 15 \frac{r^2}{R^2} \left( 1 - 2\nu - \frac{a^2}{R^2} \right) \right], \\
+	\sigma_{zz} &=&
+		T \left[ 1 - \frac{1}{14 - 10\nu} \frac{a^3}{R^3} \left\{ 38 - 10\nu - 24 \frac{a^2}{R^2} 
+		- \frac{r^2}{R^2} \left( 117 - 15\nu - 120 \frac{a^2}{R^2} \right)
+		+ 15 \frac{r^4}{R^4} \left( 5 - 7 \frac{a^2}{R^2} \right) \right\} \right], \notag \\
+		\\
+	\sigma_{zr} &=&
+	\frac{T}{14 - 10\nu} \frac{a^3 z r}{R^5}
+	\left[ -3(19 - 5\nu) + 60 \frac{a^2}{R^2} + 15 \frac{r^2}{R^2} \left( 5 - 7 \frac{a^2}{R^2} \right)  \right].
+\end{eqnarray}
+where $r^2 = x^2 + y^2$ is the cylinderical radial coordinate, $R^2 = r^2 + z^2$ is the spherical radial coodinate, and $x$, $y$, $z$ are the Cartesian coordinates.
+
+The solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube centred on the sphere.
+The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
+Unstructured polyhedral meshes of varying densities are employed (\hl{state average cell widths, and number of cells in each mesh}).
+A coarse mesh is shown in Figure \ref{fig:spherical_cavity}.
+Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{Gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
+
 
 %%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Accuracy and Order of Accuracy Verification}
+\subsection{Order of Accuracy Verification}
 %%--------------------------------------------------------------------------------------------------------------------%%
 
-\hl{This should show that JFNK does not affect the answers: one case is fine}
+This section assesses the order of accuracy of the discretisation using the spherical cavity case (case 1).
+A secondary purpose is to demonstrate that the choice of solution algorithm (Jacobian-free Newton-Krylov vs segregated) does not affect the predictions, assuming iteration errors are small.
 
-The "Local Stresses Around a Spherical Cavity" case from Timoshenko could be suitable:
-\begin{itemize}
-	\item spherical cavity in an infinite solid subjected to distant uniaxial stress in the Z direction (it is like a 3-D version of plateHole) 
-	\item Analytical solution for the stresses are given in Timoshenko and Goodier, 1986, Section 122. I think it is straight-forward to implement them as a function object. Let me check.
-	\item The solution is 2-D; it does vary around the hole when looking in the +/-Z direction, but we can model one eight of it with three symmetry planes to allow us to verify the solver in 3-D.
-	\item It is more interesting than plateHole; I used this case in my PhD but I only plotted the stress along a line and I did not implement the far-field analytical stress conditions.
-	\item Compared with plateHole, the stresses decrease more rapidly away from the cavity in this case, with higher stress gradients. It is presumably a more difficult test for the solver's accuracy.
-	\item The mesh should be easy to create, e.g. use Gmsh to make an unstructured tet mesh and optionally a poly mesh via polyDualMesh, but also cfMesh and snappy. Let's get one mesh working first.
-	\item We can plot the average and max errors in the stresses (e.g. in sigma x or sigma r) as the mesh is refined.
-	\item A disadvantage is I am do not know of the analytical solution for the displacement field, although ChatGPT says it exists and is called the "Michell solution"; I think it is OK without this; we can check later.
-	\item MMS would also be suitable, but then we would need to implement the source term
-\end{itemize}
+The predicted axial ($\sigma_{zz}$) stress distribution is shown in Figure \ref{fig:spherical_cavity_stress}, where the peak stress ($2.xxx$ MPa) is just over twice the applied stress ($1$ MPa).
+This is in contrast to the classic 2-D circular hole in an infinite plate case, which exhibits a stress concentration factor of 3.
+A further difference with the 2-D circular hole case is that the local stresses more quickly return to the distant stress state as $R$ increases, with the local stresses being proportional to $\frac{1}{R^3}$ in the 3-D case and  $\frac{1}{R^2}$ in the 2-D case.
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_stress.pdf} 
+   \caption{Spherical cavity case: $\sigma_{zz}$ stress distribution \hl{use Reflect in ParaView to make a nice image}}
+   \label{fig:spherical_cavity_stress}
+\end{figure}
+
+Figure \ref{fig:spherical_cavity_accuracy} shows the discretisation errors ($L_2$ and $L_\infty$) in $\sigma_{zz}$ as a function of the average cell width.
+The errors can be seen to \hl{describe on the average/max error trends in graphs}.
+\hl{Comment on the order of accuracy: does it show what was expected or not?}
+\hl{Conclude 1: order of accuracy of the discretisation is XXX}
+\hl{Conclude 2: solution algorithm does not affect the answer}
+\hl{There is no need to show segregated results if they are the same: just state that they are the same}
+\hl{There is no need to show time and memory requirements: leave to the next section}
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_error.pdf} 
+   \caption{Spherical cavity case: discretisation error as a function of average cell width \hl{disp and stress errors if we have them}}
+   \label{fig:spherical_cavity_accuracy}
+\end{figure}
+
+\hl{Ideally, we would also show the displacement error: we could use Richardson extrapolation for this but this can be misleading}
+\hl{The displacement solution is given at} \url{http://solidmechanics.org/Text/Chapter5_4/Chapter5_4.php}
+\hl{in Sec 5.4.8, but it seems wrong (the stress zz is wrong)}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Time and Memory Requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
+This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for several cases and mesh densities.
+Time and memory requires from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
+The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
+\hl{Take care when comparing times between different hardware}
 
-\hl{Present a table of time and memory for meshes and cases}
-
-
-
-%%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Effect of XXXX}
-%%--------------------------------------------------------------------------------------------------------------------%%
-
-\hl{There are many parameters we could examine; here are ideas}
+The time and memory requirements are examined for \hl{four} cases (\hl{pick 4-5 cases with different characteristics)}:
 \begin{itemize}
-	\item \textbf{Mesh types}: tet, hex, poly. MAYBE. We would pick one case and show its timings and memory (and maybe compare residual convergence) for tet (Gmsh is a good option), hex and poly (Gmsh + polyDualMesh, or maybe Fluent?).
-	 Alternatively, we can use different meshes for different cases in the "time and memory requirements" section, e.g. ellipticPlate could use hex, but narrowTmember uses tet. However, then it would not be clear if the differences come from the cases or the mesh.
-	\item \textbf{Rhie-Chow stabilisation scaling}: MAYBE. from a quick check, the value of $s$ greatly affects the convergence of the linear solver: $s=1$ shows good convergence, $s=0.1$ is poor convergence. It might be a nice insight to show that smoothing is equally important for the linear solver and the solution stability.
-	\item \textbf{Preconditioner choices}: YES: compare ILU, LU, and multigrid. This should be easy to do. We can use multigrid for all other sections (I think it will be the best), but here, we can show the differences (time and memory) for some or all of the cases and mesh densities.
-	\item \textbf{Linear solver settings}: MAYBE: In GMRES, we must choose the value of the "restarts" parameter; the default in PETSc of 30 does not always seem good enough (I have been setting it to 100). We could show its affect on one case. I think the optimal choice is linked with the choice of preconditioner (a better preconditioner means we can use a small restart value) so maybe we include this with the "preconditioner choices" section.
-	\item \textbf{Linear solver oversolving}: MAYBE: this can also be considered a linear solver setting. For segregated, we always use a relative tolerance of 0.1, but initial tests for JFNK show that 0.1 is too loose and 1e-3 seems better, although maybe there is no difference with using 1e-6.
-	\item \textbf{The effect of globalisation strategies}: MAYBE: we could simply say that we use line search and a predictor step, or we could show their effect. Maybe pick one or more cases
-	\item \textbf{Multi-CPU-core parallelisation}: YES: final sub-section
-	\item \textbf{Something else?}
+	\item Spherical cavity (case 1): 3-D, static, linear elastic, unstructured polyhedral mesh;
+	\item Cook's membrane (case 2): 2-D, static, finite strains, elastoplastic, structured quadrilaterial mesh \hl{good option};
+	\item Idealised ventricle (Case 3): 3-D, static, finite strains, hyperelasticity, structured hexahedral and prism mesh \hl{good option};
+	\item \hl{ZZZ} (case 4): \hl{dynamic case}; dynamic 3-D beam
+	\item \hl{these four cases cover 2-D/3-D, static/dynamic, elastic/elastoplastic, small/large strain, mesh types}: \hl{maybe add another 1 more with a different combination}
 \end{itemize}
 
-\hl{Let's prioritise these and complete the first few. I have added my thoughts above in CAPITALS.}
+Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage according to the GNU time utility.
+All times and memory usage were generated using \hl{hardware details} using one CPU core.
+\hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy if any}.
+Multi-CPU-core parallelisation is examiend in Section \ref{sec:parallelisation}.
+\begin{table}[htb]
+	\centering
+		\begin{tabular}{llll}
+			\hline
+			Case & Number of Cells & Time (in s) & Memory (in MB) \\
+			\hline 
+			Spherical cavity & 1,234 & 345 & 1,234  \\
+			Spherical cavity & 12,345 & 345 & 1,234  \\
+			Spherical cavity & 123,456 & 345 & 1,234  \\
+			Case 2, etc & 123,456 & 345 & 1,234  \\
+			Case 3, etc & 123,456 & 345 & 1,234  \\
+			Case 4, etc & 123,456 & 345 & 1,234  \\
+			\hline
+		\end{tabular}
+	\caption{Execution times and maximum memory usage}
+	\label{tab:times_memory}
+\end{table}
+
+To highlight the effect of hardware specification, Table \ref{tab:times_memory_spec2} lists the time and memory usage for a different system: \hl{e.g. Mac M2/M3 seem to give excellent performance vs Meluxina AMD EPYC cores}.
+\hl{Describe the difference, e.g. 2-3 faster but same memory usage}
+\hl{Additional comments/insights, e.g. time trends are the same for both systems}
+\hl{We could even include multiple systems here, e.g. Mac Studio vs Meluxina AMD vs Zagreb Intel workstation vs Intel i9/i7}
+\begin{table}[htb]
+	\centering
+		\begin{tabular}{lllll}
+			\hline
+			Hardware & Case & Number of Cells & Time (in s) & Memory (in MB) \\
+			\hline 
+			Mac Studio, M2 Ultra & Spherical cavity & 1,234 & 345 & 1,234  \\
+			Mac Studio, M2 Ultra & Spherical cavity & 12,345 & 345 & 1,234  \\
+			Mac Studio, M2 Ultra & Spherical cavity & 123,456 & 345 & 1,234  \\
+			Meluxina, AMD EPYC & Spherical cavity & 1,234 & 345 & 1,234  \\
+			Meluxina, AMD EPYC & Spherical cavity & 12,345 & 345 & 1,234  \\
+			Meluxina, AMD EPYC & Spherical cavity & 123,456 & 345 & 1,234  \\
+			\hline
+		\end{tabular}
+	\caption{Execution times and maximum memory usage for \hl{Hardware Spec 2}}
+	\label{tab:times_memory_spec2}
+\end{table}
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Effect of Mesh Type}
+%%--------------------------------------------------------------------------------------------------------------------%%
+Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
+Conclusion: mesh type does or does not affect the performance.
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Effect of Rhie-Chow Stabilisation}
+%%--------------------------------------------------------------------------------------------------------------------%%
+\textbf{Rhie-Chow stabilisation scaling}: MAYBE. from a quick check, the value of $\alpha$ greatly affects the convergence of the linear solver: $s=1$ shows good convergence, $s=0.1$ is poor convergence. It might be a nice insight to show that smoothing is equally important for the linear solver and the solution stability.
+
+Pick one case and run it for several values of $\alpha$, e.g. $1$, $0.1$, $0.01$.
+Report the timings (memory is not needed) and any convergence problems.
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Linear Solver and Preditioner Choices}
+%%--------------------------------------------------------------------------------------------------------------------%%
+
+The key thing in this section is the preconditioner choice (this is a key point in the paper).
+Linear solver settings and oversolving is less important: leave these two points as optional (decide later).
+
+\textbf{Preconditioner choices}: YES: compare ILU, LU, and multigrid. This should be easy to do. We can use multigrid for all other sections (I think it will be the best), but here, we can show the differences (time and memory) for some or all of the cases and mesh densities. 
+
+\textbf{Linear solver settings}: MAYBE: In GMRES, we must choose the value of the "restarts" parameter; the default in PETSc of 30 does not always seem good enough (I have been setting it to 100). We could show its affect on one case. I think the optimal choice is linked with the choice of preconditioner (a better preconditioner means we can use a small restart value) so maybe we include this with the "preconditioner choices" section.
+
+\textbf{Linear solver oversolving}: MAYBE: this can also be considered a linear solver setting. For segregated, we always use a relative tolerance of 0.1, but initial tests for JFNK show that 0.1 is too loose and 1e-3 seems better, although maybe there is no difference with using 1e-6.
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Effect of Globalisation Strategies}
+%%--------------------------------------------------------------------------------------------------------------------%%
+
+This one is optional: decide later.
+At a minimal, we could just add a comment on the importance of this.
+As a by the way, I think the default line search in PETSc may not be the best one for JFNK.
+
+\textbf{The effect of globalisation strategies}: MAYBE: we could simply say that we use line search and a predictor step, or we could show their effect. Maybe pick one or more cases
 
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Parallelisation}
+\label{sec:parallelisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
 
 \hl{Here, for one or more cases, we should show:}
