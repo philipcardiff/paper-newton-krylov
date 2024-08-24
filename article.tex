@@ -671,6 +671,7 @@ Subsequently, the remaining sub-sections assess the effect of several key parame
 
 This section concisely describes the benchmark cases examined in subsequent sections.
 Details of the geometry, mesh, loading conditions, material properties, and relevant numerical settings are given so that the results can be reproduced.
+\hl{We may need to drop some of these cases if we have too many: case 2 and 3 are very similar (3-D, static, linear elastic)}
  
 \paragraph{Case 1: Spherical Cavity in an Infinite Solid Subjected to Remote Stress}
 This 3-D case consists of a spherical cavity with radius $a = 0.2$ m (Figure \ref{fig:spherical_cavity}) in an infinite, isotropic linear elastic solid ($E = 200$ GPa, $\nu = 0.3$).
@@ -705,6 +706,103 @@ The analytical tractions are applied at the far boundaries of the domain to miti
 Unstructured polyhedral meshes of varying densities are employed (\hl{state average cell widths, and number of cells in each mesh}).
 A coarse mesh is shown in Figure \ref{fig:spherical_cavity}.
 Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{Gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
+
+
+\paragraph{Case 2: Out-of-plane bending of an elliptic plate}
+This 3-D, static, linear elastic test case (Figure \ref{fig:elliptic_plate}) consists of a thick elliptic plate (0.6 m thick) with a centred elliptic hole, with the inner and outer ellipses given as
+\begin{eqnarray}
+	\left(\frac{x}{2}\right)^2 + \left(\frac{y}{1}\right)^2 = 1 & \text{inner ellipse} \\
+	\left(\frac{x}{3.25}\right)^2 + \left(\frac{y}{2.75}\right)^2 = 1 & \text{outer ellipse}
+\end{eqnarray}
+The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{NAFEMS}, and analysed using finite volume procedures by \citet{Demirdzic} and \citet{Cardiff2016}.
+Symmetry allows one quarter of the geometry to be simulated.
+A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
+The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
+\hl{Comment on the meshes used}.
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/elliptic_plate.pdf} 
+   \caption{Elliptic Plate case geometry, mesh and loading conditions}
+   \label{fig:elliptic_plate}
+\end{figure}
+
+
+\paragraph{Case 3: Narrow T-section component under tension}
+This case, proposed by \citet{Demirdzic1997}, consists of a narrow engineering component with a T cross-section (Figure \ref{fig:narrowTmember}).
+The case is 3-D, static, with linear elastic material behaviour.
+Symmetry allows one quarter of the geometry to be simulated.
+A constant negative pressure of 1 MPa is applied to the lower surface and the upper left surface is fully clamped.
+The Young’s modulus is $E = 210$ GPa and Poisson’s ratio is $\nu = 0.3$.
+A hole of radius $5$ mm is located at the expected stress concentration.
+\hl{Comment on the meshes}
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/narrowTmember.pdf} 
+   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
+   \label{fig:narrowTmember}
+\end{figure}
+
+
+\paragraph{Case 4: Inflation of an idealised ventricle}
+Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{Land2015} as a benchmark problem for cardiac mechanics software.
+The case is 3-D, static, with finite hyperelastic strains.
+Tthe initial geometry is defined as a truncated ellipsoid:
+\begin{eqnarray}
+	x = r_s \sin(u) \cos(v), \quad
+	y = r_s \sin(u) \sin(v), \quad
+	z = r_l \cos(u)
+\end{eqnarray}
+where on the inner (endocardial) surface $r_s =7$ mm, $r_l = 17$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{17} \right) \right]$ and $v \in \left[-\pi, \pi \right]$, while on the outer (epicardial) surface $r_s =10$ mm, $r_l = 20$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{20} \right) \right]$ and $v \in \left[-\pi, \pi \right]$.
+The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
+%Constitutive parameters: isotropic, 
+The hyperelastic material behaviour is decsribed by the transversely isotropic constitutive proposed by \citet{Guccione} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
+The chosen parameters produce isotropic behaviour.
+A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
+\hl{Comment on the meshes}
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/ventricle.pdf} 
+   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
+   \label{fig:ventricle}
+\end{figure}
+
+
+\paragraph{Case 5: Cook's membrane}
+Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
+In current work, the finite strain elastoplastic version \citep{Simo1992} is considered. \hl{We could also consider the small-strain elastic version if needed}
+The 2-D tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
+The prescribed shear traction is $\tau = 0.3125$ MPa.
+The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
+There are no body forces, and the problem is solved as statically as 2-D plane strain.
+The problem is solved as static, using 30 equally-sized loading increments.
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/cooks_membrane.pdf} 
+   \caption{Cook's membrane case geometry, mesh and loading conditions}
+   \label{fig:cooks_membrane}
+\end{figure}
+
+The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
+\begin{eqnarray}
+	\sigma_y = \sigma_Y + H\bar{\varepsilon}_p + (\sigma_{\infty} - \sigma_Y)(1- e^{-\delta\bar{\varepsilon}_p})
+\end{eqnarray}
+The plastic yielding parameters are $\sigma_Y = 0.45$ MPa, $\sigma_{\infty} = 0.715$ MPa, $\delta = 16.93$, and $H = 0.12924$ MPa, where the hardening variable $\bar{\varepsilon}_p$ corresponds to equivalent plastic strain.
+
+
+\paragraph{Case 6: Vibration of a 3-D Cantilevered Beam}
+This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \times 0.2$ cuboid column (Figure \ref{fig:dynamic_cantilever}).
+A traction $\bb{T} = \left( \frac{|\bb{T}|}{\sqrt{2}}, \frac{|\bb{T}|}{\sqrt{2}}, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
+\begin{eqnarray}
+	|\bb{T}| = \frac{\mathcal{F} E I}{A L^2} \text{ Pa}
+\end{eqnarray}
+A St.\ Venant-Kirchoff material is assumed with $E = 15.293$ MPa and $\nu = 0.3$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = 0.0001333$ m$^4$.
+The geometric and material parameters were chosen for the first natural frequency to be 1 Hz.
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/dynamic_cantilever.pdf} 
+   \caption{Vibration of a 3-D Cantilevered Beam case geometry, mesh and loading conditions}
+   \label{fig:dynamic_cantilever}
+\end{figure}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
