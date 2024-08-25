@@ -660,6 +660,7 @@ Subsequently, the remaining sub-sections assess the effect of several key parame
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Description of the Selected Benchmark Cases}
+\label{sec:case_descriptions}
 %%--------------------------------------------------------------------------------------------------------------------%%
 
 %\hl{Here, for the selected 4-6 cases, we should describe:}
@@ -746,7 +747,7 @@ A hole of radius $5$ mm is located at the expected stress concentration.
 \paragraph{Case 4: Inflation of an idealised ventricle}
 Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{Land2015} as a benchmark problem for cardiac mechanics software.
 The case is 3-D, static, with finite hyperelastic strains.
-Tthe initial geometry is defined as a truncated ellipsoid:
+The initial geometry is defined as a truncated ellipsoid:
 \begin{eqnarray}
 	x = r_s \sin(u) \cos(v), \quad
 	y = r_s \sin(u) \sin(v), \quad
@@ -790,18 +791,40 @@ The plastic yielding parameters are $\sigma_Y = 0.45$ MPa, $\sigma_{\infty} = 0.
 
 
 \paragraph{Case 6: Vibration of a 3-D Cantilevered Beam}
-This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \times 0.2$ cuboid column (Figure \ref{fig:dynamic_cantilever}).
-A traction $\bb{T} = \left( \frac{|\bb{T}|}{\sqrt{2}}, \frac{|\bb{T}|}{\sqrt{2}}, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
+This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \times 0.2$ cuboid column (Figure \ref{fig:dynamic_cantilever}), taken from \citet{Tukovic2007}.
+A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
 \begin{eqnarray}
 	|\bb{T}| = \frac{\mathcal{F} E I}{A L^2} \text{ Pa}
 \end{eqnarray}
-A St.\ Venant-Kirchoff material is assumed with $E = 15.293$ MPa and $\nu = 0.3$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = 0.0001333$ m$^4$.
+In the current study, $\mathcal{F} = 1$.
+A St.\ Venant-Kirchoff material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = 0.0001333$ m$^4$.
 The geometric and material parameters were chosen for the first natural frequency to be 1 Hz.
+\hl{Comment on the meshes}
+A fixed time step size of \hl{XXX} s is chosen, corresponding to a \hl{YY} on the coarsest mesh \hl{update as required}.
+The total time period is 10 s, corresponding to 10 expceted oscillation periods.
 \begin{figure}[htbp]
    \centering
    \includegraphics[width=0.2\textwidth]{figures/dynamic_cantilever.pdf} 
    \caption{Vibration of a 3-D Cantilevered Beam case geometry, mesh and loading conditions}
    \label{fig:dynamic_cantilever}
+\end{figure}
+
+
+\paragraph{Case 7: Vibration of an Axial Turbine Blade}
+This 3-D, dynamic, finite strain case geometry consists of a twisted axial turbine blade, 0.8 m in height, with a cord length of 0.2 m (Figure \ref{fig:turbine_blade}), and is taken from \citet{Tukovic2007}.
+\hl{Zeljko probably has this geometry or a reference for where it came from}
+The blade is constrained at one end and subjected to a sudden, constant traction of $\bb{T} = ($\hl{ZZZ,ZZZ,ZZZ} $)$ Pa at the other end.
+A St.\ Venant-Kirchoff material is assumed with $E = 15.293$ MPa and $\nu = 0.3$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = 0.0001333$ m$^4$.
+\hl{Comment on the meshes}
+A fixed time step size of \hl{XXX} s is chosen, corresponding to a \hl{YY} on the coarsest mesh \hl{update as required}.
+The total time period is \hl{XXX} s, corresponding to \hl{XX} expceted oscillation periods.
+\hl{An advantage of this case over the cantilever is that it is complex geometry; a disadvantage is that we do not have a reference solution}
+\hl{A mitigation for this disadvantage is we could run it in Abaqus to provide a credible reference}
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/turbine_blade.pdf} 
+   \caption{Vibration of an axial turbine blade case geometry, mesh and loading conditions}
+   \label{fig:turbine_blade}
 \end{figure}
 
 
@@ -844,22 +867,22 @@ The errors can be seen to \hl{describe on the average/max error trends in graphs
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Time and Memory Requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for several cases and mesh densities.
+This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for all six cases described in Section \ref{sec:case_descriptions}, where several mesh densities are examined.
 Time and memory requires from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
 The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
 \hl{Take care when comparing times between different hardware}
 
-The time and memory requirements are examined for \hl{four} cases (\hl{pick 4-5 cases with different characteristics)}:
-\begin{itemize}
-	\item Spherical cavity (case 1): 3-D, static, linear elastic, unstructured polyhedral mesh;
-	\item Cook's membrane (case 2): 2-D, static, finite strains, elastoplastic, structured quadrilaterial mesh \hl{good option};
-	\item Idealised ventricle (Case 3): 3-D, static, finite strains, hyperelasticity, structured hexahedral and prism mesh \hl{good option};
-	\item \hl{ZZZ} (case 4): \hl{dynamic case}; dynamic 3-D beam
-	\item \hl{these four cases cover 2-D/3-D, static/dynamic, elastic/elastoplastic, small/large strain, mesh types}: \hl{maybe add another 1 more with a different combination}
-\end{itemize}
+Figure \ref{fig:time_memory_images} provides a collage of the equivalent (von Mises) stress fields for the \hl{six} cases.
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/time_memory_images.pdf} 
+   \caption{Collage of the equivalent (von Mises) stress fields for the \hl{six} cases}
+   \label{fig:time_memory_images}
+\end{figure}
 
 Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage according to the GNU time utility.
-All times and memory usage were generated using \hl{hardware details} using one CPU core.
+All clock times and memory usage were generated using \hl{hardware details} using one CPU core.
+Times and maximum memory usage were recorded using the GNU time utility.
 \hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy if any}.
 Multi-CPU-core parallelisation is examiend in Section \ref{sec:parallelisation}.
 \begin{table}[htb]
@@ -876,10 +899,11 @@ Multi-CPU-core parallelisation is examiend in Section \ref{sec:parallelisation}.
 			Case 4, etc & 123,456 & 345 & 1,234  \\
 			\hline
 		\end{tabular}
-	\caption{Execution times and maximum memory usage}
+	\caption{Execution times and maximum memory usage \hl{speed-up column?}}
 	\label{tab:times_memory}
 \end{table}
 
+The trends shown in Table \ref{tab:times_memory} are common to all typical modern computer systems, however, the exact values depend on the particular details of the CPU, the memory configuration and the operating system.
 To highlight the effect of hardware specification, Table \ref{tab:times_memory_spec2} lists the time and memory usage for a different system: \hl{e.g. Mac M2/M3 seem to give excellent performance vs Meluxina AMD EPYC cores}.
 \hl{Describe the difference, e.g. 2-3 faster but same memory usage}
 \hl{Additional comments/insights, e.g. time trends are the same for both systems}
@@ -906,42 +930,138 @@ To highlight the effect of hardware specification, Table \ref{tab:times_memory_s
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Effect of Mesh Type}
 %%--------------------------------------------------------------------------------------------------------------------%%
-Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
-Conclusion: mesh type does or does not affect the performance.
+To highlight the effect of mesh type on the performance of the proposed Jacobian-free Newton-Krylov approach, case \hl{X} is re-examined using several mesh types:
+(i) structured hexahedral; (ii) structured tetrahedral; (iii) unstructured tetehrahedral; and (iv) unstructured poyhedral.
+%Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
+The hexahedral and tetahedral meshes have been generated using the Gmsh utility \citep{Gmsh} and the polyhedral mesh has been created by converting a tetrahedral mesh using the OpenFOAM \texttt{polyDualMesh} utility.
+
+Table \ref{tab:mesh_types} lists the execution times and total number of linear solver iterations for the different mesh types and densities.
+\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
+\hl{Provide insights, if any: e.g. why is one faster or slower}
+\hl{Conclusion: mesh type does or does not affect the performance.}
+\begin{table}[htb]
+	\centering
+		\begin{tabular}{llll}
+			\hline
+			Mesh Type & Number of Cells & Time (in s) & Linear Solver Iterations  \\
+			\hline 
+			Structured hexahedral & 1,234 & 345 & 1,234  \\
+			Structured hexahedral & 12,345 & 345 & 1,234  \\
+			Structured hexahedral & 123,456 & 345 & 1,234  \\
+			Structured tetrahedral & 1,234 & 345 & 1,234  \\
+			Structured tetrahedral & 12,345 & 345 & 1,234  \\
+			Structured tetrahedral & 123,456 & 345 & 1,234  \\
+			Unstructured tetrahedral & 1,234 & 345 & 1,234  \\
+			Unstructured tetrahedral & 12,345 & 345 & 1,234  \\
+			Unstructured tetrahedral & 123,456 & 345 & 1,234  \\
+			Unstructured polyhedral & 1,234 & 345 & 1,234  \\
+			Unstructured polyhedral & 12,345 & 345 & 1,234  \\
+			Unstructured polyhedral & 123,456 & 345 & 1,234  \\
+			\hline
+		\end{tabular}
+	\caption{Execution times on Case \hl{X} for different mesh types}
+	\label{tab:mesh_types}
+\end{table}
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Effect of the Preconditioner Choice}
+%%--------------------------------------------------------------------------------------------------------------------%%
+A critical factor contributing to the performance of Jacobian-free Newton Krylov methods is the formulation of the linear solver preconditioner and related linear solver settings.
+In this section, three choices of preconditioner are compared:
+\begin{itemize}
+	\item \textbf{LU} - A LU decomposition direct solver \hl{Is this MUMPS? To be checked}. A direct solver is expected to be the more robust but suffer from excessive time and memory requirements for larger numbers of unknowns.
+	\item \textbf{ILU(N)} - Incomplete LU decomposition with $N$ fill-in. ILU(N) is expected to have lower memory requirements but at the expense of robustness. Additionally, as the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ is increased, the performance of ILU(N) approaches that of the LU direct solver.
+	\item \textbf{Algebraic multigrid} - The HYPRE Boomerang parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near linear scaling of time and memory requirement.
+\end{itemize}
+
+An additional consideration when selecting a preconditioner is its ability to scale in parallel as the number of CPU cores increases.
+From this perspective, the iterative approaches (ILU(N) and multigrid) are expected to show better parallel scaling than direct methods (LU).
+Analysis of this point is left to Section \ref{sec:parallelisation}.
+
+Table \ref{tab:preconditioner} presents the execution times and memory requirements for cases \hl{X, Y and Z} for different mesh densities.
+\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
+\hl{Provide insights, if any: e.g. why is one faster or slower}
+\hl{Conclusion: which preconditioner if 'best' for which situation: probably LU is best for 'small' cases and multigrid for 'large' cases}
+\begin{table}[htb]
+	\centering
+		\begin{tabular}{lllll}
+			\hline
+			Case & Number of Cells & Preconditioner & Time (in s) & Memory (in MB)  \\
+			\hline 
+			Case X & 1,234 & LU & 345 & 1,234  \\
+			Case X & 12,345 & LU & 345 & 1,234  \\
+			Case X & 123,456 & LU & 345 & 1,234  \\
+			Case X & 1,234 & ILU(0) & 345 & 1,234  \\
+			Case X & 12,345 & ILU(0) & 345 & 1,234  \\
+			Case X & 123,456 & ILU(0) & 345 & 1,234  \\
+			Case X & 1,234 & Multigrid & 345 & 1,234  \\
+			Case X & 12,345 & Multigrid & 345 & 1,234  \\
+			Case X & 123,456 & Multigrid & 345 & 1,234  \\
+			Case Y & 1,234 & LU & 345 & 1,234  \\
+			Case Z & 1,234 & LU & 345 & 1,234  \\
+			\hline
+		\end{tabular}
+	\caption{Execution times and maximum memory usage for different preconditioners on varying cases and mesh densities \hl{Try other value of N for ILU?}}
+	\label{tab:preconditioner}
+\end{table}
+
+
+\hl{Other linear solver settings: mention these but no need for analyses}
+
+In GMRES, we must choose the value of the "restarts" parameter; the default in PETSc of 30 does not always seem good enough (I have been setting it to 100). We could show its affect on one case. I think the optimal choice is linked with the choice of preconditioner (a better preconditioner means we can use a small restart value) so maybe we include this with the "preconditioner choices" section.
+\hl{I suggest we do not add an analysis of this: instead we can just mention it}
+
+This can also be considered a linear solver setting. For segregated, we always use a relative tolerance of 0.1, but initial tests for JFNK show that 0.1 is too loose and 1e-3 seems better, although maybe there is no difference with using 1e-6.
+\hl{I suggest we do not add an analysis of this: instead we can just mention it}
+
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Effect of Rhie-Chow Stabilisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-\textbf{Rhie-Chow stabilisation scaling}: MAYBE. from a quick check, the value of $\alpha$ greatly affects the convergence of the linear solver: $s=1$ shows good convergence, $s=0.1$ is poor convergence. It might be a nice insight to show that smoothing is equally important for the linear solver and the solution stability.
+This section highlights a key effect in the performance of the proposed Jacobian-free Newton Krylov method: the choice of the global scaling factor $\alpha$ in the Rhie-Chow stabilisation (Equation \ref{eq:RhieChow}).
+Without this (or a similar) stabilisation term, zero-energy oscillations, such as checkerboarding, may appear in the solution fields.
+As the amount of stabilisation is increased (increasing $\alpha$), these numerical modes are quelled and the solution is stabilisation; however, at some point, further increases in amount of stabilisation reduce the accuracy of the discretisation due to oversmoothing.
+Consequently, a good choice of the stabilisation global scaling factor $\alpha$ is one which is sufficiently high to quell oscillations but not higher.
+This challenge is related to the discretisation and hence is common to all solution algorithms, including segregated and Jacobian-free Newton Krylov methods.
+Nonetheless, the amount of stabilisation can affect the convergence of the linear solver in Jacobian-free Newton Krylov methods, for example, as examined by \citet{Nishikawa} for a \hl{XXX} Euler flow finite volume formulation.
 
-Pick one case and run it for several values of $\alpha$, e.g. $1$, $0.1$, $0.01$.
-Report the timings (memory is not needed) and any convergence problems.
+Table \ref{tab:rhie_chow} presents the execution times and total number of linear solver iterations for the case \hl{XX} for $\alpha = \left[ 0.01, 0.1, 1 \right]$ for several mesh densities.
+\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, if any cases diverged or needed a higher 'restarts' value, etc}
+\hl{Provide insights, if any: e.g. why is one faster or slower}
+\begin{table}[htb]
+	\centering
+		\begin{tabular}{lllll}
+			\hline
+			Case & Number of Cells & $\alpha$ & Time (in s) & Linear Solver Iterations  \\
+			\hline 
+			Idealised Ventricle & 1,234 & 0.01 & 345 & 1,234  \\
+			Idealised Ventricle & 12,345 & 0.1 & 345 & 1,234  \\
+			Idealised Ventricle & 123,456 & 1.0 & 345 & 1,234  \\
+			Axial Turbine & 1,234 & 0.01 & diverged & diverged  \\
+			Axial Turbine & 12,345 & 0.1 & 345 & 1,234  \\
+			Axial Turbine & 123,456 & 1.0 & 345 & 1,234  \\
+			\hline
+		\end{tabular}
+	\caption{Execution times and total number linear solver iterations for different values of the Rhie-Chow stabilisation factor $\alpha$}
+	\label{tab:rhie_chow}
+\end{table}
 
-
-%%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Linear Solver and Preditioner Choices}
-%%--------------------------------------------------------------------------------------------------------------------%%
-
-The key thing in this section is the preconditioner choice (this is a key point in the paper).
-Linear solver settings and oversolving is less important: leave these two points as optional (decide later).
-
-\textbf{Preconditioner choices}: YES: compare ILU, LU, and multigrid. This should be easy to do. We can use multigrid for all other sections (I think it will be the best), but here, we can show the differences (time and memory) for some or all of the cases and mesh densities. 
-
-\textbf{Linear solver settings}: MAYBE: In GMRES, we must choose the value of the "restarts" parameter; the default in PETSc of 30 does not always seem good enough (I have been setting it to 100). We could show its affect on one case. I think the optimal choice is linked with the choice of preconditioner (a better preconditioner means we can use a small restart value) so maybe we include this with the "preconditioner choices" section.
-
-\textbf{Linear solver oversolving}: MAYBE: this can also be considered a linear solver setting. For segregated, we always use a relative tolerance of 0.1, but initial tests for JFNK show that 0.1 is too loose and 1e-3 seems better, although maybe there is no difference with using 1e-6.
+Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement)} along the line \hl{XXX -> we need to show the effect on accuracy for different values of alpha}
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.2\textwidth]{figures/rhie_chow.pdf} 
+   \caption{Stress predictions along the line \hl{XXX} for the \hl{YYY} case using different values of the Rhie-Chow stabilisation factor $\alpha$}
+   \label{fig:rhie_chow}
+\end{figure}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Effect of Globalisation Strategies}
 %%--------------------------------------------------------------------------------------------------------------------%%
-
-This one is optional: decide later.
-At a minimal, we could just add a comment on the importance of this.
-As a by the way, I think the default line search in PETSc may not be the best one for JFNK.
-
-\textbf{The effect of globalisation strategies}: MAYBE: we could simply say that we use line search and a predictor step, or we could show their effect. Maybe pick one or more cases
+\hl{We already have many section so it may be better to just mention this rather than providing an analysis}
+%As a by the way, I think the default line search in PETSc may not be the best one for JFNK.
 
 
 
@@ -949,8 +1069,6 @@ As a by the way, I think the default line search in PETSc may not be the best on
 \subsection{Parallelisation}
 \label{sec:parallelisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-
-\hl{Here, for one or more cases, we should show:}
 \hl{- strong scaling: largest mesh, speed vs number of cores: I can use Meluxina}
 \hl{- (optional) weak scaling: time vs number of cores as we keep the work-per-core constant}
 
