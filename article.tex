@@ -1,7 +1,7 @@
 
  
-%\documentclass[sn-mathphys,Numbered]{sn-jnl}% Math and Physical Sciences Reference Style
-\documentclass[sn-mathphys,Numbered,draft]{sn-jnl}% Math and Physical Sciences Reference Style
+\documentclass[sn-mathphys,Numbered]{sn-jnl}% Math and Physical Sciences Reference Style
+%\documentclass[sn-mathphys,Numbered,draft]{sn-jnl}% Math and Physical Sciences Reference Style
 
 %%\documentclass[sn-nature]{sn-jnl}% Style for submissions to Nature Portfolio journals
 %%\documentclass[sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
@@ -84,16 +84,13 @@ textheight=24cm, % llncs has 19.3cm
 
 \author*[1,2,3]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
 \author[4]{\fnm{Ivan} \sur{Batisti\'{c}}}
+\author[4]{\fnm{\v{Z}eljko} \sur{Tukovi\'{c}}}
 
 \affil*[1]{\orgdiv{School of Mechanical and Materials Engineering}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[3]{\orgdiv{SFI I-Form Centre}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[4]{\orgdiv{University of Zagreb}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
-%\affil[6]{\orgdiv{UCD Centre of Adhesion and Adhesives'}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 
-%Idea:
-%- We need a clinical perspective: ask Peter de Jaeger. If he thinks the paper is in good shape, I could ask Emer again and/or Maryland.
-%- Invite creators of CirculatorySystems Julia package.
 
 
 \abstract
@@ -679,8 +676,8 @@ This 3-D case consists of a spherical cavity with radius $a = 0.2$ m (Figure \re
 Far from the cavity, the solid is subjected to a tensile stress $\sigma_{zz} = T = 1$ MPa, with all other stress components zero.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity.pdf} 
-   \caption{Spherical cavity case geometry, mesh and loading conditions \hl{geometry + loading conditions + maybe an example mesh. Show x/y/z axes}}
+   \includegraphics[width=0.4\textwidth]{figures/spherical_cavity.pdf} 
+   \caption{Spherical cavity case geometry, showing the polyhedral mesh with 2,257 cells \hl{Update to graded mesh}}
    \label{fig:spherical_cavity}
 \end{figure}
 The analytical expressions for the stress distributions around the cavity, first derived by \cite{Southwell1926}, are
@@ -702,10 +699,13 @@ The analytical expressions for the stress distributions around the cavity, first
 \end{eqnarray}
 where $r^2 = x^2 + y^2$ is the cylinderical radial coordinate, $R^2 = r^2 + z^2$ is the spherical radial coodinate, and $x$, $y$, $z$ are the Cartesian coordinates.
 
+\hl{Add displacement equations from Goodier}
+\hl{We can move the analytical solutions to an appendix}
+
 The solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube centred on the sphere.
 The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
 Unstructured polyhedral meshes of varying densities are employed (\hl{state average cell widths, and number of cells in each mesh}).
-A coarse mesh is shown in Figure \ref{fig:spherical_cavity}.
+The mesh with 2,257 cells is shown in Figure \ref{fig:spherical_cavity}.
 Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{Gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
 
 
@@ -722,7 +722,8 @@ The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
 \hl{Comment on the meshes used}.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/elliptic_plate.pdf} 
+   %\includegraphics[width=0.2\textwidth]{figures/elliptic_plate.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Elliptic Plate case geometry, mesh and loading conditions}
    \label{fig:elliptic_plate}
 \end{figure}
@@ -738,7 +739,8 @@ A hole of radius $5$ mm is located at the expected stress concentration.
 \hl{Comment on the meshes}
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/narrowTmember.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/narrowTmember.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
    \label{fig:narrowTmember}
 \end{figure}
@@ -759,11 +761,13 @@ The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 The hyperelastic material behaviour is decsribed by the transversely isotropic constitutive proposed by \citet{Guccione} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
 The chosen parameters produce isotropic behaviour.
 A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
-\hl{Comment on the meshes}
+The geometry is meshed using structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
+Four succesively refined meshes are examined: 1,620 (shown in Figure  \ref{fig:ventricle}), 12,960, 103,680, and 829,440 cells.
+%Figure \ref{fig:ventricle} shows the mesh with 1,620 cells (1,512 hexahedra and 108 prisms).
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/ventricle.pdf} 
-   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
+   \includegraphics[width=0.4\textwidth]{figures/ventricle} 
+   \caption{Idealised ventricle case geometry, showing the mesh with 1,620 cells}
    \label{fig:ventricle}
 \end{figure}
 
@@ -778,8 +782,8 @@ There are no body forces, and the problem is solved as statically as 2-D plane s
 The problem is solved as static, using 30 equally-sized loading increments.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/cooks_membrane.pdf} 
-   \caption{Cook's membrane case geometry, mesh and loading conditions}
+   \includegraphics[width=0.4\textwidth]{figures/cooksMembrane-geometry.png} 
+   \caption{Cook's membrane case geometry (dimensions in mm) and loading conditions (fixed left, traction $\tau$ applied to right)}
    \label{fig:cooks_membrane}
 \end{figure}
 
@@ -804,7 +808,8 @@ A fixed time step size of \hl{XXX} s is chosen, corresponding to a \hl{YY} on th
 The total time period is 10 s, corresponding to 10 expceted oscillation periods.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/dynamic_cantilever.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/dynamic_cantilever.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Vibration of a 3-D Cantilevered Beam case geometry, mesh and loading conditions}
    \label{fig:dynamic_cantilever}
 \end{figure}
@@ -822,7 +827,8 @@ The total time period is \hl{XXX} s, corresponding to \hl{XX} expceted oscillati
 \hl{A mitigation for this disadvantage is we could run it in Abaqus to provide a credible reference}
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/turbine_blade.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/turbine_blade.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Vibration of an axial turbine blade case geometry, mesh and loading conditions}
    \label{fig:turbine_blade}
 \end{figure}
@@ -840,7 +846,8 @@ This is in contrast to the classic 2-D circular hole in an infinite plate case, 
 A further difference with the 2-D circular hole case is that the local stresses more quickly return to the distant stress state as $R$ increases, with the local stresses being proportional to $\frac{1}{R^3}$ in the 3-D case and  $\frac{1}{R^2}$ in the 2-D case.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_stress.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_stress.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Spherical cavity case: $\sigma_{zz}$ stress distribution \hl{use Reflect in ParaView to make a nice image}}
    \label{fig:spherical_cavity_stress}
 \end{figure}
@@ -854,7 +861,8 @@ The errors can be seen to \hl{describe on the average/max error trends in graphs
 \hl{There is no need to show time and memory requirements: leave to the next section}
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_error.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_error.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Spherical cavity case: discretisation error as a function of average cell width \hl{disp and stress errors if we have them}}
    \label{fig:spherical_cavity_accuracy}
 \end{figure}
@@ -875,7 +883,8 @@ The finite element approach uses a coupled solution algorithm and direct linear 
 Figure \ref{fig:time_memory_images} provides a collage of the equivalent (von Mises) stress fields for the \hl{six} cases.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/time_memory_images.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/time_memory_images.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Collage of the equivalent (von Mises) stress fields for the \hl{six} cases}
    \label{fig:time_memory_images}
 \end{figure}
@@ -1051,7 +1060,8 @@ Table \ref{tab:rhie_chow} presents the execution times and total number of linea
 Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement)} along the line \hl{XXX -> we need to show the effect on accuracy for different values of alpha}
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.2\textwidth]{figures/rhie_chow.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/rhie_chow.pdf} 
+   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
    \caption{Stress predictions along the line \hl{XXX} for the \hl{YYY} case using different values of the Rhie-Chow stabilisation factor $\alpha$}
    \label{fig:rhie_chow}
 \end{figure}
@@ -1089,8 +1099,18 @@ In reality, inter-CPU-core communication reduces the parallel scaling efficiency
 \hl{Provide insights, if any: e.g. why is one faster or slower}
 \begin{figure}[htbp]
 	\centering
-	\subfigure[Clock times vs number of CPU cores] {\label{fig:parallel_strong_times} \includegraphics[width=0.2\textwidth]{./figures/parallel_strong_times.pdf}}
-	\subfigure[Speedup $S$ vs number of CPU cores] {\label{fig:parallel_strong_speedup} \includegraphics[width=0.2\textwidth]{./figures/parallel_strong_speedup.pdf}}
+	\subfigure[Clock times vs number of CPU cores]
+	{
+		\label{fig:parallel_strong_times}
+%		\includegraphics[width=0.2\textwidth]{./figures/parallel_strong_times.pdf}
+   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+   	}
+	\subfigure[Speedup $S$ vs number of CPU cores]
+	{
+		\label{fig:parallel_strong_speedup}
+%		\includegraphics[width=0.2\textwidth]{./figures/parallel_strong_speedup.pdf}
+   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+   	}
 	\caption{Strong parallel scaling study comparing the performance of three preconditioning strategies: a LU direct solver, and ILU(N) and multigrid iterative solvers}
 	\label{fig:parallelisation_strong}
 \end{figure}
@@ -1102,8 +1122,18 @@ In the ideal case, the efficiency should be unity, but inter-CPU-core communicat
 \hl{Provide insights, if any: e.g. why is one faster or slower}
 \begin{figure}[htbp]
 	\centering
-	\subfigure[Clock times vs number of CPU cores] {\label{fig:parallel_weak_times} \includegraphics[width=0.2\textwidth]{./figures/parallel_weak_times.pdf}}
-	\subfigure[Weak scaling efficiency $\eta_w$ vs number of CPU cores] {\label{fig:parallel_weak_speedup} \includegraphics[width=0.2\textwidth]{./figures/parallel_weak_efficiency.pdf}}
+	\subfigure[Clock times vs number of CPU cores]
+	{
+		\label{fig:parallel_weak_times}
+%		\includegraphics[width=0.2\textwidth]{./figures/parallel_weak_times.pdf}
+   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+   	}
+	\subfigure[Weak scaling efficiency $\eta_w$ vs number of CPU cores]
+	{
+		\label{fig:parallel_weak_speedup}
+%		\includegraphics[width=0.2\textwidth]{./figures/parallel_weak_efficiency.pdf}
+   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+   	}
 	\caption{Weak parallel scaling study comparing the performance of three preconditioning strategies: a LU direct solver, and ILU(N) and multigrid iterative solvers}
 	\label{fig:parallelisation_weak}
 \end{figure}
@@ -1135,7 +1165,7 @@ The key findings of the work are:
 This project has received funding from the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme (Grant Agreement No. 101088740).
 Financial support is gratefully acknowledged from the Irish Research Council through the Laureate programme, grant number IRCLA/2017/45, from Bekaert through the University Technology Centre (UTC phases I and II) at UCD (www.ucd.ie/bekaert), from I-Form, funded by Science Foundation Ireland (SFI) Grant Numbers 16/RC/3872 and {RC2302\_2}, co-funded under European Regional Development Fund and by I-Form industry partners, and from NexSys, funded by SFI Grant Number 21/SPP/3756.
 Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie), and part of this work has been carried out using the UCD ResearchIT Sonic cluster which was funded by UCD IT Services and the UCD Research Office.
-\hl{Ivan: add any additional acknowledgements here}
+\hl{Ivan/Zeljko: add any additional acknowledgements here}
 
 
 
