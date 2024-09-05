@@ -191,10 +191,10 @@ Assuming small strains, the linear geometry formulation is expressed in strong i
     \int_{\Omega} \rho \frac{\partial^2 \bb{u} }{\partial t^2} \, d\Omega
     =
     \oint_{\Gamma} \bb{n} \cdot \bb{\sigma}_s \,  d\Gamma
-    + \int_{\Omega}  \rho \bb{g} \, d\Omega
+    + \int_{\Omega}  \bb{f}_b \, d\Omega
 \end{eqnarray}
 where $\Omega$ is the volume of an arbitrary body bounded by a surface $\Gamma$ with outwards pointing normal $\bb{n}$.
-The density is $\rho$, $\bb{u}$ is the displacement vector, $\bb{\sigma}_s$ is the engineering (small strain) stress tensor, and $\bb{g}$ is a body force per unit mass, e.g., gravity.
+The density is $\rho$, $\bb{u}$ is the displacement vector, $\bb{\sigma}_s$ is the engineering (small strain) stress tensor, and $\bb{f}_b$ is a body force per unit volume, e.g., $\rho \bb{g}$, where $\bb{g}$ is gravity.
 
 More generally,  linear momentum conservation can be expressed in a nonlinear geometry form, which is suitable for finite strains.
 Two equivalent nonlinear geometry forms are common: the \emph{total} Lagrangian form:
@@ -669,9 +669,52 @@ Subsequently, the remaining sub-sections assess the effect of several key parame
 
 This section concisely describes the benchmark cases examined in subsequent sections.
 Details of the geometry, mesh, loading conditions, material properties, and relevant numerical settings are given so that the results can be reproduced.
-\hl{We may need to drop some of these cases if we have too many: case 2 and 3 are very similar (3-D, static, linear elastic)}
+\hl{We may need to drop some of these cases if we have too many: cases 2 and 3 are very similar (3-D, static, linear elastic)}
  
-\paragraph{Case 1: Spherical Cavity in an Infinite Solid Subjected to Remote Stress}
+\paragraph{Case 1: Order Verification via the Manufactured Solution Procedure}
+The first test case consists of a $0.2 \times 0.2 \times 0.2$ m cube with linear elastic ($E = 200$ GPa, $\nu = 0.3$) properties.
+A manufactured solution for displacement (Figure \ref{fig:mms_solution}) is employed of the form:
+\begin{eqnarray}
+	\bb{u} =
+	\begin{pmatrix}
+	a_x \sin(4\pi x) \sin(2\pi y) \sin(\pi z) \\
+	a_y \sin(4 \pi x) \sin(2 \pi y) \sin(\pi z) \\
+	a_z \sin(4 \pi x) \sin(2 \pi y) \sin(\pi z) 
+	\end{pmatrix}
+\end{eqnarray}
+where $a_x = 2\times10^{-6}$ m, $a_y = 4\times10^{-6}$ m, and $a_z = 6\times10^{-6}$ m.
+The Cartesian coordinates are given by $x$, $y$ and $z$.
+The resulting body force to force the manufactured solution is given in Appendix \ref{app:mms}.
+%\begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.5\textwidth]{figures/mms_solution} 
+%   \caption{Cut plane through the cube case geometry showing the magnitude of the manufactured displacement solution. The cut plane passes through the centre of the cube and has the unit normal $\bb{n} = (\sfrac{1}{\sqrt{3}} \quad \sfrac{1}{\sqrt{3}} \quad \sfrac{1}{\sqrt{3}})$.}
+%   \label{fig:mms_solution}
+%\end{figure}
+\begin{figure}[htbp]
+	\centering
+	\subfigure[Magnitude of the manufactured displacement solution]
+	{
+		\label{fig:mms_solution}
+   		\includegraphics[height=0.45\textwidth]{figures/mms_solution} 
+   	}
+	\subfigure[Polyhedral mesh with $1\,000$ cells]
+	{
+		\label{fig:mms_mesh}
+   		\includegraphics[height=0.45\textwidth]{figures/mms_mesh}  
+   	}
+	\caption{A cut plane through the cube case geometry showing the magnitude of the manufactured displacement solution (left) and a polyhedral mesh (right). The cut plane passes through the centre of the cube and has the unit normal $\bb{n} = (\sfrac{1}{\sqrt{3}} \quad \sfrac{1}{\sqrt{3}} \quad \sfrac{1}{\sqrt{3}})$.}
+	\label{fig:mms}
+\end{figure}
+
+The manufactured displacement solution is applied at the domain's boundaries, and inertial effects are neglected.
+Two forms of mesh are examined: (i) structured, uniform hexahedra and (ii) regular polyhedra (Figure \ref{fig:mms_mesh}).
+To create the polyhedral meshes, structured tetrahedra meshes are first generated using Gmsh \cite{geuzaine2009gmsh} and then converted to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
+Starting from an initial mesh spacing of $0.04$ m, six meshes are created by successively halving the spacing.
+The cell numbers (hexahedra and polyhedral meshes) are 125, $1\,000$, $8\,000$, $64\,000$, $512\,000$, and $4\,096\,000$.
+
+
+\paragraph{Case 1b: Spherical Cavity in an Infinite Solid Subjected to Remote Stress}
 This 3-D case consists of a spherical cavity with radius $a = 0.2$ m (Figure \ref{fig:spherical_cavity}) in an infinite, isotropic linear elastic solid ($E = 200$ GPa, $\nu = 0.3$).
 Far from the cavity, the solid is subjected to a tensile stress $\sigma_{zz} = T = 1$ MPa, with all other stress components zero.
 \begin{figure}[htbp]
@@ -706,7 +749,7 @@ The solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube cen
 The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
 Unstructured polyhedral meshes of varying densities are employed (\hl{state average cell widths, and number of cells in each mesh}).
 The mesh with 2,257 cells is shown in Figure \ref{fig:spherical_cavity}.
-Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{Gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
+Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{geuzaine2009gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
 
 
 \paragraph{Case 2: Out-of-plane bending of an elliptic plate}
@@ -837,39 +880,92 @@ The total time period is \hl{XXX} s, corresponding to \hl{XX} expceted oscillati
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Order of Accuracy Verification}
 %%--------------------------------------------------------------------------------------------------------------------%%
-
-This section assesses the order of accuracy of the discretisation using the spherical cavity case (case 1).
+This section assesses the order of accuracy of the discretisation using a manufactured solution on a cube domain (case 1).
 A secondary purpose is to demonstrate that the choice of solution algorithm (Jacobian-free Newton-Krylov vs segregated) does not affect the predictions, assuming iteration errors are small.
 
-The predicted axial ($\sigma_{zz}$) stress distribution is shown in Figure \ref{fig:spherical_cavity_stress}, where the peak stress ($2.xxx$ MPa) is just over twice the applied stress ($1$ MPa).
-This is in contrast to the classic 2-D circular hole in an infinite plate case, which exhibits a stress concentration factor of 3.
-A further difference with the 2-D circular hole case is that the local stresses more quickly return to the distant stress state as $R$ increases, with the local stresses being proportional to $\frac{1}{R^3}$ in the 3-D case and  $\frac{1}{R^2}$ in the 2-D case.
+The predicted $\sigma_{xx}$ stress distribution for hexahedral mesh with $512\,000$ cells is shown in Figure \ref{fig:mms_stress}(a).
+The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure \ref{fig:mms_stress}(b), where the errors of greatest magnitude ($-29$ kPa) occur at the ends of the boundary.
 \begin{figure}[htbp]
-   \centering
-%   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_stress.pdf} 
-   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   \caption{Spherical cavity case: $\sigma_{zz}$ stress distribution \hl{use Reflect in ParaView to make a nice image}}
-   \label{fig:spherical_cavity_stress}
+	\centering
+	\subfigure[Predicted $\sigma_{xx}$ stress distribution]
+	{
+		\label{fig:mms_sxx}
+   		\includegraphics[height=0.35\textwidth]{figures/mms_sxx} 
+   	}
+	\subfigure[Cell-wise $\sigma_{xx}$ error distribution]
+	{
+		\label{fig:mms_sxx_diff}
+   		\includegraphics[height=0.35\textwidth]{figures/mms_sxx_diff}  
+   	}
+	\caption{Manufactured solution cube case: the predicted $\sigma_{xx}$ stress distribution on a cut-plane for the hexahedral mesh with $512\,000$ cells (left).}
+	\label{fig:mms_stress}
 \end{figure}
 
-Figure \ref{fig:spherical_cavity_accuracy} shows the discretisation errors ($L_2$ and $L_\infty$) in $\sigma_{zz}$ as a function of the average cell width.
-The errors can be seen to \hl{describe on the average/max error trends in graphs}.
-\hl{Comment on the order of accuracy: does it show what was expected or not?}
-\hl{Conclude 1: order of accuracy of the discretisation is XXX}
-\hl{Conclude 2: solution algorithm does not affect the answer}
-\hl{There is no need to show segregated results if they are the same: just state that they are the same}
-\hl{There is no need to show time and memory requirements: leave to the next section}
+Figure \ref{fig:mms_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for both the hexahedral and polyhedral meshes.
+Figure \ref{fig:mms_accuracy}(b) shows the corresponding order of accuracy plots.
+The maximum ($L_\infty$) and average ($L_2$) discretisation errors are seen to reduce at an approximately second-order rate for both hexahedral and polyhedral meshes, where the errors are smaller on the hexahedral meshes \hl{check}.
+The discretisation errors in the $\sigma_{xx}$ component of stress are shown in Figure \ref{fig:mms_accuracy}(b), and the order of accuracy in \ref{fig:mms_accuracy}(d).
+The order of accuracy for the average stress magnitude error is seen to be \hl{XX} for the hexahedral meshes and just over 1.5 for the polyhedral meshes.
+In contrast, the maximum stress error order of accuracy is seen to be 1 for both mesh types \hl{check}.
 \begin{figure}[htbp]
-   \centering
-%   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_error.pdf} 
-   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   \caption{Spherical cavity case: discretisation error as a function of average cell width \hl{disp and stress errors if we have them}}
-   \label{fig:spherical_cavity_accuracy}
+	\centering
+	\subfigure[Displacement magnitude discretisation errors]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_poly_dispErrors} 
+   	}
+	\subfigure[Displacement discretisation error order of accuracy]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_poly_orderOfAccuracy}  
+   	}
+	\subfigure[Stress magnitude discretisation errors]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_poly_stressErrors} 
+   	}
+	\subfigure[Strress discretisation error order of accuracy]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_poly_orderOfAccuracy}  
+   	}
+	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement and stress \hl{update plots}: 4 plots - disp error (hex, poly), stress error (hex, poly), disp order (hex, poly), stress order (hex, poly). Use same xrange for all. Put name of 1st/2nd order slope on the line rather than in the legend }
+	\label{fig:mms_accuracy}
 \end{figure}
 
-\hl{Ideally, we would also show the displacement error: we could use Richardson extrapolation for this but this can be misleading}
-\hl{The displacement solution is given at} \url{http://solidmechanics.org/Text/Chapter5_4/Chapter5_4.php}
-\hl{in Sec 5.4.8, but it seems wrong (the stress zz is wrong)}
+The presented results have been generated using the Jacobian-free Newton-Raphson solution algorithm; however, minimal differences were seen when using the segregated solution algorithm, and hence, the results are not shown \hl{check}.
+Analysis of time and memory requirements is left to subsequent sections.
+
+
+
+%%%--------------------------------------------------------------------------------------------------------------------%%
+%\subsection{Order of Accuracy Verification - Spherical Cavity}
+%%%--------------------------------------------------------------------------------------------------------------------%%
+%This section assesses the order of accuracy of the discretisation using the spherical cavity case (case 1).
+%A secondary purpose is to demonstrate that the choice of solution algorithm (Jacobian-free Newton-Krylov vs segregated) does not affect the predictions, assuming iteration errors are small.
+%
+%The predicted axial ($\sigma_{zz}$) stress distribution is shown in Figure \ref{fig:spherical_cavity_stress}, where the peak stress ($2.xxx$ MPa) is just over twice the applied stress ($1$ MPa).
+%This is in contrast to the classic 2-D circular hole in an infinite plate case, which exhibits a stress concentration factor of 3.
+%A further difference with the 2-D circular hole case is that the local stresses more quickly return to the distant stress state as $R$ increases, with the local stresses being proportional to $\frac{1}{R^3}$ in the 3-D case and  $\frac{1}{R^2}$ in the 2-D case.
+%\begin{figure}[htbp]
+%   \centering
+%%   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_stress.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+%   \caption{Spherical cavity case: $\sigma_{zz}$ stress distribution \hl{use Reflect in ParaView to make a nice image}}
+%   \label{fig:spherical_cavity_stress}
+%\end{figure}
+%
+%Figure \ref{fig:spherical_cavity_accuracy} shows the discretisation errors ($L_2$ and $L_\infty$) in $\sigma_{zz}$ as a function of the average cell width.
+%The errors can be seen to \hl{describe on the average/max error trends in graphs}.
+%\hl{Comment on the order of accuracy: does it show what was expected or not?}
+%\hl{Conclude 1: order of accuracy of the discretisation is XXX}
+%\hl{Conclude 2: solution algorithm does not affect the answer}
+%\hl{There is no need to show segregated results if they are the same: just state that they are the same}
+%\hl{There is no need to show time and memory requirements: leave to the next section}
+%\begin{figure}[htbp]
+%   \centering
+%%   \includegraphics[width=0.2\textwidth]{figures/spherical_cavity_error.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+%   \caption{Spherical cavity case: discretisation error as a function of average cell width \hl{disp and stress errors if we have them}}
+%   \label{fig:spherical_cavity_accuracy}
+%\end{figure}
+
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
@@ -942,7 +1038,7 @@ To highlight the effect of hardware specification, Table \ref{tab:times_memory_s
 To highlight the effect of mesh type on the performance of the proposed Jacobian-free Newton-Krylov approach, case \hl{X} is re-examined using several mesh types:
 (i) structured hexahedral; (ii) structured tetrahedral; (iii) unstructured tetehrahedral; and (iv) unstructured poyhedral.
 %Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
-The hexahedral and tetahedral meshes have been generated using the Gmsh utility \citep{Gmsh} and the polyhedral mesh has been created by converting a tetrahedral mesh using the OpenFOAM \texttt{polyDualMesh} utility.
+The hexahedral and tetahedral meshes have been generated using the Gmsh utility \citep{geuzaine2009gmsh} and the polyhedral mesh has been created by converting a tetrahedral mesh using the OpenFOAM \texttt{polyDualMesh} utility.
 
 Table \ref{tab:mesh_types} lists the execution times and total number of linear solver iterations for the different mesh types and densities.
 \hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
@@ -1171,16 +1267,105 @@ Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre 
 
 \newpage
 
-%\begin{appendices}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\section{WIP} \label{app:one}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%WIP
-%
-%
-%
-%\end{appendices}
+\begin{appendices}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Body Force for the Method of Manufactured Solutions Case} \label{app:mms}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The body force for the manufactured solution case is
+\begin{align}
+\bb{f}_b = 
+    \begin{pmatrix}
+    \lambda
+    \left[
+        8 a_y \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z) \right. \\
+        \quad + 4 a_z \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y) \\
+        \quad \left. - 16 a_x \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+    \right] \\
+    + \mu
+    \left[
+        8 a_y \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z) \right. \\
+        \quad + 4 a_z \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y) \\
+        \quad \left. - 5 a_x \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+    \right] \\
+    - 32 a_x \mu_ \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z) \\
+    \\
+    \lambda
+    \left[
+        8 a_x \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z) \right. \\
+        \quad + 2 a_z \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x) \\
+        \quad \left. - 4 a_y \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+    \right] \\
+    + \mu
+    \left[
+        8 a_x \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z) \right. \\
+        \quad + 2 a_z \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x) \\
+        \quad \left. - 17 a_y \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+    \right] \\
+    - 8 a_y \mu_ \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z) \\
+    \\
+    \lambda
+    \left[
+        4 a_x \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y) \right. \\
+        \quad + 2 a_y \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x) \\
+        \quad \left. - a_z \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+    \right] \\
+    + \mu
+    \left[
+        4 a_x \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y) \right. \\
+        \quad + 2 a_y \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x) \\
+        \quad \left. - 20 a_z \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+    \right] \\
+    - 2 a_z \mu_ \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+    \end{pmatrix}
+\end{align}
+%\begin{eqnarray}
+%\bb{f}_b =
+%	\begin{pmatrix}
+%	\lambda
+%	\left[
+%	    8 a_y \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z)
+%	  + 4 a_z \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y)
+%	  - 16 a_x \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+%	\right]
+%	+ \mu
+%	\left[
+%	    8 a_y \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z)
+%	  + 4 a_z \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y)
+%	  - 5 a_x \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+%	\right]
+%	- 32 a_x \mu_ \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z) \\
+%	\lambda
+%	\left[
+%	    8 a_x \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z)
+%	  + 2 a_z \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x)
+%	  - 4 a_y \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+%	\right]
+%	+ \mu
+%	\left[
+%	    8 a_x \pi^2 \cos(4\pi x) \cos(2\pi y) \sin(\pi z)
+%	  + 2 a_z \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x)
+%	  - 17 a_y \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+%	\right]
+%	- 8 a_y \mu_ \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z) \\
+%	\lambda
+%	\left[
+%	    4 a_x \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y)
+%	  + 2 a_y \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x)
+%	  - a_z \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+%	\right]
+%	+ \mu
+%	\left[
+%	    4 a_x \pi^2 \cos(4\pi x) \cos(\pi z) \sin(2\pi y)
+%	  + 2 a_y \pi^2 \cos(2\pi y) \cos(\pi z) \sin(4\pi x)
+%	  - 20 a_z \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+%	\right]
+%	- 2 a_z \mu_ \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
+%	\end{pmatrix}
+%\end{eqnarray}
+where $\mu$ and $\lambda$ are the first and second Lam\'{e} parameters, respectively.
+
+\end{appendices}
 
 
 \bibliography{bibliography}% common bib file
