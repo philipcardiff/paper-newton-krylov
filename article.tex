@@ -37,6 +37,8 @@
 \usepackage{geometry}
 \usepackage{subfigure}
 \usepackage{siunitx}
+\usepackage{float}
+
 \geometry
 {
 a4paper,         % or letterpaper
@@ -89,7 +91,7 @@ textheight=24cm, % llncs has 19.3cm
 \affil*[1]{\orgdiv{School of Mechanical and Materials Engineering}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[3]{\orgdiv{SFI I-Form Centre}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
-\affil[4]{\orgdiv{University of Zagreb}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
+\affil[4]{\orgdiv{Faculty of Mechanical Engineering and Naval Architecture}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
 
 
 
@@ -742,7 +744,19 @@ The analytical expressions for the stress distributions around the cavity, first
 \end{eqnarray}
 where $r^2 = x^2 + y^2$ is the cylinderical radial coordinate, $R^2 = r^2 + z^2$ is the spherical radial coodinate, and $x$, $y$, $z$ are the Cartesian coordinates.
 
-\hl{Add displacement equations from Goodier}
+\hl{Philip please double check added displacement equations from Goodier}
+\begin{eqnarray}
+u_r &=& -\frac{A}{r^2} - \frac{3B}{r^4} + \left[ \frac{5-4\nu}{1-2\nu} \frac{C}{r^2}-9\frac{B}{r^4} \right]\cos (2\theta),\\
+u_{\theta} &=& - \left[ \frac{2C}{r^2} + 6\frac{B}{r^4}  \right]\sin(2\theta),
+\end{eqnarray}
+where $A$, $B$ and $C$ constants are defined as follows:
+\begin{equation}
+\frac{A}{a^3} = -\frac{T}{8\mu}\frac{13-10\nu}{7-5\nu}, \qquad
+\frac{B}{a^5} = -\frac{T}{8\mu}\frac{1}{7-5\nu}, \qquad
+\frac{C}{a^3} = -\frac{T}{8\mu}\frac{5(1-2\nu)}{7-5\nu}.
+\end{equation}
+
+
 \hl{We can move the analytical solutions to an appendix}
 
 The solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube centred on the sphere.
@@ -790,7 +804,7 @@ A hole of radius $5$ mm is located at the expected stress concentration.
 
 
 \paragraph{Case 4: Inflation of an idealised ventricle}
-Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{Land2015} as a benchmark problem for cardiac mechanics software.
+Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{land_2015} as a benchmark problem for cardiac mechanics software.
 The case is 3-D, static, with finite hyperelastic strains.
 The initial geometry is defined as a truncated ellipsoid:
 \begin{eqnarray}
@@ -801,17 +815,33 @@ The initial geometry is defined as a truncated ellipsoid:
 where on the inner (endocardial) surface $r_s =7$ mm, $r_l = 17$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{17} \right) \right]$ and $v \in \left[-\pi, \pi \right]$, while on the outer (epicardial) surface $r_s =10$ mm, $r_l = 20$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{20} \right) \right]$ and $v \in \left[-\pi, \pi \right]$.
 The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 %Constitutive parameters: isotropic, 
-The hyperelastic material behaviour is decsribed by the transversely isotropic constitutive proposed by \citet{Guccione} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
+The hyperelastic material behaviour is decsribed by the transversely isotropic constitutive proposed by \citet{guccione_1995} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
 The chosen parameters produce isotropic behaviour.
 A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
 The geometry is meshed using structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
 Four succesively refined meshes are examined: 1,620 (shown in Figure  \ref{fig:ventricle}), 12,960, 103,680, and 829,440 cells.
 %Figure \ref{fig:ventricle} shows the mesh with 1,620 cells (1,512 hexahedra and 108 prisms).
-\begin{figure}[htbp]
-   \centering
-   \includegraphics[width=0.4\textwidth]{figures/ventricle} 
-   \caption{Idealised ventricle case geometry, showing the mesh with 1,620 cells}
-   \label{fig:ventricle}
+%\begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.4\textwidth]{figures/ventricle} 
+%   \caption{Idealised ventricle case geometry, showing the mesh with 1,620 cells}
+%   \label{fig:ventricle}
+%\end{figure}
+\begin{figure}[H]
+	\centering
+	\subfigure[Case geometry, vertical cross-section]
+	{
+		\label{fig:ventricle_geometry}
+   		\includegraphics[height=0.4\textwidth]{figures/ventricle-geometry} 
+   	}
+   	\qquad
+	\subfigure[Mesh with 1,620 cells]
+	{
+		\label{fig:ventricle_mesh}
+   		\includegraphics[height=0.4\textwidth]{figures/ventricle}  
+   	}
+	\caption{Idealised ventricle case.}
+	\label{fig:ventricle}
 \end{figure}
 
 
