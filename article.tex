@@ -801,11 +801,12 @@ The initial geometry is defined as a truncated ellipsoid:
 where on the inner (endocardial) surface $r_s =7$ mm, $r_l = 17$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{17} \right) \right]$ and $v \in \left[-\pi, \pi \right]$, while on the outer (epicardial) surface $r_s =10$ mm, $r_l = 20$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{20} \right) \right]$ and $v \in \left[-\pi, \pi \right]$.
 The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 %Constitutive parameters: isotropic, 
-The hyperelastic material behaviour is decsribed by the transversely isotropic constitutive proposed by \citet{Guccione} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
+The hyperelastic material behaviour is described by the transversely isotropic constitutive proposed by \citet{Guccione} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
+The benchmark specifies an incompressible material; in the current work, incompressibility is enforced weakly using a penalty approach, where the bulk modulus parameter is chosen to be two orders of magnitude greater ($\kappa = 1000$ kPa) than the greatest shear modulus parameter.
 The chosen parameters produce isotropic behaviour.
 A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
-The geometry is meshed using structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
-Four succesively refined meshes are examined: 1,620 (shown in Figure  \ref{fig:ventricle}), 12,960, 103,680, and 829,440 cells.
+The geometry is meshed using a structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
+Four successively refined meshes are examined: 1,620 (shown in Figure  \ref{fig:ventricle}), 12,960, 103,680, and 829,440 cells.
 %Figure \ref{fig:ventricle} shows the mesh with 1,620 cells (1,512 hexahedra and 108 prisms).
 \begin{figure}[htbp]
    \centering
@@ -817,7 +818,7 @@ Four succesively refined meshes are examined: 1,620 (shown in Figure  \ref{fig:v
 
 \paragraph{Case 5: Cook's membrane}
 Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
-In current work, the finite strain elastoplastic version \citep{Simo1992} is considered. \hl{We could also consider the small-strain elastic version if needed}
+The current work considers the finite strain elastoplastic version \citep{Simo1992}. \hl{We could also consider the small-strain elastic version or hyperelastoplastic version}
 The 2-D tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
 The prescribed shear traction is $\tau = 0.3125$ MPa.
 The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
@@ -883,8 +884,29 @@ The total time period is \hl{XXX} s, corresponding to \hl{XX} expceted oscillati
 This section assesses the order of accuracy of the discretisation using a manufactured solution on a cube domain (case 1).
 A secondary purpose is to demonstrate that the choice of solution algorithm (Jacobian-free Newton-Krylov vs segregated) does not affect the predictions, assuming iteration errors are small.
 
-The predicted $\sigma_{xx}$ stress distribution for hexahedral mesh with $512\,000$ cells is shown in Figure \ref{fig:mms_stress}(a).
-The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure \ref{fig:mms_stress}(b), where the errors of greatest magnitude ($-29$ kPa) occur at the ends of the boundary.
+Figure \ref{fig:mms_disp_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for both the hexahedral and polyhedral meshes.
+Figure \ref{fig:mms_disp_accuracy}(b) shows the corresponding order of accuracy plots.
+For ease of interpretation, the symbol shapes in the figures have been chosen to correspond to the cell shapes: a square for hexahedra, a triangle for tetrahedra and a pentagon for polyhedra.
+The maximum ($L_\infty$) and average ($L_2$) discretisation errors are seen to reduce at an approximately second-order rate for all mesh types, except for the $L_2$ error on the hexahedral meshes, which is approximately 2.3 on the finest grid.
+%where, interestingly, the errors are, on average, smaller on the polyhedral meshes.
+%The reason for this is unclear but may be due to the stencil of the structured polyhedra being more isotropic and containing close neighbours.
+\begin{figure}[htbp]
+	\centering
+	\subfigure[Displacement magnitude discretisation errors]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_dispErrors} 
+   	}
+	\subfigure[Displacement discretisation error order of accuracy]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_disp_orderOfAccuracy}  
+   	}
+	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement magnitude}
+	\label{fig:mms_disp_accuracy}
+\end{figure}
+
+The predicted $\sigma_{xx}$ stress distribution for a hexahedral mesh with $512\,000$ cells is shown in Figure \ref{fig:mms_stress}(a).
+The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure \ref{fig:mms_stress}(b).
+The errors of greatest magnitude ($43$ kPa) occur at the boundaries, corresponding to where the local truncation error is higher due to the use of one-sided differencing.
 \begin{figure}[htbp]
 	\centering
 	\subfigure[Predicted $\sigma_{xx}$ stress distribution]
@@ -901,22 +923,11 @@ The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure 
 	\label{fig:mms_stress}
 \end{figure}
 
-Figure \ref{fig:mms_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for both the hexahedral and polyhedral meshes.
-Figure \ref{fig:mms_accuracy}(b) shows the corresponding order of accuracy plots.
-The maximum ($L_\infty$) and average ($L_2$) discretisation errors are seen to reduce at an approximately second-order rate for both hexahedral and polyhedral meshes, where the errors are smaller on the hexahedral meshes \hl{check}.
-The discretisation errors in the $\sigma_{xx}$ component of stress are shown in Figure \ref{fig:mms_accuracy}(b), and the order of accuracy in \ref{fig:mms_accuracy}(d).
-The order of accuracy for the average stress magnitude error is seen to be \hl{XX} for the hexahedral meshes and just over 1.5 for the polyhedral meshes.
-In contrast, the maximum stress error order of accuracy is seen to be 1 for both mesh types \hl{check}.
+The discretisation errors in the stress magnitude are shown in Figure \ref{fig:mms_stress_accuracy}(a), and the order of accuracy in Figure \ref{fig:mms_stress_accuracy}(b).
+The order of accuracy for the average ($L_2$) stress error is seen to be approximately 1.9 for the hexahedral meshes and 1.5 for the polyhedral meshes.
+Unlike the displacement errors where the order of accuracy for the average and maximum errors are similar, the maximum ($L_\infty$) stress order of accuracy is noticeably lower and is seen to approach 1 for both mesh types.
 \begin{figure}[htbp]
 	\centering
-	\subfigure[Displacement magnitude discretisation errors]
-	{
-   		\includegraphics[width=0.45\textwidth]{figures/mms_dispErrors} 
-   	}
-	\subfigure[Displacement discretisation error order of accuracy]
-	{
-   		\includegraphics[width=0.45\textwidth]{figures/mms_disp_orderOfAccuracy}  
-   	}
 	\subfigure[Stress magnitude discretisation errors]
 	{
    		\includegraphics[width=0.45\textwidth]{figures/mms_stressErrors} 
@@ -925,13 +936,40 @@ In contrast, the maximum stress error order of accuracy is seen to be 1 for both
 	{
    		\includegraphics[width=0.45\textwidth]{figures/mms_stress_orderOfAccuracy}  
    	}
-	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement and stress}
-	\label{fig:mms_accuracy}
+	\caption{Manufactured solution cube case: the accuracy and order of accuracy for stress magnitude}
+	\label{fig:mms_stress_accuracy}
 \end{figure}
 
-The presented results have been generated using the Jacobian-free Newton-Raphson solution algorithm; however, minimal differences were seen when using the segregated solution algorithm, and hence, the results are not shown \hl{check}.
-Analysis of time and memory requirements is left to subsequent sections.
+The presented results have been generated using the Jacobian-free Newton-Raphson solution algorithm; however, minimal differences were seen when using the segregated solution algorithm, and hence, the results are not shown.
+% Note: this is PETSc segregated so discretisation is exactly the same; OF segregated will be slightly different as boundary gradients are different
+% \hl{check - maybe one comparison graph}.
+%\hl{Seg and JFNK are the same when including boundary values but this causes a problem for the poly grid}
 
+Analysis of time and memory requirements is left to the subsequent section.
+
+
+%%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Where do we put accuracy results?}
+%%%--------------------------------------------------------------------------------------------------------------------%%
+\hl{Where do we put accuracy comparison plots?}
+\hl{Maybe we should change the previous section to be accuracy tests instead of just order of accuracy}
+\hl{For now, put results here}
+
+The prediction deformed configuration of the midline of the ventricle wall is shown in Figure \ref{fig:ventricle_accuracy}, where a side-by-side comparison is given with the round-robin benchmark results from \citet{Land2015}.
+The predictions of the current work fall within the ranges of the benchmark.
+\begin{figure}[htbp]
+	\centering
+	\subfigure[Predictions from the current work]
+	{
+   		\includegraphics[width=0.46\textwidth]{figures/ventricle_results} 
+   	}
+	\subfigure[\citet{Land2015} benchmarks]
+	{
+   		\includegraphics[width=0.48\textwidth]{figures/ventricle_results_land2015}  
+   	}
+	\caption{Idealised ventricle: predictions for the current method (left) vs the round-robin predictions from \citet{Land2015}}
+	\label{fig:ventricle_accuracy}
+\end{figure}
 
 
 %%%--------------------------------------------------------------------------------------------------------------------%%
