@@ -794,14 +794,30 @@ A constant negative pressure of 1 MPa is applied to the lower surface and the up
 The Young’s modulus is $E = 210$ GPa and Poisson’s ratio is $\nu = 0.3$.
 A hole of radius $5$ mm is located at the expected stress concentration.
 \hl{Comment on the meshes}
-\begin{figure}[htbp]
-   \centering
-%   \includegraphics[width=0.2\textwidth]{figures/narrowTmember.pdf} 
-   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
-   \label{fig:narrowTmember}
+%\begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.4\textwidth]{figures/narrowTmember-geometry.pdf} 
+%   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
+%   \label{fig:narrowTmember}
+%\end{figure}
+\\
+\hl{Philip, so far I have been doing pictures in xfig which is a bit outdated so I am switching to inkscape. I know you have this image of geometry from your article, so feel free to replace it. I made it purely to practice inkscaping.}
+\begin{figure}[H]
+	\centering
+	\subfigure[Case geometry (considered quarter geometry)]
+	{
+		\label{fig:ventricle_geometry}
+   		\includegraphics[height=0.45\textwidth]{figures/narrowTmember-geometry} 
+   	}
+   	\qquad
+	\subfigure[Mesh with 1,620 cells]
+	{
+		\label{fig:ventricle_mesh}
+   		\includegraphics[height=0.4\textwidth]{figures/placeholder.pdf}  
+   	}
+	\caption{Narrow T-section component under tension.}
+	\label{fig:narrowTmember}
 \end{figure}
-
 
 \paragraph{Case 4: Inflation of an idealised ventricle}
 Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{land_2015} as a benchmark problem for cardiac mechanics software.
@@ -872,7 +888,7 @@ The problem is solved as static, using 30 equally-sized loading increments.
 		\label{fig:ventricle_mesh}
    		\includegraphics[height=0.4\textwidth]{figures/cooksMembrane-mesh}  
    	}
-	\caption{Cook's membrane case.}
+	\caption{Cook's mem.}
    \label{fig:cooks_membrane}
 \end{figure}
 
