@@ -148,7 +148,7 @@ In contrast, the finite element community commonly employs Newton-Raphson-type s
 A disadvantage of traditional Newton-based approaches is that they typically require explicit formation and storage of the Jacobian matrix, which can be computationally expensive and memory-intensive.
 A further disadvantage from a finite volume perspective is that extending existing code frameworks from segregated algorithms to a coupled Newton-Raphson-type approach is challenging in terms of the required assembly, storage, and solution of the resulting block-coupled system.
 In addition, the derivation of the true Jacobian matrix is non-trivial.
-Consequently, similar block-coupled solution finite volume methods are rare in the literature \citep{Das2012, Cardiff2016, Castrillo2024}.
+Consequently, similar block-coupled solution finite volume methods are rare in the literature \citep{Das2011, Cardiff2016, Castrillo2024}.
 The motivation of the current work is to seek (or exceed) the robustness and efficiency of block-coupled Newton-Raphons approaches in a way that can be easily incorporated into existing segregated solution frameworks.
 To this end, the current article examines the efficacy of \emph{Jacobian-free} Newton-Krylov methods, where the quadratic convergence of Newton methods can potentially be achieved without deriving, assembling and storing the exact Jacobian.
 
@@ -166,7 +166,7 @@ This approach promises significant memory savings over Jacobian-based methods, e
 A crucial aspect of ensuring the efficiency and robustness of the Jacobian-free Newton-Krylov method is the choice of a suitable preconditioner for the Krylov iterations.
 This preconditioner is often derived from the exact Jacobian matrix in traditional Newton methods.
 However, the Jacobian-free approach does not allow direct access to the full Jacobian matrix, necessitating an alternative strategy to approximate its action.
-To this end, and to extend existing segregated frameworks, we propose using a compact-stencil approximate Jacobian as the preconditioner. This approximate Jacobian corresponds to the matrix typically employed in segregated approaches; similar approaches are successful in fluid mechanics applications \citep{NishikawaPaper, nonNewtonianJFNKPaper}; however, it is unclear if such an approach is suitable for solid mechanics - a question which we hope to answer in this work.
+To this end, and to extend existing segregated frameworks, we propose using a compact-stencil approximate Jacobian as the preconditioner. This approximate Jacobian corresponds to the matrix typically employed in segregated approaches; similar approaches are successful in fluid mechanics applications \citep{Nishikawa2020, nonNewtonianJFNKPaper}; however, it is unclear if such an approach is suitable for solid mechanics - a question which we hope to answer in this work.
 By leveraging this compact-stencil approximate Jacobian, we aim to effectively precondition the Krylov iterations, enhancing convergence while maintaining the memory and computational savings that define the Jacobian-free and segregated methods.
 Similarly, if such an approach is efficient, it would naturally fit into existing segregated frameworks, as existing matrix storage and assembly can be reused.
 
@@ -325,14 +325,14 @@ A fully explicit procedure can also be viewed from this perspective by selecting
 \subsection{Cell-Centred Finite Volume Discretisation}
 \label{sec:discretisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-In this work, a nominally second-order cell-centred finite volume discretisation is employed, as described previously, for example, \citep{cardiff_lagrangian_2017, Batistic, Tukovic, Jasak}.
+In this work, a nominally second-order cell-centred finite volume discretisation is employed, as described previously, for example, \citep{Cardiff2017, batistic2022, tukovic2013, jasak2000}.
 Consequently, only a summary of the discretisation is presented below.
 
 The solution domain is discretised in both space and time.
 The total simulation period is divided into a finite number of time increments, denoted as $\Delta t$, and the discretised governing momentum equation is solved iteratively in a time-marching fashion. The spatial domain is partitioned into a finite number of contiguous convex polyhedral cells.
 %The proposed solution discretisation follows closely the approach of \citet{cardiff_lagrangian_2017}; consequently, only an overview of the final discretised form of equations and adopted solution algorithm are given below.
 
-The conservation equation (Equations \ref{eqn:eqn:momentum_lingeom}, \ref{eqn:eqn:momentum_TL}, or \ref{eqn:eqn:momentum_UL}) is applied to each cell (control volume) in the computational mesh and discretised in terms of the displacement at the cell centre/centroid $\bb{u}_P$ and at the centres of the neighbouring cells $N_i$.
+The conservation equation (Equations \ref{eqn:momentum_lingeom}, \ref{eqn:momentum_TL}, or \ref{eqn:momentum_UL}) is applied to each cell (control volume) in the computational mesh and discretised in terms of the displacement at the cell centre/centroid $\bb{u}_P$ and at the centres of the neighbouring cells $N_i$.
 
 To complete the discretisation, the volume integrals and surface integrals in the governing equation must be approximated by algebraic equations.
 Starting first with the volume integrals, assuming a linear variation of the integrand, the mid-point rule approximates the integral in terms of the cell centre value.
@@ -363,8 +363,8 @@ The stress at a face, $\bb{\sigma}_f$, is calculated by linearly interpolating f
 Stress is calculated at the cell centres as a function of the displacement gradient, $\left(\bb{\nabla}\bb{u}\right)_f$, and the cell-centre gradients are determined using a least squares method \cite{noauthor_openfoam_2015}.
 
 The discretisation is complete but, in its current form, is known to suffer from zero-energy modes, i.e. checkerboarding oscillations.
-Here, a Rhie-Chow-type stabilisation term \cite{rhie_numerical_1983} is added to the residual (Equation \ref{eqn:residual}) to quell such oscillations.
-The Rhie-Chow stabilisation term, first used for finite volume solid mechanics by  \citet{demirdzic_numerical_1995}, consists of the numerical difference between a diffusion (Laplacian) term calculated using compact and larger computational stencils.
+Here, a Rhie-Chow-type stabilisation term \cite{Rhie1983} is added to the residual (Equation \ref{eqn:residual}) to quell such oscillations.
+The Rhie-Chow stabilisation term, first used for finite volume solid mechanics by  \citet{Demirdzic1995}, consists of the numerical difference between a diffusion (Laplacian) term calculated using compact and larger computational stencils.
 The term introduces numerical diffusion to the discretisation, which reduces at a third-order rate.
 % based on the earlier approach of Rhie and Chow \citet{demirdzic_numerical_1995}.
 %One issue encountered with the finite volume method is that the discretisation of the governing conservation of momentum equation ( can be unstable and is known to suffer from checker-boarding errors .
@@ -453,7 +453,7 @@ where $ \bullet_x$ represents the components in the $x$ direction, $ \bullet_y$ 
 An additional benefit of the segregated approach, from a memory perspective, is that matrices $ \bb{\tilde{J}}_x$, $ \bb{\tilde{J}}_y$ and $\bb{\tilde{J}}_z$ are identical, except for the effects from including boundary conditions.
 From an implementation perspective, this allows a single scalar matrix to be formed and stored, where the boundary condition contributions are inserted before solving a particular component.
 
-The \emph{inner} linear sparse systems (Equations \ref{eq:segX}, \ref{eq:segY} and \ref{eq:segZ}) can be solved using any typical direct or iterative linear solver approach; however, an incomplete Cholesky pre-conditioned conjugate gradient method \cite{jacobs_generalization_1986} is often preferred as the weakly diagonally dominant characteristic leads to good convergence characteristics.
+The \emph{inner} linear sparse systems (Equations \ref{eq:segX}, \ref{eq:segY} and \ref{eq:segZ}) can be solved using any typical direct or iterative linear solver approach; however, an incomplete Cholesky pre-conditioned conjugate gradient method \cite{Jacobs1986} is often preferred as the weakly diagonally dominant characteristic leads to good convergence characteristics.
 Algebraic multigrid can be used to accelerate convergence.
 %In non-linear problems, this system of equations is solved multiple times with updated coefficients in a fixed-point iteration scheme. 
 %As noted in previous articles on segregated methods, the inner system need not be solved to a tight tolerance as coefficients and source terms are approximated from the previous increment; a reduction in the residuals of one order of magnitude is typically sufficient. The outer iterations are performed until the predefined tolerance, typically $1 \times 10^{-6}$, has been achieved \cite{cardiff_lagrangian_2017}. 
@@ -489,7 +489,7 @@ As noted in the introduction, the Jacobian-free Newton-Krylov avoids the need to
 
 %\hl{1}
 %Derive Jv for 2x2 system.
-The derivation of this approximation can be shown for a $2 \times 2$ system as \cite{Knoll20024}:
+The derivation of this approximation can be shown for a $2 \times 2$ system as \cite{Knoll2004}:
 \begin{eqnarray}
 	\frac{\mathbf{F}(\mathbf{x} + \epsilon \mathbf{v}) - \mathbf{F}(\mathbf{x})}{\epsilon}
 	&=&
@@ -542,7 +542,7 @@ Concretely, the preconditioner needs to approximately solve the linear system $\
 %- many precon used in lit, we will consider ILU(N) and MG, where MG is expected to be better, but also LU since direct solvers are popular in FE solid mechanics
 In the current work, we proposed to use the compact-stencil approximate Jacobian from the segregated algorithm $\tilde{\bb{J}}$ as the preconditioning matrix $\bb{P}$ for the preconditioned Jacobian-free Newton-Krylov method.
 \hl{Comment on literature: used before but not yet for solids}.
-This preconditioning approach can be considered as a ``physics-based" preconditioner in the classifications of \cite{Knoll}.
+This preconditioning approach can be considered as a ``physics-based" preconditioner in the classifications of \cite{Knoll2004}.
 The approach is conceptually similar to an approximation of the Jacobian of a higher-order advection scheme by a compact-stencil lower-order upwind scheme.
 A benefit of the proposed approach is that existing segregated frameworks can re-use their existing discretisation and storage implementations.
 Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for forming this preconditioning matrix and a procedure for explicitly evaluating the residual.
@@ -564,7 +564,7 @@ In this work, three preconditioners are considered:
 %\hl{4 - globalisation}
 A challenge with Newton-type methods, including Jacobian-free versions, is convergence can be poor when far from the true solution, and divergence is often a real possibility.
 Globalisation refers to steering an initial solution towards the quadratic convergence range of the Newton method.
-Several strategies are possible, and it is common to combine approaches \cite{Knoell2004}.
+Several strategies are possible, and it is common to combine approaches \cite{Knoll2004}.
 In the current work, a line search procedure is used to select the $s$ parameter in the solution update step (the second line in Equations \ref{eq:NewtonRaphson}).
 Line search methods assume the Newton update direction is correction and aim to find a scalar $s > 0$ that decreases the residual $\bb{R}(\bb{u}_k + s \delta \bb{u}) < \bb{R}(\bb{u}_k)$.
 The scalar $s$ is typically $\leq 1$, but extrapolation ($>1$) is also possible for accelerating convergence, albeit at the expense of robustness.
@@ -583,7 +583,8 @@ The predictor step in Equation \ref{eq:predictor} has been chosen to be consiste
 %This could be a parameter we look at.
 A final comment on the Jacobian-free Newton-Krylov solution algorithm is the potential importance of \emph{oversolving}.
 Here, oversolving refers to solving the linear system to too tight a tolerance during the early Newton iterations, essentially wasting time when the solution is far from the true solution.
-In addition, some authors \cite{See164_and_176_in_Knoll2004} have shown Newton convergence to be worse when the earlier iterations are solved to too tight a tolerance.
+In addition, some authors %\cite{See164_and_176_in_Knoll2004}
+\cite{Knoll2004} have shown Newton convergence to be worse when the earlier iterations are solved to too tight a tolerance.
 The concept of oversolving also applies to segregated solution procedures and has been well-known since the early work of Demird\v{z}i\'{c} and co-workers \cite{Demirdzic}, where the residuals are typically reduced by one order of magnitude in the inner linear system.
 The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}. \hl{Check: do we examine this?}
 
@@ -711,7 +712,7 @@ The resulting body force to force the manufactured solution is given in Appendix
 
 The manufactured displacement solution is applied at the domain's boundaries, and inertial effects are neglected.
 Two forms of mesh are examined: (i) structured, uniform hexahedra and (ii) regular polyhedra (Figure \ref{fig:mms_mesh}).
-To create the polyhedral meshes, structured tetrahedra meshes are first generated using Gmsh \cite{geuzaine2009gmsh} and then converted to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
+To create the polyhedral meshes, structured tetrahedra meshes are first generated using Gmsh \cite{Geuzaine2009} and then converted to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
 Starting from an initial mesh spacing of $0.04$ m, six meshes are created by successively halving the spacing.
 The cell numbers (hexahedra and polyhedral meshes) are 125, $1\,000$, $8\,000$, $64\,000$, $512\,000$, and $4\,096\,000$.
 
@@ -763,7 +764,7 @@ The solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube cen
 The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
 Unstructured polyhedral meshes of varying densities are employed (\hl{state average cell widths, and number of cells in each mesh}).
 The mesh with 2,257 cells is shown in Figure \ref{fig:spherical_cavity}.
-Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{geuzaine2009gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
+Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{Geuzaine2009}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
 
 
 \paragraph{Case 2: Out-of-plane bending of an elliptic plate}
@@ -772,7 +773,7 @@ This 3-D, static, linear elastic test case (Figure \ref{fig:elliptic_plate}) con
 	\left(\frac{x}{2}\right)^2 + \left(\frac{y}{1}\right)^2 = 1 & \text{inner ellipse} \\
 	\left(\frac{x}{3.25}\right)^2 + \left(\frac{y}{2.75}\right)^2 = 1 & \text{outer ellipse}
 \end{eqnarray}
-The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{NAFEMS}, and analysed using finite volume procedures by \citet{Demirdzic} and \citet{Cardiff2016}.
+The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{NAFEMS}, and analysed using finite volume procedures by \citet{Demirdzic1997} and \citet{Cardiff2016}.
 Symmetry allows one quarter of the geometry to be simulated.
 A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
 The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
@@ -820,7 +821,7 @@ A hole of radius $5$ mm is located at the expected stress concentration.
 \end{figure}
 
 \paragraph{Case 4: Inflation of an idealised ventricle}
-Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{land_2015} as a benchmark problem for cardiac mechanics software.
+Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{Land2015} as a benchmark problem for cardiac mechanics software.
 The case is 3-D, static, with finite hyperelastic strains.
 The initial geometry is defined as a truncated ellipsoid:
 \begin{eqnarray}
@@ -831,7 +832,7 @@ The initial geometry is defined as a truncated ellipsoid:
 where on the inner (endocardial) surface $r_s =7$ mm, $r_l = 17$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{17} \right) \right]$ and $v \in \left[-\pi, \pi \right]$, while on the outer (epicardial) surface $r_s =10$ mm, $r_l = 20$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{20} \right) \right]$ and $v \in \left[-\pi, \pi \right]$.
 The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 %Constitutive parameters: isotropic, 
-The hyperelastic material behaviour is decsribed by the transversely isotropic constitutive proposed by \citet{guccione_1995} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
+The hyperelastic material behaviour is decsribed by the transversely isotropic constitutive proposed by \citet{Guccione1995} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
 The chosen parameters produce isotropic behaviour.
 A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
 The geometry is meshed using structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
@@ -848,13 +849,13 @@ Four succesively refined meshes are examined: 1,620 (shown in Figure  \ref{fig:v
 	\subfigure[Case geometry, vertical cross-section]
 	{
 		\label{fig:ventricle_geometry}
-   		\includegraphics[height=0.4\textwidth]{figures/ventricle-geometry} 
+   		\includegraphics[scale=1]{figures/ventricle-geometry} 
    	}
    	\qquad
 	\subfigure[Mesh with 1,620 cells]
 	{
 		\label{fig:ventricle_mesh}
-   		\includegraphics[height=0.4\textwidth]{figures/ventricle}  
+   		\includegraphics[scale=0.1]{figures/ventricle}  
    	}
 	\caption{Idealised ventricle case.}
 	\label{fig:ventricle}
@@ -880,15 +881,15 @@ The problem is solved as static, using 30 equally-sized loading increments.
 	\subfigure[Case geometry and dimensions]
 	{
 		\label{fig:ventricle_geometry}
-   		\includegraphics[height=0.4\textwidth]{figures/cooksMembrane-geometry} 
+   		\includegraphics[scale=1]{figures/cooksMembrane-geometry} 
    	}
    	\qquad
 	\subfigure[Hexahedral mesh with 144 cells]
 	{
 		\label{fig:ventricle_mesh}
-   		\includegraphics[height=0.4\textwidth]{figures/cooksMembrane-mesh}  
+   		\includegraphics[scale=0.14]{figures/cooksMembrane-mesh}  
    	}
-	\caption{Cook's mem.}
+	\caption{Cook's membrane.}
    \label{fig:cooks_membrane}
 \end{figure}
 
@@ -911,14 +912,29 @@ The geometric and material parameters were chosen for the first natural frequenc
 \hl{Comment on the meshes}
 A fixed time step size of \hl{XXX} s is chosen, corresponding to a \hl{YY} on the coarsest mesh \hl{update as required}.
 The total time period is 10 s, corresponding to 10 expceted oscillation periods.
-\begin{figure}[htbp]
-   \centering
-%   \includegraphics[width=0.2\textwidth]{figures/dynamic_cantilever.pdf} 
-   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   \caption{Vibration of a 3-D Cantilevered Beam case geometry, mesh and loading conditions}
+%\begin{figure}[htbp]
+%   \centering
+%%   \includegraphics[width=0.2\textwidth]{figures/dynamic_cantilever.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+%   \caption{Vibration of a 3-D Cantilevered Beam case geometry, mesh and loading conditions}
+%   \label{fig:dynamic_cantilever}
+%\end{figure}
+\begin{figure}[H]
+	\centering
+	\subfigure[Case geometry and dimensions]
+	{
+		\label{fig:ventricle_geometry}
+   		\includegraphics[scale=1]{figures/cantileverBeam-geometry} 
+   	}
+   	\qquad
+	\subfigure[Hexahedral mesh with 144 cells]
+	{
+		\label{fig:ventricle_mesh}
+   		\includegraphics[scale=0.25]{figures/placeholder}  
+   	}
+	\caption{Vibration of a 3-D Cantilevered Beam case geometry, mesh and loading conditions}
    \label{fig:dynamic_cantilever}
 \end{figure}
-
 
 \paragraph{Case 7: Vibration of an Axial Turbine Blade}
 This 3-D, dynamic, finite strain case geometry consists of a twisted axial turbine blade, 0.8 m in height, with a cord length of 0.2 m (Figure \ref{fig:turbine_blade}), and is taken from \citet{Tukovic2007}.
