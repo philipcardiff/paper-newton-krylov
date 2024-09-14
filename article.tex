@@ -778,14 +778,29 @@ Symmetry allows one quarter of the geometry to be simulated.
 A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
 The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
 \hl{Comment on the meshes used}.
-\begin{figure}[htbp]
-   \centering
-   %\includegraphics[width=0.2\textwidth]{figures/elliptic_plate.pdf} 
-   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   \caption{Elliptic Plate case geometry, mesh and loading conditions}
-   \label{fig:elliptic_plate}
+%\begin{figure}[htbp]
+%   \centering
+%   %\includegraphics[width=0.2\textwidth]{figures/elliptic_plate.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+%   \caption{Elliptic Plate case geometry, mesh and loading conditions}
+%   \label{fig:elliptic_plate}
+%\end{figure}
+\begin{figure}[H]
+	\centering
+	\subfigure[Case geometry (considered quarter geometry)]
+	{
+		\label{fig:eliptic_plate_geometry}
+   		\includegraphics[scale=1]{figures/ellipticPlate-geometry} 
+   	}
+   	\qquad
+	\subfigure[Mesh with 1,620 cells]
+	{
+		\label{fig:eliptic_plate_mesh}
+   		\includegraphics[scale=0.4]{figures/placeholder.pdf}  
+   	}
+	\caption{Elliptic Plate case geometry, mesh and loading conditions.}
+	\label{fig:elliptic_plate}
 \end{figure}
-
 
 \paragraph{Case 3: Narrow T-section component under tension}
 This case, proposed by \citet{Demirdzic1997}, consists of a narrow engineering component with a T cross-section (Figure \ref{fig:narrowTmember}).
@@ -807,13 +822,13 @@ A hole of radius $5$ mm is located at the expected stress concentration.
 	\centering
 	\subfigure[Case geometry (considered quarter geometry)]
 	{
-		\label{fig:ventricle_geometry}
-   		\includegraphics[height=0.45\textwidth]{figures/narrowTmember-geometry} 
+		\label{fig:narrowTmember_geometry}
+   		\includegraphics[scale=1]{figures/narrowTmember-geometry} 
    	}
    	\qquad
 	\subfigure[Mesh with 1,620 cells]
 	{
-		\label{fig:ventricle_mesh}
+		\label{fig:narrowTmember_mesh}
    		\includegraphics[height=0.4\textwidth]{figures/placeholder.pdf}  
    	}
 	\caption{Narrow T-section component under tension.}
@@ -880,13 +895,13 @@ The problem is solved as static, using 30 equally-sized loading increments.
 	\centering
 	\subfigure[Case geometry and dimensions]
 	{
-		\label{fig:ventricle_geometry}
+		\label{fig:cooks_membrane_geometry}
    		\includegraphics[scale=1]{figures/cooksMembrane-geometry} 
    	}
    	\qquad
 	\subfigure[Hexahedral mesh with 144 cells]
 	{
-		\label{fig:ventricle_mesh}
+		\label{fig:cooks_membrane_mesh}
    		\includegraphics[scale=0.14]{figures/cooksMembrane-mesh}  
    	}
 	\caption{Cook's membrane.}
@@ -923,13 +938,13 @@ The total time period is 10 s, corresponding to 10 expceted oscillation periods.
 	\centering
 	\subfigure[Case geometry and dimensions]
 	{
-		\label{fig:ventricle_geometry}
+		\label{fig:dynamic_cantilever_geometry}
    		\includegraphics[scale=1]{figures/cantileverBeam-geometry} 
    	}
    	\qquad
 	\subfigure[Hexahedral mesh with 144 cells]
 	{
-		\label{fig:ventricle_mesh}
+		\label{fig:dynamic_cantilever_mesh}
    		\includegraphics[scale=0.25]{figures/placeholder}  
    	}
 	\caption{Vibration of a 3-D Cantilevered Beam case geometry, mesh and loading conditions}
