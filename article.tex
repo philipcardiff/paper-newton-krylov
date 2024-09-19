@@ -797,39 +797,8 @@ Far from the cavity, the solid is subjected to a tensile stress $\sigma_{zz} = T
    \caption{Spherical cavity case geometry, showing the polyhedral mesh with $4\,539$}
    \label{fig:spherical_cavity}
 \end{figure}
-The analytical expressions for the stress distributions around the cavity, first derived by \cite{Southwell1926}, are
-\begin{eqnarray}
-	\sigma_{rr} &=&
-		\frac{T}{14 - 10\nu} \frac{a^3}{R^3}
-		\left[ 9 - 15\nu - 12 \frac{a^2}{R^2}  - \frac{r^2}{R^2} \left( 72 - 15\nu - 105 \frac{a^2}{R^2} \right) + 15 \frac{r^4}{R^4} \left( 5 - 7 \frac{a^2}{R^2} \right) \right], \\
-	\sigma_{\theta\theta} &=&
-		\frac{T}{14 - 10\nu} \frac{a^3}{R^3}
-		\left[ 9 - 15\nu - 12 \frac{a^2}{R^2}  - 15 \frac{r^2}{R^2} \left( 1 - 2\nu - \frac{a^2}{R^2} \right) \right], \\
-	\sigma_{zz} &=&
-		T \left[ 1 - \frac{1}{14 - 10\nu} \frac{a^3}{R^3} \left\{ 38 - 10\nu - 24 \frac{a^2}{R^2} 
-		- \frac{r^2}{R^2} \left( 117 - 15\nu - 120 \frac{a^2}{R^2} \right)
-		+ 15 \frac{r^4}{R^4} \left( 5 - 7 \frac{a^2}{R^2} \right) \right\} \right], \notag \\
-		\\
-	\sigma_{zr} &=&
-	\frac{T}{14 - 10\nu} \frac{a^3 z r}{R^5}
-	\left[ -3(19 - 5\nu) + 60 \frac{a^2}{R^2} + 15 \frac{r^2}{R^2} \left( 5 - 7 \frac{a^2}{R^2} \right)  \right].
-\end{eqnarray}
-where $r^2 = x^2 + y^2$ is the cylinderical radial coordinate, $R^2 = r^2 + z^2$ is the spherical radial coodinate, and $x$, $y$, $z$ are the Cartesian coordinates.
+The analytical expressions for the stress and displacement distributions are given in Appendix \ref{app:sphericalCavity}.
 
-\hl{Philip please double check added displacement equations from Goodier}
-\begin{eqnarray}
-u_r &=& -\frac{A}{r^2} - \frac{3B}{r^4} + \left[ \frac{5-4\nu}{1-2\nu} \frac{C}{r^2}-9\frac{B}{r^4} \right]\cos (2\theta),\\
-u_{\theta} &=& - \left[ \frac{2C}{r^2} + 6\frac{B}{r^4}  \right]\sin(2\theta),
-\end{eqnarray}
-where $A$, $B$ and $C$ constants are defined as follows:
-\begin{equation}
-\frac{A}{a^3} = -\frac{T}{8\mu}\frac{13-10\nu}{7-5\nu}, \qquad
-\frac{B}{a^5} = -\frac{T}{8\mu}\frac{1}{7-5\nu}, \qquad
-\frac{C}{a^3} = -\frac{T}{8\mu}\frac{5(1-2\nu)}{7-5\nu}.
-\end{equation}
-
-
-\hl{We can move the analytical solutions to an appendix}
 
 The computational solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube aligned with the Cartesian axes, with one corner at the centre of the sphere.
 The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
@@ -856,15 +825,11 @@ Six successively refined hexahedral meshes are used, with cell counts of 45, 472
 \begin{figure}[htbp]
    \centering
 %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate.pdf} ellipticPlate-geometry
-	\subfigure[Mesh containing 472 hexahedral cells]
-	{
+%	\subfigure[Mesh containing 472 hexahedral cells]
+%	{
 		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate.pdf} 
-	}
-	\subfigure[The equivalent (von Mises) stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry]
-	{
-		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq}  
-	}
-   \caption{Elliptic Plate case}
+%	}
+   \caption{Elliptic Plate geometry and mesh containing 472 hexahedral cells}
    \label{fig:elliptic_plate}
 \end{figure}
 
@@ -874,10 +839,19 @@ the small offset between the finest mesh predictions and those from \citet{Demir
 The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\frac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
-   \caption{Elliptic Plate: equivalent (von Mises) stress along the line r = 2.1, z = 0.3 m}
+   %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
+	\subfigure[Equivalent stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry]
+	{
+		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq}  
+	}
+	\subfigure[Equivalent stress along the line $r = 2.1$, $z = 0.3$ m]
+	{
+		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
+	}
+   \caption{Equivalent (von Mises) stress distribution in the elliptic plate}
    \label{fig:elliptic_plate_sigmaEq}
 \end{figure}
+
 
 \paragraph{Case 3: Narrow T-section component under tension}
 This case, proposed by \citet{Demirdzic1997a}, consists of a narrow engineering component with a T cross-section (Figure \ref{fig:narrowTmember}).
@@ -886,31 +860,51 @@ Symmetry allows one-quarter of the geometry to be simulated.
 A constant negative pressure of 1 MPa is applied to the lower surface, and the upper left surface is fully clamped.
 The Young’s modulus is $E = 210$ GPa and Poisson’s ratio is $\nu = 0.3$.
 A radius $5$ mm hole is located at the expected stress concentration.
-\hl{Comment on the meshes}
 %\begin{figure}[htbp]
 %   \centering
 %   \includegraphics[width=0.4\textwidth]{figures/narrowTmember-geometry.pdf} 
 %   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
 %   \label{fig:narrowTmember}
 %\end{figure}
-\\
-\hl{Philip, so far I have been doing pictures in xfig which is a bit outdated so I am switching to inkscape. I know you have this image of geometry from your article, so feel free to replace it. I made it purely to practice inkscaping.}
-\begin{figure}[H]
+\begin{figure}[htbp]
 	\centering
 	\subfigure[Case geometry (considered quarter geometry)]
 	{
 		\label{fig:narrowTmember_geometry}
-   		\includegraphics[scale=1]{figures/narrowTmember-geometry} 
+   		\includegraphics[height=0.4\textwidth]{figures/narrowTmember-geometry} 
    	}
    	\qquad
-	\subfigure[Mesh with 1,620 cells]
+	\subfigure[Mesh with 624 cells]
 	{
 		\label{fig:narrowTmember_mesh}
-   		\includegraphics[height=0.4\textwidth]{figures/placeholder.pdf}  
+   		\includegraphics[height=0.4\textwidth]{figures/narrowTmember-mesh}  
    	}
-	\caption{Narrow T-section component under tension.}
+	\caption{Narrow T-section component under tension: geometry and mesh}
 	\label{fig:narrowTmember}
 \end{figure}
+
+Five succesively refined hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} utility, consisting of 624, $4\,992$, $39\,936$, $319\,488$, and $2\,555\,904$ cells.
+The corresponding average cell widths—calculated as the cubed root of the total domain volume divided by the number of cells—are 6.69, 3.34, 1.67, 0.84, and 0.42 mm.
+
+
+The predicted equivalent (von Mises) stress distribution on the $z = 0$ plane is shown in Figure \ref{fig:narrowTmember_sigmaEq}(a), where a stress concentration is apparent near the hole.
+The equivalent stress along the line $r = 1.5R$, $z = 0$ is shown for the different meshes in Figure \ref{fig:narrowTmember_sigmaEq}(b), where $R$ is the hole radius.
+The predictions are seen converge to the results reported in \citet{Demirdzic1997a}.
+Similarly to the elliptic plate case, the sample values have been to by generating 30 uniformly spaced angles between $-\frac{\pi}{2}$ and $-\pi$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
+\begin{figure}[htbp]
+   \centering
+	\subfigure[Equivalent stress distribution for the mesh with $2\,555\,904$ cells on the $z = 0$ m plane]
+	{
+		\includegraphics[height=0.32\textwidth]{figures/narrowTmember_sigmaEq}  
+	}
+	\subfigure[Equivalent stress along the line $r = 1.5R$, $z = 0$ m]
+	{
+		\includegraphics[height=0.32\textwidth]{figures/narrowTmember_sigmaEq_line.pdf} 
+	}
+   \caption{Equivalent (von Mises) stress distribution in the narrow T-section component under tension}
+   \label{fig:narrowTmember_sigmaEq}
+\end{figure}
+
 
 
 \paragraph{Case 4: Inflation of an idealised ventricle}
@@ -925,13 +919,14 @@ The initial geometry is defined as a truncated ellipsoid:
 where on the inner (endocardial) surface $r_s =7$ mm, $r_l = 17$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{17} \right) \right]$ and $v \in \left[-\pi, \pi \right]$, while on the outer (epicardial) surface $r_s =10$ mm, $r_l = 20$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{20} \right) \right]$ and $v \in \left[-\pi, \pi \right]$.
 The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 %Constitutive parameters: isotropic, 
-The hyperelastic material behaviour is described by the transversely isotropic constitutive proposed by \citet{Guccione1995} law, where the parameters $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
+The hyperelastic material behaviour is described by the transversely isotropic constitutive proposed by \citet{Guccione1995} law, where the parameters are $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
 The benchmark specifies an incompressible material; in the current work, incompressibility is enforced weakly using a penalty approach, where the bulk modulus parameter is chosen to be two orders of magnitude greater ($\kappa = 1000$ kPa) than the greatest shear modulus parameter.
 The chosen parameters produce isotropic behaviour.
 A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
 The geometry is meshed using a structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
 The OpenFOAM utilities \texttt{blockMesh} and \texttt{extrudeMesh} are used to create the meshes.
 Four successively refined meshes are examined: 1,620 (shown in Figure \ref{fig:ventricle}(a)), 12,960, 103,680, and 829,440 cells.
+The case can be simulated as 2-D axisymmetric, but is simulated here using the full 3-D geometry.
 %Figure \ref{fig:ventricle} shows the mesh with 1,620 cells (1,512 hexahedra and 108 prisms).
 \begin{figure}[htbp]
    \centering
@@ -948,10 +943,9 @@ Four successively refined meshes are examined: 1,620 (shown in Figure \ref{fig:v
    \label{fig:ventricle}
 \end{figure}
 
-The equivalent (von Mises) stress at full inflation is shown for the mesh with 829,440 cells in Figure \ref{fig:ventricle}(b), where the high stresses on the endocardial (inner) surface quickly drop off through the wall thickness as the endocardial (outer) surface is approached.
+The equivalent (von Mises) stress at full inflation is shown for the mesh with 829,440 cells in Figure \ref{fig:ventricle}(b), where the high stresses on the endocardial (inner) surface quickly drop off through the wall thickness towards the endocardial (outer) surface.
 The predicted deformed configuration of the midline of the ventricle wall is shown in Figure \ref{fig:ventricle_accuracy}, where a side-by-side comparison is given with the round-robin benchmark results from \citet{Land2015}.
-The predictions of the current work fall within the ranges of the benchmark.
-The predictions are seen to become quickly mesh-independent.
+The predictions are seen to become quickly mesh-independent and fall within the benchmark ranges.
 %The variation in the round-robin results may be explained by the sensitivity of the predictions to the allowed compressibility; when a penalty bulk modulus approach is adopted, like in the current work, increasing
 \begin{figure}[htbp]
 	\centering
@@ -963,19 +957,18 @@ The predictions are seen to become quickly mesh-independent.
 	{
    		\includegraphics[width=0.48\textwidth]{figures/ventricle_results_land2015}  
    	}
-	\caption{Idealised ventricle: predictions for the current method (left) vs the round-robin predictions from \citet{Land2015}}
+	\caption{Idealised ventricle: predictions for the current method (left) vs the round-robin predictions from \citet{Land2015} \hl{Merge figures}}
 	\label{fig:ventricle_accuracy}
 \end{figure}
 
 
 \paragraph{Case 5: Cook's membrane}
 Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
-The current work considers the finite strain elastoplastic version \citep{Simo1992}. \hl{We could also consider the small-strain elastic version or hyperelastoplastic version}
-The 2-D tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
+The current work considers three forms of the problem: (i) small strain elastic, (ii) finite-strain hyperelastic, and (iii) finite strain elastoplastic version \citep{Simo1992}.
+The 2-D plane strain tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
 The prescribed shear traction is $\tau = 0.3125$ MPa.
 The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
-There are no body forces, and the problem is solved as statically as 2-D plane strain.
-The problem is solved as static, using 30 equally-sized loading increments.
+The problem is solved as static, using 30 equally-sized loading increments, and there are no body forces.
 %\begin{figure}[htbp]
 %   \centering
 %   \includegraphics[width=0.4\textwidth]{figures/cooksMembrane-geometry} 
@@ -995,15 +988,21 @@ The problem is solved as static, using 30 equally-sized loading increments.
 		\label{fig:cooks_membrane_mesh}
    		\includegraphics[scale=0.14]{figures/cooksMembrane-mesh}  
    	}
-	\caption{Cook's membrane.}
+	\caption{Cook's membrane case geometry and mesh}
    \label{fig:cooks_membrane}
 \end{figure}
 
+\hl{Define properties for three cases: i, ii and iii}
 The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
 \begin{eqnarray}
 	\sigma_y = \sigma_Y + H\bar{\varepsilon}_p + (\sigma_{\infty} - \sigma_Y)(1- e^{-\delta\bar{\varepsilon}_p})
 \end{eqnarray}
 The plastic yielding parameters are $\sigma_Y = 0.45$ MPa, $\sigma_{\infty} = 0.715$ MPa, $\delta = 16.93$, and $H = 0.12924$ MPa, where the hardening variable $\bar{\varepsilon}_p$ corresponds to equivalent plastic strain.
+
+\hl{Give mesh details}
+
+\hl{Add figures: finest mesh stress distributions and deformation}
+\hl{Add figures: corner displacement prediction vs average cell width}
 
 
 \paragraph{Case 6: Vibration of a 3-D Cantilevered Beam}
@@ -1051,13 +1050,14 @@ Figure \ref{fig:dynamic_cantilever_results}
 
 
 \paragraph{Case 7: Vibration of an Axial Turbine Blade}
+\hl{Solve statically}
 This 3-D, dynamic, finite strain case geometry consists of a twisted axial turbine blade, 0.8 m in height, with a cord length of 0.2 m (Figure \ref{fig:turbine_blade}), and is taken from \citet{Tukovic2007}.
 \hl{Zeljko probably has this geometry or a reference for where it came from}
-The blade is constrained at one end and subjected to a sudden, constant traction of $\bb{T} = ($\hl{ZZZ,ZZZ,ZZZ} $)$ Pa at the other end.
+The blade is constrained at one end and subjected to a sudden, constant traction of $\bb{T} = ($\hl{ZZZ,ZZZ,ZZZ}$)$ Pa at the other end.
 A St.\ Venant-Kirchoff material is assumed with $E = 15.293$ MPa and $\nu = 0.3$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = 0.0001333$ m$^4$.
 \hl{Comment on the meshes}
 A fixed time step size of \hl{XXX} s is chosen, corresponding to a \hl{YY} on the coarsest mesh \hl{update as required}.
-The total time period is \hl{XXX} s, corresponding to \hl{XX} expceted oscillation periods.
+The total time period is \hl{XXX} s, corresponding to \hl{XX} expected oscillation periods.
 \hl{An advantage of this case over the cantilever is that it is complex geometry; a disadvantage is that we do not have a reference solution}
 \hl{A mitigation for this disadvantage is we could run it in Abaqus to provide a credible reference}
 \begin{figure}[htbp]
@@ -1069,6 +1069,23 @@ The total time period is \hl{XXX} s, corresponding to \hl{XX} expceted oscillati
 \end{figure}
 
 
+\paragraph{Case 8: Elastic plate behind a rigid cylinder}
+\citet{Turek2006} proposed this well-known fluid-solid interaction benchmark case as an extension of the classic flow around a cylinder in a channel problem \cite{Ferziger2002}.
+The \texttt{FSI3} variant of the case examined here (Figure \ref{fig:hronTurek-geometry} consists of a horizontal channel (0.41 m in height, 2.5 m in length) with a rigid cylinder of radius 0.05 m, where the cylinder centre is 0.2 m from the bottom and inlet (left) boundaries.
+A parabolic velocity is prescribed at the inlet velocity with a mean value of 2 m/s.
+A St.\ Venant-Kirchhoff hyperelastic plate ($E = 5.6$ MPa, $\nu = 0.4$) of 0.35 m in length and 0.02 m in height is attached to the right-hand side of the rigid cylinder.
+The fluid's kinematic viscosity is 0.001 m$^2$/s and density is 1000 kg/m$^3$, while the solid's density is $10\,000$ kg/m$^3$.
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.6\textwidth]{figures/hronTurek-geometry} 
+   \caption{Elastic plate behind a rigid cylinder case geometry and mesh (taken from \citet{Tukovic2018a})}
+   \label{fig:hronTurek-geometry}
+\end{figure}
+
+\hl{Describe mesh}
+\hl{Describe time step and tolerances}
+
+\hl{Give results: snapshot of max deformation; force or displacement vs benchmark}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
@@ -1468,6 +1485,43 @@ The body force for the manufactured solution case is
 %	\end{pmatrix}
 %\end{eqnarray}
 where $\mu$ and $\lambda$ are the first and second Lam\'{e} parameters, respectively.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analytical Expressions for the Stress and Displacement Distributions around a Spherical Cavity under Uniaxial Tensions} \label{app:sphericalCavity}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The analytical expressions for the stress distributions around the cavity, first derived by \citet{Southwell1926}, are
+\begin{eqnarray}
+	\sigma_{rr} &=&
+		\frac{T}{14 - 10\nu} \frac{a^3}{R^3}
+		\left[ 9 - 15\nu - 12 \frac{a^2}{R^2}  - \frac{r^2}{R^2} \left( 72 - 15\nu - 105 \frac{a^2}{R^2} \right) + 15 \frac{r^4}{R^4} \left( 5 - 7 \frac{a^2}{R^2} \right) \right], \\
+	\sigma_{\theta\theta} &=&
+		\frac{T}{14 - 10\nu} \frac{a^3}{R^3}
+		\left[ 9 - 15\nu - 12 \frac{a^2}{R^2}  - 15 \frac{r^2}{R^2} \left( 1 - 2\nu - \frac{a^2}{R^2} \right) \right], \\
+	\sigma_{zz} &=&
+		T \left[ 1 - \frac{1}{14 - 10\nu} \frac{a^3}{R^3} \left\{ 38 - 10\nu - 24 \frac{a^2}{R^2} 
+		- \frac{r^2}{R^2} \left( 117 - 15\nu - 120 \frac{a^2}{R^2} \right)
+		+ 15 \frac{r^4}{R^4} \left( 5 - 7 \frac{a^2}{R^2} \right) \right\} \right], \notag \\
+		\\
+	\sigma_{zr} &=&
+	\frac{T}{14 - 10\nu} \frac{a^3 z r}{R^5}
+	\left[ -3(19 - 5\nu) + 60 \frac{a^2}{R^2} + 15 \frac{r^2}{R^2} \left( 5 - 7 \frac{a^2}{R^2} \right)  \right].
+\end{eqnarray}
+where $a$ is the hole radius, $T$ is the distant stress applied in the $z$ direction, $\nu$ is the Poisson's ratio, $r^2 = x^2 + y^2$ is the cylinderical radial coordinate, $R^2 = r^2 + z^2$ is the spherical radial coodinate, and $x$, $y$, $z$ are the Cartesian coordinates.
+
+The displacement distributions were later derived by \citet{Goodier1933}:
+\begin{eqnarray}
+u_r &=& -\frac{A}{r^2} - \frac{3B}{r^4} + \left[ \frac{5-4\nu}{1-2\nu} \frac{C}{r^2}-9\frac{B}{r^4} \right]\cos (2\theta),\\
+u_{\theta} &=& - \left[ \frac{2C}{r^2} + 6\frac{B}{r^4}  \right]\sin(2\theta),
+\end{eqnarray}
+where the constants $A$, $B$ and $C$ are defined as follows:
+\begin{equation}
+\frac{A}{a^3} = -\frac{T}{8\mu}\frac{13-10\nu}{7-5\nu}, \qquad
+\frac{B}{a^5} = -\frac{T}{8\mu}\frac{1}{7-5\nu}, \qquad
+\frac{C}{a^3} = -\frac{T}{8\mu}\frac{5(1-2\nu)}{7-5\nu}.
+\end{equation}
+and $\mu$ is the shear modulus.
+
 
 \end{appendices}
 
