@@ -949,33 +949,32 @@ The predictions are seen to become quickly mesh-independent and fall within the 
 %The variation in the round-robin results may be explained by the sensitivity of the predictions to the allowed compressibility; when a penalty bulk modulus approach is adopted, like in the current work, increasing
 \begin{figure}[htbp]
 	\centering
-	\subfigure[Predictions from the current work]
-	{
-   		\includegraphics[width=0.46\textwidth]{figures/ventricle_results} 
-   	}
-	\subfigure[\citet{Land2015} benchmarks]
-	{
-   		\includegraphics[width=0.48\textwidth]{figures/ventricle_results_land2015}  
-   	}
-	\caption{Idealised ventricle: predictions for the current method (left) vs the round-robin predictions from \citet{Land2015} \hl{Merge figures}}
+   		\includegraphics[width=0.6\textwidth]{figures/ventricle_results} 
+%	\subfigure[Predictions from the current work]
+%	{
+%   		\includegraphics[width=0.46\textwidth]{figures/ventricle_results} 
+%   	}
+%	\subfigure[\citet{Land2015} benchmarks]
+%	{
+%		\includegraphics[width=0.48\textwidth]{figures/ventricle_results_land2015}  
+%	}
+	\caption{Idealised ventricle: predictions for the four meshes from the present work overlaid on the round-robin predictions from \citet{Land2015}}
 	\label{fig:ventricle_accuracy}
 \end{figure}
 
 
 \paragraph{Case 5: Cook's membrane}
 Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
-The current work considers three forms of the problem: (i) small strain elastic, (ii) finite-strain hyperelastic, and (iii) finite strain elastoplastic version \citep{Simo1992}.
 The 2-D plane strain tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
-The prescribed shear traction is $\tau = 0.3125$ MPa.
 The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
-The problem is solved as static, using 30 equally-sized loading increments, and there are no body forces.
+The problem is solved quasi-statically, using 30 equally-sized loading increments, and there are no body forces.
 %\begin{figure}[htbp]
 %   \centering
 %   \includegraphics[width=0.4\textwidth]{figures/cooksMembrane-geometry} 
 %   \caption{Cook's membrane case geometry (dimensions in mm) and loading conditions (fixed left, traction $\tau$ applied to right)}
 %   \label{fig:cooks_membrane}
 %\end{figure}
-\begin{figure}[H]
+\begin{figure}[htbp]
 	\centering
 	\subfigure[Case geometry and dimensions]
 	{
@@ -992,65 +991,83 @@ The problem is solved as static, using 30 equally-sized loading increments, and 
    \label{fig:cooks_membrane}
 \end{figure}
 
-The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
-\begin{eqnarray}
-	\sigma_y = \sigma_Y + H\bar{\varepsilon}_p + (\sigma_{\infty} - \sigma_Y)(1- e^{-\delta\bar{\varepsilon}_p})
-\end{eqnarray}
-The plastic yielding parameters are $\sigma_Y = 0.45$ MPa, $\sigma_{\infty} = 0.715$ MPa, $\delta = 16.93$, and $H = 0.12924$ MPa, where the hardening variable $\bar{\varepsilon}_p$ corresponds to equivalent plastic strain.
+The current work considers three forms of the problem:
+\begin{enumerate}[label=\roman*.]
+	\item Small strain linear elastic \cite{Zienkiewicz2000}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6.25$ MPa.
+	\item Finite strain neo-Hookean hyperelastic \cite{dealII95}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 0.0625$ MPa.
+	\item Finite strain elastoplastic \citep{Simo1992}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
+\end{enumerate}
+where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is the yield strength, $\bar{\varepsilon}_p$ is the equivalent plastic strain, and $\tau$ is the prescribed shear traction.
 
-\newpage
-\hl{Define properties for three cases: i, ii and iii}
+%The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
+%\begin{eqnarray}
+%	\sigma_y = \sigma_Y + H\bar{\varepsilon}_p + (\sigma_{\infty} - \sigma_Y)(1- e^{-\delta\bar{\varepsilon}_p})
+%\end{eqnarray}
+%The plastic yielding parameters are $\sigma_Y = 0.45$ MPa, $\sigma_{\infty} = 0.715$ MPa, $\delta = 16.93$, and $H = 0.12924$ MPa, where the hardening variable $\bar{\varepsilon}_p$ corresponds to equivalent plastic strain.
+%\noindent
+%\textbf{Sources for case i:} \cite{Zienkiewicz2000}\\
+%O.C. Zienkiewicz, R.L. Taylor. The finite element method. Butterworth Heinemann, 2000.\\
+%https://www.simplassoftware.com/benchmarks.html\#biblio-58\\
+%https://github.com/spolanski/CoFEA/tree/master/benchmarks/02-cooks-membrane\\
+%\textbf{Sources for case ii:} \cite{dealII95}\\
+%https://www.dealii.org/current/doxygen/deal.II/code\_gallery\_Quasi\_static\_Finite\_strain\_Compressible\_Elasticity.html\\
+%\textbf{Sources for case iii:} \citep{Simo1992}
 
-\renewcommand{\arraystretch}{2}
-\begin{table}[h!]
-%\resizebox{\textwidth}{!}{
-\begin{tabular}{l|l}
-i &  $t_y=6.25$ MPa, $E=70$ MPa, $\nu=1/3$ \\ \hline
-ii & $t_y=0.0625$ MPa $E=1.0985$ MPa, $\nu=0.3$   \\ \hline
-\multicolumn{1}{c|}{\multirow{2}{*}{iii}} & $t_y=0.3125$ MPa $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = \sigma_Y + H\bar{\varepsilon}_p + (\sigma_{\infty} - \sigma_Y)(1- e^{-\delta\bar{\varepsilon}_p})$ \\[-0.5em]
-\multicolumn{1}{c|}{} & $\sigma_Y = 0.45$ MPa, $\sigma_{\infty} = 0.715$ MPa, $\delta = 16.93$, $H = 0.12924$ MPa
-\end{tabular}%
-%}
-\end{table}
-\renewcommand{\arraystretch}{1}
-\noindent
-\textbf{Sources for case i:} \cite{Zienkiewicz2000}\\
-O.C. Zienkiewicz, R.L. Taylor. The finite element method. Butterworth Heinemann, 2000.\\
-https://www.simplassoftware.com/benchmarks.html\#biblio-58\\
-https://github.com/spolanski/CoFEA/tree/master/benchmarks/02-cooks-membrane\\
-\textbf{Sources for case ii:} \cite{dealII95}\\
-https://www.dealii.org/current/doxygen/deal.II/code\_gallery\_Quasi\_static\_Finite\_strain\_Compressible\_Elasticity.html\\
-\textbf{Sources for case iii:} \citep{Simo1992}
+Seven successively refined quadrilateral meshes are considered, where the cell counts are 9, 36, 144 (Figure \ref{fig:cooks_membrane}(b)), 576, $2\,304$, $9\,216$, and $36\,864$.
+%mesh.1 - 3x3 - 9 CVs\\
+%mesh.2 - 6x6 - 36 CVs\\
+%mesh.3 - 12x12 - 144 CVs\\
+%mesh.4 - 24x24 - 576 CVs\\
+%mesh.5 - 48-48 - 2304 CVs\\
+%mesh.6 - 96x96 - 9216 CVs\\
+%mesh.7 - 192x192 - 36864 CVs
 
-\hl{Give mesh details}\\
-mesh.1 - 3x3 - 9 CVs\\
-mesh.2 - 6x6 - 36 CVs\\
-mesh.3 - 12x12 - 144 CVs\\
-mesh.4 - 24x24 - 576 CVs\\
-mesh.5 - 48-48 - 2304 CVs\\
-mesh.6 - 96x96 - 9216 CVs\\
-mesh.7 - 192x192 - 36864 CVs
+%\hl{Add figures: finest mesh stress distributions and deformation Add figures: corner displacement prediction vs average cell width}
+\hl{For this section, I think it is fine if we only discuss the hex.snes results (and maybe hex.snes.seg)}
+\hl{If hex.snes diverges for case iii, we can state that and give on the preconditioner}
+\hl{I suggest we show sigmaEq for all three cases => case (iii) may have to be hex.snes.seg results}
 
-\hl{dd figures: finest mesh stress distributions and deformation Add figures: corner displacement prediction vs average cell width}
+Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for cases i, ii and iii.
+\hl{Add a comment on the distributions}
 
-
-\begin{figure}[h!]
+\begin{figure}[htbp]
    \centering
-	\subfigure[Equivalent stress distribution for the mesh with $368\,642$ cells (case ii)]
+	\subfigure[Linear elastic case]
 	{
-		\includegraphics[height=0.42\textwidth]{figures/cooksMembrane-sigmaEq.pdf}  
+		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
 	}
-	\subfigure[Convergence of tip (48,60) vertical displacement, normalized using the displacement value from the finest mesh (given in parentheses)]
+	\subfigure[Hyperelastic case]
 	{
-		\includegraphics[height=0.32\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
+		\includegraphics[width=0.3\textwidth]{figures/cooksMembrane-sigmaEq.pdf}  
 	}
-   \caption{Convergence of tip displacement and equivalent stress for hyperelastic case.}
-   \label{fig:narrowTmember_sigmaEq}
+	\subfigure[Hyperelastoplastic case]
+	{
+		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
+	}
+   \caption{Equivalent (von Mises) stress distribution for the three cases using the mesh with $36\,842$ cells}
+   \label{fig:cooksMembrane_sigmaEq}
 \end{figure}
-@Philip, scale for cooksMembrane-sigmaEq.pdf should be from 0 to 0.2 MPa. 
+
+\hl{I suggest we show a comparison to literature to show we get the same answers as others}
+Figure \ref{fig:cooksMembrane_disp} presents the predicted vertical displacement for the top right point (48,60) vs the average cell widths, where results from the literature are given for comparison.
+\hl{Comment on results -> good/bad/etc}
+\hl{Comment on JFNK not working for plasticty}
+\begin{figure}[htbp]
+   \centering
+		\includegraphics[width=0.5\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf}  
+%	\subfigure[Equivalent stress distribution for the hyperelastic case (case ii) using the mesh with $36\,842$ cells]
+%	{
+%		\includegraphics[height=0.5\textwidth]{figures/cooksMembrane-sigmaEq.pdf}  
+%	}
+%	\subfigure[Convergence of tip (48,60) vertical displacement, normalised using the displacement value from the finest mesh (given in parentheses)]
+%	{
+%		\includegraphics[height=0.35\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
+%	}
+   \caption{Cook's membrane top right corner vertical displacement predictions vs the average cell width. Comparisons are given with the results from \hl{XX} and \hl{YY}}
+   \label{fig:cooksMembrane_disp}
+\end{figure}
 
 
-\newpage
 
 
 \paragraph{Case 6: Vibration of a 3-D Cantilevered Beam}
