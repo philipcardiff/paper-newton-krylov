@@ -993,7 +993,7 @@ The problem is solved quasi-statically, using 30 equally-sized loading increment
 
 The current work considers three forms of the problem:
 \begin{enumerate}[label=\roman*.]
-	\item Small strain linear elastic \cite{Zienkiewicz2000}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6.25$ MPa.
+	\item Small strain linear elastic \cite{Zienkiewicz2000}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6.25$ MPa \hl{E is too low or tau is too high as disps are very large}.
 	\item Finite strain neo-Hookean hyperelastic \cite{dealII95}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 0.0625$ MPa.
 	\item Finite strain elastoplastic \citep{Simo1992}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
 \end{enumerate}
@@ -1103,15 +1103,17 @@ Figure \ref{fig:dynamic_cantilever_results}
    \centering
 	\subfigure[Deflection vs time for the four meshes using a time step of 0.001617274174 s]
 	{
-   		\includegraphics[width=0.45\textwidth]{figures/cantilever_disp} 
+   		\includegraphics[width=0.55\textwidth]{figures/cantilever_disp} 
    	}
 	\subfigure[XXX]
 	{
-   		\includegraphics[width=0.45\textwidth]{figures/placeholder}  
+   		\includegraphics[width=0.25\textwidth]{figures/placeholder}  
    	}
    \caption{Vibration of a 3-D Cantilevered Beam case}
    \label{fig:dynamic_cantilever_results}
 \end{figure}
+
+\hl{maybe we should state the nonlinear/linear solver settings for completeness}
 
 
 \paragraph{Case 7: Vibration of an Axial Turbine Blade}
@@ -1142,15 +1144,40 @@ A St.\ Venant-Kirchhoff hyperelastic plate ($E = 5.6$ MPa, $\nu = 0.4$) of 0.35 
 The fluid's kinematic viscosity is 0.001 m$^2$/s and density is 1000 kg/m$^3$, while the solid's density is $10\,000$ kg/m$^3$.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.6\textwidth]{figures/hronTurek-geometry} 
-   \caption{Elastic plate behind a rigid cylinder case geometry and mesh (taken from \citet{Tukovic2018a})}
+	\subfigure[Geometry (taken from \citet{Tukovic2018a})]
+	{
+	   \includegraphics[width=0.7\textwidth]{figures/hronTurek-geometry} 
+   	}
+	\subfigure[Mesh containing $5\,336$ cells in the fluid region and 630 cells in the solid region, where a closeup of the plate is shown in the right]
+	{
+   		\includegraphics[width=0.4\textwidth]{figures/hronTurek-mesh}  
+   		\includegraphics[width=0.4\textwidth]{figures/hronTurek-mesh-zoom}  
+   	}
+   \caption{Elastic plate behind a rigid cylinder case geometry and mesh }
    \label{fig:hronTurek-geometry}
 \end{figure}
 
-\hl{Describe mesh}
-\hl{Describe time step and tolerances}
+A quadrilateral mesh is employed with $5\,336$ cells in the fluid region and 630 cells in the solid region.
+The total simulation time is 6 s, and the time-step size is 1 ms. 
+The interface- quasi-Newton with inverse Jacobian from a least-squares model coupling approach \cite{Degroote2009} is employed for the fluid-solid interaction coupling.
+Further details of the fluid-solid interaction procedure are found in \citet{Tukovic2018a}.
+\hl{State tolerances}
 
-\hl{Give results: snapshot of max deformation; force or displacement vs benchmark}
+Figure \ref{fig:hronTurek-results}(a) shows the velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s, corresponding to the maximum displacement of the plate.
+The predicted vertical displacement of the end of the plate vs time is compared with the results from the \citet{Turek2006} benchmark in Figure \ref{fig:hronTurek-results}(b).
+\begin{figure}[htbp]
+   \centering
+	\subfigure[Velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s]
+	{
+	   \includegraphics[width=0.8\textwidth]{figures/hronTurek-results} 
+   	}
+	\subfigure[Vertical displacement of the end of the plate vs time]
+	{
+   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
+   	}
+   \caption{Elastic plate behind a rigid cylinder case results}
+   \label{fig:hronTurek-results}
+\end{figure}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
