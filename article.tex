@@ -1071,52 +1071,63 @@ Figure \ref{fig:cooksMembrane_disp} presents the predicted vertical displacement
 
 
 \paragraph{Case 6: Vibration of a 3-D Cantilevered Beam}
-This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \times 0.2$ cuboid column (Figure \ref{fig:dynamic_cantilever}), taken from \citet{Tukovic2007}.
-A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
-\begin{eqnarray}
-	|\bb{T}| = \frac{\mathcal{F} E I}{A L^2} \text{ Pa}
-\end{eqnarray}
-In the current study, $\mathcal{F} = 1$.
-A St.\ Venant-Kirchoff material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = 0.0001333$ m$^4$.
-The geometric and material parameters were chosen for the first natural frequency to be 1 Hz.
+This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \times 0.2$ m cuboid column and was proposed in its initial form by \citet{Tukovic2007}.
+%(Figure \ref{fig:dynamic_cantilever})
+%A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
+%\begin{eqnarray}
+%	|\bb{T}| = \frac{\mathcal{F} E I}{A L^2} \text{ Pa}
+%\end{eqnarray}
+A sudden, constant traction $\bb{T} = \left(0.1, 0.1, 0 \right)$ MPa is applied to the upper surface.
+%A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
+%In the current study, $\mathcal{F} = 1$.
+A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = \frac{1}{7\,500}$ m$^4$. %0.0001333
+The geometric and material parameters were chosen for the first natural frequency to be 1 Hz in the small strain limit.
+The magnitude of the applied traction was chosen to ensure significant geometric nonlinearity in the case with the upper surface of the beam expected to drop below the plane of the lower surface.
 Four succesively refined hexahedral meshes are generated using the OpenFOAM \texttt{blockMesh} utility, with cell counts of 270, $2\,160$, $17\,280$ and $138\,240$.
-The total time period is 10 s, corresponding to 10 expected oscillation periods.
-A fixed time step size of 0.001617274174 s is chosen, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
+%A fixed time step size of 0.001617274174 s is chosen, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
+%A fixed time step size of 1 ms is chosen.
+The time step size is 1 ms, and the total period is 10 s.
+% corresponding to 10 expected oscillation periods.
+%, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
+
+The deformed configuration of the beam at six time steps is shown in Figure \ref{fig:dynamic_cantilever}(a) for the mesh with $2\,160$ cells, where the upper surface is seen to drop below the horizontal from approximately t = 0.2 s to 0.32 s.
+The corresponding displacement magnitude of the centre of the upper surface of the beam vs time is shown in Figure \ref{fig:dynamic_cantilever}(b).
 \begin{figure}[htbp]
    \centering
 %   \includegraphics[width=0.5\textwidth]{figures/cantilever} 
-	\subfigure[Mesh with 270 cells]
+	\subfigure[Displacement magnitude for t = $\left\{0, \, 0.1, \, 0.2\right\}$ s (translucent) and t = $\left\{0.3, \, 0.4, \, 0.5 \right\}$ s (opaque) for the mesh with $138\,240$ cells]
 	{
-   		\includegraphics[height=0.5\textwidth]{figures/cantilever} 
+	   \includegraphics[width=0.4\textwidth]{figures/cantilever_deformed}
    	}
-	\subfigure[Deformed geometry of the mesh with $2\,160$ cells at 0.4 s showing the equivalent (von Mises) stress distribution. The outline of the undeformed geometry is shown as a translucent line]
+	\subfigure[Displacement magnitude of the centre of the upper surface of the beam vs time]
 	{
-   		\includegraphics[height=0.45\textwidth]{figures/cantilever_sigmaEq}  
+	   \includegraphics[width=0.5\textwidth]{figures/cantilever_disp} 
+   	   %\includegraphics[height=0.45\textwidth]{figures/cantilever_sigmaEq}  
    	}
-   \caption{Vibration of a 3-D Cantilevered Beam case}
+   \caption{Deflection of a 3-D Cantilevered Beam}
    \label{fig:dynamic_cantilever}
 \end{figure}
+\hl{It would be good to add a reference results, e.g. from FE}
 
-The equivalent stress distribution in the cantilever at maximum deflection is shown in Figure \ref{fig:dynamic_cantilever} for the mesh with $2\,160$ cells.
-Figure \ref{fig:dynamic_cantilever_results}
-\begin{figure}[htbp]
-   \centering
-	\subfigure[Deflection vs time for the four meshes using a time step of 0.001617274174 s]
-	{
-   		\includegraphics[width=0.55\textwidth]{figures/cantilever_disp} 
-   	}
-	\subfigure[XXX]
-	{
-   		\includegraphics[width=0.25\textwidth]{figures/placeholder}  
-   	}
-   \caption{Vibration of a 3-D Cantilevered Beam case}
-   \label{fig:dynamic_cantilever_results}
-\end{figure}
+%\begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.55\textwidth]{figures/cantilever_disp} 
+%%	\subfigure[Deflection vs time for the four meshes using a time step of 0.001617274174 s]
+%%	{
+%%   		\includegraphics[width=0.55\textwidth]{figures/cantilever_disp} 
+%%   	}
+%%	\subfigure[XXX]
+%%	{
+%%   		\includegraphics[width=0.25\textwidth]{figures/placeholder}  
+%%   	}
+%   \caption{Vibration of a 3-D Cantilevered Beam case}
+%   \label{fig:dynamic_cantilever_results}
+%\end{figure}
 
 \hl{maybe we should state the nonlinear/linear solver settings for completeness}
 
 
-\paragraph{Case 7: Vibration of an Axial Turbine Blade}
+\paragraph{Case 7: Axial Turbine Blade}
 \hl{Solve statically}
 This 3-D, dynamic, finite strain case geometry consists of a twisted axial turbine blade, 0.8 m in height, with a cord length of 0.2 m (Figure \ref{fig:turbine_blade}), and is taken from \citet{Tukovic2007}.
 \hl{Zeljko probably has this geometry or a reference for where it came from}
@@ -1125,8 +1136,8 @@ A St.\ Venant-Kirchoff material is assumed with $E = 15.293$ MPa and $\nu = 0.3$
 \hl{Comment on the meshes}
 A fixed time step size of \hl{XXX} s is chosen, corresponding to a \hl{YY} on the coarsest mesh \hl{update as required}.
 The total time period is \hl{XXX} s, corresponding to \hl{XX} expected oscillation periods.
-\hl{An advantage of this case over the cantilever is that it is complex geometry; a disadvantage is that we do not have a reference solution}
-\hl{A mitigation for this disadvantage is we could run it in Abaqus to provide a credible reference}
+%\hl{An advantage of this case over the cantilever is that it is complex geometry; a disadvantage is that we do not have a reference solution}
+%\hl{A mitigation for this disadvantage is we could run it in Abaqus to provide a credible reference}
 \begin{figure}[htbp]
    \centering
 %   \includegraphics[width=0.2\textwidth]{figures/turbine_blade.pdf} 
@@ -1141,62 +1152,87 @@ The total time period is \hl{XXX} s, corresponding to \hl{XX} expected oscillati
 The \texttt{FSI3} variant of the case examined here (Figure \ref{fig:hronTurek-geometry} consists of a horizontal channel (0.41 m in height, 2.5 m in length) with a rigid cylinder of radius 0.05 m, where the cylinder centre is 0.2 m from the bottom and inlet (left) boundaries.
 A parabolic velocity is prescribed at the inlet velocity with a mean value of 2 m/s.
 A St.\ Venant-Kirchhoff hyperelastic plate ($E = 5.6$ MPa, $\nu = 0.4$) of 0.35 m in length and 0.02 m in height is attached to the right-hand side of the rigid cylinder.
+The fluid model is assumed to be isothermal, incompressible, and laminar and adopts the segregated PIMPLE solution algorithm.
 The fluid's kinematic viscosity is 0.001 m$^2$/s and density is 1000 kg/m$^3$, while the solid's density is $10\,000$ kg/m$^3$.
+The interface- quasi-Newton with inverse Jacobian from a least-squares model coupling approach \cite{Degroote2009} is employed for the fluid-solid interaction coupling.
+The fluid-solid interface residual is reduced by four orders of magnitude within each time step.
+Further details of the fluid-solid interaction procedure are found in \citet{Tukovic2018a}.
 \begin{figure}[htbp]
    \centering
-	\subfigure[Geometry (taken from \citet{Tukovic2018a})]
-	{
+%	\subfigure[Geometry (taken from \citet{Tukovic2018a})]
+%	{
 	   \includegraphics[width=0.7\textwidth]{figures/hronTurek-geometry} 
-   	}
-	\subfigure[Mesh containing $5\,336$ cells in the fluid region and 630 cells in the solid region, where a closeup of the plate is shown in the right]
-	{
-   		\includegraphics[width=0.4\textwidth]{figures/hronTurek-mesh}  
-   		\includegraphics[width=0.4\textwidth]{figures/hronTurek-mesh-zoom}  
-   	}
-   \caption{Elastic plate behind a rigid cylinder case geometry and mesh }
+%   	}
+   \caption{Elastic plate behind a rigid cylinder case geometry and mesh}
    \label{fig:hronTurek-geometry}
 \end{figure}
 
-A quadrilateral mesh is employed with $5\,336$ cells in the fluid region and 630 cells in the solid region.
-The total simulation time is 6 s, and the time-step size is 1 ms. 
-The interface- quasi-Newton with inverse Jacobian from a least-squares model coupling approach \cite{Degroote2009} is employed for the fluid-solid interaction coupling.
-Further details of the fluid-solid interaction procedure are found in \citet{Tukovic2018a}.
-\hl{State tolerances}
-
-Figure \ref{fig:hronTurek-results}(a) shows the velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s, corresponding to the maximum displacement of the plate.
-The predicted vertical displacement of the end of the plate vs time is compared with the results from the \citet{Turek2006} benchmark in Figure \ref{fig:hronTurek-results}(b).
+Three successively refined quadrilateral meshes are employed:
+The fluid region meshes have $1\,252$, $5\,008$, and $20\,032$ cells, while the solid region meshes have 156,  624 and $2\,496$ cells.
+The total simulation time is \hl{6 or 20} s, and the time-step size is 0.5 ms. 
 \begin{figure}[htbp]
    \centering
-	\subfigure[Velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s]
+	\subfigure[Mesh containing $5\,336$ cells in the fluid region and 630 cells in the solid region, where a closeup of the plate is shown in the right]
 	{
+   		\includegraphics[width=0.7\textwidth]{figures/hronTurek-mesh}
+	}
+	\subfigure[Close-up of the mesh around the plate]
+	{
+   		\includegraphics[width=0.4\textwidth]{figures/hronTurek-mesh-zoom}  
+   	}
+   \caption{Elastic plate behind a rigid cylinder case geometry and mesh}
+   \label{fig:hronTurek-mesh}
+\end{figure}
+
+Figure \ref{fig:hronTurek-results} shows the velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s, corresponding to a peak in the vertical displacement of the plate free-end oscillation.
+The fluid is seen to accelerate as it passes the cylinder, with regular vortices being thrown off the plate, causing it to oscillate.
+\begin{figure}[htbp]
+   \centering
 	   \includegraphics[width=0.8\textwidth]{figures/hronTurek-results} 
-   	}
-	\subfigure[Vertical displacement of the end of the plate vs time]
-	{
-   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
-   	}
-   \caption{Elastic plate behind a rigid cylinder case results}
+%	\subfigure[Velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s]
+%	{
+%	   \includegraphics[width=0.8\textwidth]{figures/hronTurek-results} 
+%   	}
+%	\subfigure[Vertical displacement of the end of the plate vs time]
+%	{
+%   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
+%   	}
+   \caption{Elastic plate behind a rigid cylinder case results for the mesh with $5\,336$ cells in the fluid region and 630 in the solid region}
    \label{fig:hronTurek-results}
 \end{figure}
+The predicted mean, amplitude and frequency of the vertical and horizontal displacement of the end of the plate are compared with the results from \citet{Turek2006} in Table \ref{tab:hronTurekDisp}.
+As directed in \citet{Turek2006}, the maximum and minimum values for the last period are used to calculate the mean and amplitude:
+\begin{eqnarray}
+	\text{mean} = \frac{1}{2}(\text{max} + \text{min}) \\
+	\text{amplitude} = \frac{1}{2}(\text{max} - \text{min})
+\end{eqnarray}
+while the frequency is calculated as the inverse of the period.
+\begin{table}[htb]
+	\centering
+		\begin{tabular}{lll}
+			\hline
+			Mesh (number of fluid and solid cells) & $u_x$ (in mm) & $u_y$ (in mm) \\
+			\hline
+			1 ($1\,252$ + 156)  & $-0.1 \pm 0.01 \,[ 18.5 ]$ & $1.60 \pm 0.20 \,[ 5.5 ]$ \\
+			2 ($5\,008$ + 624)  & $-2.13 \pm 2.07 \,[ 11 ]$ & $2.00 \pm 28.84 \,[ 5.5 ]$ \\
+			3 ($20\,032$ + $2\,496$)  & $-2.62 \pm 2.46 \,[11]$ & $1.80 \pm 32.01 \,[ 5.5 ]$ \\
+			\hline
+			\citet{Turek2006} & $-2.69 \pm 2.53\,[10.9]$ & $1.48 \pm 34.38\,[5.3]$ \\
+			\hline
+		\end{tabular}
+	\caption{Average predicted displacements (mean $\pm$ amplitude $[$frequency$]$) of the free end of the plate. \hl{This data is taken as the average from 4-6 seconds: I am now running the case up to 20 seconds as per the benchmark}}
+	\label{tab:hronTurekDisp}
+\end{table}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Time and Memory Requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for all six cases described in Section \ref{sec:case_descriptions}.
+This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for cases described above.
 % where several mesh densities are examined.
 Time and memory requirements from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
 The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
 \hl{Take care when comparing times between different hardware}
-
-Figure \ref{fig:time_memory_images} provides a collage of the equivalent (von Mises) stress fields for the \hl{six} cases.
-\begin{figure}[htbp]
-   \centering
-%   \includegraphics[width=0.2\textwidth]{figures/time_memory_images.pdf} 
-   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   \caption{Collage of the equivalent (von Mises) stress fields for the \hl{six} cases}
-   \label{fig:time_memory_images}
-\end{figure}
 
 Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage according to the GNU time utility.
 All clock times and memory usage were generated using \hl{hardware details} using one CPU core.
