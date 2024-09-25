@@ -993,9 +993,9 @@ The problem is solved quasi-statically, using 30 equally-sized loading increment
 
 The current work considers three forms of the problem:
 \begin{enumerate}[label=\roman*.]
-	\item Small strain linear elastic \cite{Zienkiewicz2000}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6.25$ MPa \hl{E is too low or tau is too high as disps are very large}.
-	\item Finite strain neo-Hookean hyperelastic \cite{dealII95}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 0.0625$ MPa.
-	\item Finite strain elastoplastic \citep{Simo1992}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
+	\item Small strain linear elastic \cite{Zienkiewicz2000, Simplas}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6250$ Pa.
+	\item Finite strain neo-Hookean hyperelastic \cite{Pelteret2018}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 0.0625$ MPa.
+	\item Finite strain elastoplastic \citep{Simo1992, Simplas}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
 \end{enumerate}
 where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is the yield strength, $\bar{\varepsilon}_p$ is the equivalent plastic strain, and $\tau$ is the prescribed shear traction.
 
@@ -1027,34 +1027,50 @@ Seven successively refined quadrilateral meshes are considered, where the cell c
 \hl{If hex.snes diverges for case iii, we can state that and give on the preconditioner}
 \hl{I suggest we show sigmaEq for all three cases => case (iii) may have to be hex.snes.seg results}
 
+\hl{@Philip, the figures for cases (i) and (ii) were made with snes. The figure for case (iii) was made with snes.seg. I did not notice any difference between snes and snes.seg in all the cases I ran. I ran the hyperelastic case with the TLTD solver and the hyperelastoplastic case with the UL solver. This combination produced the "nicest" convergence curves}
+
 Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for cases i, ii and iii.
-\hl{Add a comment on the distributions}
+\hl{Add a comment on the distributions}\\ 
+\hl{@Philp, Maybe something like this: In the case of linear elastic and hyperelastic materials, the top-left corner is the location of the highest stresses. The area near the top surface is under positive hydrostatic compression, while the area near the bottom surface is under negative hydrostatic compression. One can easily see the transition between these two zones in the hyperelastoplastic case.}
 
 \begin{figure}[htbp]
    \centering
 	\subfigure[Linear elastic case]
 	{
-		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
+		\includegraphics[width=0.3\textwidth]{figures/cooksMembrane--hookean-sigmaEq.pdf}  
 	}
 	\subfigure[Hyperelastic case]
 	{
-		\includegraphics[width=0.3\textwidth]{figures/cooksMembrane-sigmaEq.pdf}  
+		\includegraphics[width=0.3\textwidth]{figures/cooksMembrane-neoHookean-sigmaEq.pdf}  
 	}
 	\subfigure[Hyperelastoplastic case]
 	{
-		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
+		\includegraphics[width=0.3\textwidth]{figures/cooksMembrane-neoHookeanPlastic-sigmaEq.pdf}  
 	}
    \caption{Equivalent (von Mises) stress distribution for the three cases using the mesh with $36\,842$ cells}
    \label{fig:cooksMembrane_sigmaEq}
 \end{figure}
 
-\hl{I suggest we show a comparison to literature to show we get the same answers as others}
+\hl{@Philip, please add the maximum range for Figure} \ref{fig:cooksMembrane_sigmaEq} \hl{c). I can't find that font in Inkscape. The maximum limit should be 0.74 MPa.}
+
 Figure \ref{fig:cooksMembrane_disp} presents the predicted vertical displacement for the top right point (48,60) vs the average cell widths, where results from the literature are given for comparison.
 \hl{Comment on results -> good/bad/etc}
-\hl{Comment on JFNK not working for plasticty}
+\hl{Comment on JFNK not working for plasticty}\\
+\hl{Philip, I'll leave this to you to comment on, as you'll be able to explain it better.}
 \begin{figure}[htbp]
    \centering
-		\includegraphics[width=0.5\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf}  
+   	\subfigure[Linear elastic case]
+	{
+		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-hookeanTipDispConvergence}  
+	}
+	\subfigure[Hyperelastic case]
+	{
+		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-neoHookeanTipDispConvergence}  
+	}
+	\subfigure[Hyperelastoplastic case]
+	{
+		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-neoHookeanPlasticTipDispConvergence}  
+	}
 %	\subfigure[Equivalent stress distribution for the hyperelastic case (case ii) using the mesh with $36\,842$ cells]
 %	{
 %		\includegraphics[height=0.5\textwidth]{figures/cooksMembrane-sigmaEq.pdf}  
@@ -1063,7 +1079,7 @@ Figure \ref{fig:cooksMembrane_disp} presents the predicted vertical displacement
 %	{
 %		\includegraphics[height=0.35\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
 %	}
-   \caption{Cook's membrane top right corner vertical displacement predictions vs the average cell width. Comparisons are given with the results from \hl{XX} and \hl{YY}}
+   \caption{Cook's membrane top right corner vertical displacement predictions vs the average cell width. Comparisons are given with the results from \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}}
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
