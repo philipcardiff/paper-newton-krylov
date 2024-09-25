@@ -1080,9 +1080,9 @@ This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \time
 A sudden, constant traction $\bb{T} = \left(0.1, 0.1, 0 \right)$ MPa is applied to the upper surface.
 %A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
 %In the current study, $\mathcal{F} = 1$.
-A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = (0.2)(0.2) = 0.04$ m$^2$ and the second moment of area $I = \frac{1}{7\,500}$ m$^4$. %0.0001333
+A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = 0.04$ m$^2$ and the second moment of area $I = \frac{1}{7\,500}$ m$^4$. %0.0001333
 The geometric and material parameters were chosen for the first natural frequency to be 1 Hz in the small strain limit.
-The magnitude of the applied traction was chosen to ensure significant geometric nonlinearity in the case with the upper surface of the beam expected to drop below the plane of the lower surface.
+The magnitude of the applied traction was chosen to ensure significant geometric nonlinearity with the upper surface of the beam expected to drop below the plane of the lower surface.
 Four succesively refined hexahedral meshes are generated using the OpenFOAM \texttt{blockMesh} utility, with cell counts of 270, $2\,160$, $17\,280$ and $138\,240$.
 %A fixed time step size of 0.001617274174 s is chosen, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
 %A fixed time step size of 1 ms is chosen.
@@ -1098,7 +1098,7 @@ The corresponding displacement magnitude of the centre of the upper surface of t
 	\subfigure[Displacement magnitude for t = $\left\{0, \, 0.1, \, 0.2\right\}$ s (translucent) and t = $\left\{0.3, \, 0.4, \, 0.5 \right\}$ s (opaque) for the mesh with $138\,240$ cells]
 	{
 	   \includegraphics[width=0.4\textwidth]{figures/cantilever_deformed}
-   	}
+   	} \quad
 	\subfigure[Displacement magnitude of the centre of the upper surface of the beam vs time]
 	{
 	   \includegraphics[width=0.5\textwidth]{figures/cantilever_disp} 
@@ -1149,7 +1149,7 @@ The total time period is \hl{XXX} s, corresponding to \hl{XX} expected oscillati
 
 \paragraph{Case 8: Elastic plate behind a rigid cylinder}
 \citet{Turek2006} proposed this well-known fluid-solid interaction benchmark case as an extension of the classic flow around a cylinder in a channel problem \cite{Ferziger2002}.
-The \texttt{FSI3} variant of the case examined here (Figure \ref{fig:hronTurek-geometry} consists of a horizontal channel (0.41 m in height, 2.5 m in length) with a rigid cylinder of radius 0.05 m, where the cylinder centre is 0.2 m from the bottom and inlet (left) boundaries.
+The \texttt{FSI3} variant of the case examined here (Figure \ref{fig:hronTurek-mesh}) consists of a horizontal channel (0.41 m in height, 2.5 m in length) with a rigid cylinder of radius 0.05 m, where the cylinder centre is 0.2 m from the bottom and inlet (left) boundaries.
 A parabolic velocity is prescribed at the inlet velocity with a mean value of 2 m/s.
 A St.\ Venant-Kirchhoff hyperelastic plate ($E = 5.6$ MPa, $\nu = 0.4$) of 0.35 m in length and 0.02 m in height is attached to the right-hand side of the rigid cylinder.
 The fluid model is assumed to be isothermal, incompressible, and laminar and adopts the segregated PIMPLE solution algorithm.
@@ -1157,19 +1157,18 @@ The fluid's kinematic viscosity is 0.001 m$^2$/s and density is 1000 kg/m$^3$, w
 The interface- quasi-Newton with inverse Jacobian from a least-squares model coupling approach \cite{Degroote2009} is employed for the fluid-solid interaction coupling.
 The fluid-solid interface residual is reduced by four orders of magnitude within each time step.
 Further details of the fluid-solid interaction procedure are found in \citet{Tukovic2018a}.
-\begin{figure}[htbp]
-   \centering
-%	\subfigure[Geometry (taken from \citet{Tukovic2018a})]
-%	{
-	   \includegraphics[width=0.7\textwidth]{figures/hronTurek-geometry} 
-%   	}
-   \caption{Elastic plate behind a rigid cylinder case geometry and mesh}
-   \label{fig:hronTurek-geometry}
-\end{figure}
-
+%\begin{figure}[htbp]
+%   \centering
+%%	\subfigure[Geometry (taken from \citet{Tukovic2018a})]
+%%	{
+%	   \includegraphics[width=0.7\textwidth]{figures/hronTurek-geometry} 
+%%   	}
+%   \caption{Elastic plate behind a rigid cylinder case geometry and mesh}
+%   \label{fig:hronTurek-geometry}
+%\end{figure}
 Three successively refined quadrilateral meshes are employed:
 The fluid region meshes have $1\,252$, $5\,008$, and $20\,032$ cells, while the solid region meshes have 156,  624 and $2\,496$ cells.
-The total simulation time is \hl{6 or 20} s, and the time-step size is 0.5 ms. 
+The total simulation time is 20 s, and the time-step size is 0.5 ms. 
 \begin{figure}[htbp]
    \centering
 	\subfigure[Mesh containing $5\,336$ cells in the fluid region and 630 cells in the solid region, where a closeup of the plate is shown in the right]
@@ -1197,13 +1196,13 @@ The fluid is seen to accelerate as it passes the cylinder, with regular vortices
 %	{
 %   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
 %   	}
-   \caption{Elastic plate behind a rigid cylinder case results for the mesh with $5\,336$ cells in the fluid region and 630 in the solid region}
+   \caption{Elastic plate behind a rigid cylinder case results for the mesh with $5\,336$ cells in the fluid region and 630 in the solid region. The velocity magnitude is shown in the fluid region while the displacement magnitude is shown in the solid region.}
    \label{fig:hronTurek-results}
 \end{figure}
 The predicted mean, amplitude and frequency of the vertical and horizontal displacement of the end of the plate are compared with the results from \citet{Turek2006} in Table \ref{tab:hronTurekDisp}.
 As directed in \citet{Turek2006}, the maximum and minimum values for the last period are used to calculate the mean and amplitude:
 \begin{eqnarray}
-	\text{mean} = \frac{1}{2}(\text{max} + \text{min}) \\
+	\text{mean} = \frac{1}{2}(\text{max} + \text{min}), \quad\quad
 	\text{amplitude} = \frac{1}{2}(\text{max} - \text{min})
 \end{eqnarray}
 while the frequency is calculated as the inverse of the period.
