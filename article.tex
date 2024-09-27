@@ -1203,7 +1203,7 @@ Figure \ref{fig:hronTurek-results} shows the velocity field in the fluid region 
 The fluid is seen to accelerate as it passes the cylinder, with regular vortices being thrown off the plate, causing it to oscillate.
 \begin{figure}[htbp]
    \centering
-	   \includegraphics[width=0.8\textwidth]{figures/hronTurek-results} 
+	   \includegraphics[width=\textwidth]{figures/hronTurek-results} 
 %	\subfigure[Velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s]
 %	{
 %	   \includegraphics[width=0.8\textwidth]{figures/hronTurek-results} 
@@ -1212,7 +1212,7 @@ The fluid is seen to accelerate as it passes the cylinder, with regular vortices
 %	{
 %   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
 %   	}
-   \caption{Elastic plate behind a rigid cylinder case results for the mesh with $5\,336$ cells in the fluid region and 630 in the solid region. The velocity magnitude is shown in the fluid region while the displacement magnitude is shown in the solid region.}
+   \caption{Elastic plate behind a rigid cylinder case results at $t = 20$ s for the mesh with $20\,032$ cells in the fluid region and $2\,496$ in the solid region. The velocity magnitude is shown in the fluid region while the displacement magnitude is shown in the solid region.}
    \label{fig:hronTurek-results}
 \end{figure}
 The predicted mean, amplitude and frequency of the vertical and horizontal displacement of the end of the plate are compared with the results from \citet{Turek2006} in Table \ref{tab:hronTurekDisp}.
@@ -1228,22 +1228,27 @@ while the frequency is calculated as the inverse of the period.
 			\hline
 			Mesh (number of fluid and solid cells) & $u_x$ (in mm) & $u_y$ (in mm) \\
 			\hline
-			1 ($1\,252$ + 156)  & $-0.1 \pm 0.01 \,[ 18.5 ]$ & $1.60 \pm 0.20 \,[ 5.5 ]$ \\
-			2 ($5\,008$ + 624)  & $-2.13 \pm 2.07 \,[ 11 ]$ & $2.00 \pm 28.84 \,[ 5.5 ]$ \\
-			3 ($20\,032$ + $2\,496$)  & $-2.62 \pm 2.46 \,[11]$ & $1.80 \pm 32.01 \,[ 5.5 ]$ \\
+			%  \hl{This data is taken as the average from 4-6 seconds: I am now running the case up to 20 seconds as per the benchmark}
+%			1 ($1\,252$ + 156)  & $-0.1 \pm 0.01 \,[ 18.5 ]$ & $1.60 \pm 0.20 \,[ 5.5 ]$ \\
+%			2 ($5\,008$ + 624)  & $-2.13 \pm 2.07 \,[ 11 ]$ & $2.00 \pm 28.84 \,[ 5.5 ]$ \\
+%			3 ($20\,032$ + $2\,496$)  & $-2.62 \pm 2.46 \,[11]$ & $1.80 \pm 32.01 \,[ 5.5 ]$ \\
+			% Data below is from the last cycle in the case run up to 20 s
+			1 ($1\,252$ + 156)  & $ -0.1 \pm 0.001 \,[ 47.6 ]$ & $1.58 \pm 0.002 \,[ 5.88 ]$ \\
+			2 ($5\,008$ + 624)  & $-2.16 \pm 2.00 \,[ 10.2 ]$ & $1.54 \pm 29.56 \,[ 5.6 ]$ \\
+			3 ($20\,032$ + $2\,496$)  & $-2.51 \pm 2.37 \,[12.1]$ & $0.87 \pm 33.08 \,[ 5.6 ]$ \\
 			\hline
 			\citet{Turek2006} & $-2.69 \pm 2.53\,[10.9]$ & $1.48 \pm 34.38\,[5.3]$ \\
 			\hline
 		\end{tabular}
-	\caption{Average predicted displacements (mean $\pm$ amplitude $[$frequency$]$) of the free end of the plate. \hl{This data is taken as the average from 4-6 seconds: I am now running the case up to 20 seconds as per the benchmark}}
-	\label{tab:hronTurekDisp}
+	\caption{Average predicted displacements (mean $\pm$ amplitude $[$frequency$]$) of the free end of the plate. Note that large-scale plate oscillations in mesh 1 (coarsest mesh) die out within the first 10 s. \hl{Hron-Turek say to use the last cycle, but surely taking the average of cycles would be better for benchmarking...} \hl{e.g. the average of the mesh 3 cycle is slightly lower than the rest} \hl{we could also report the average}}
+		\label{tab:hronTurekDisp}
 \end{table}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Time and Memory Requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for cases described above.
+This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for the cases described above.
 % where several mesh densities are examined.
 Time and memory requirements from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
 The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
