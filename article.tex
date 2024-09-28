@@ -937,7 +937,7 @@ The case can be simulated as 2-D axisymmetric, but is simulated here using the f
 	}
 	\subfigure[Cross-section showing the equivalent (von Mises) stress distribution for the mesh with 829,440 cells]
 	{
-		\includegraphics[height=0.48\textwidth]{figures/ventricle_sigmaEq}  
+		\includegraphics[height=0.48\textwidth]{figures/ventricle_sigmaEq}
 	}
    \caption{Idealised ventricle case}
    \label{fig:ventricle}
@@ -998,7 +998,6 @@ The current work considers three forms of the problem:
 	\item Finite strain elastoplastic \citep{Simo1992, Simplas}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
 \end{enumerate}
 where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is the yield strength, $\bar{\varepsilon}_p$ is the equivalent plastic strain, and $\tau$ is the prescribed shear traction.
-
 %The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
 %\begin{eqnarray}
 %	\sigma_y = \sigma_Y + H\bar{\varepsilon}_p + (\sigma_{\infty} - \sigma_Y)(1- e^{-\delta\bar{\varepsilon}_p})
@@ -1012,7 +1011,6 @@ where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is th
 %\textbf{Sources for case ii:} \cite{dealII95}\\
 %https://www.dealii.org/current/doxygen/deal.II/code\_gallery\_Quasi\_static\_Finite\_strain\_Compressible\_Elasticity.html\\
 %\textbf{Sources for case iii:} \citep{Simo1992}
-
 Seven successively refined quadrilateral meshes are considered, where the cell counts are 9, 36, 144 (Figure \ref{fig:cooks_membrane}(b)), 576, $2\,304$, $9\,216$, and $36\,864$.
 %mesh.1 - 3x3 - 9 CVs\\
 %mesh.2 - 6x6 - 36 CVs\\
@@ -1022,17 +1020,10 @@ Seven successively refined quadrilateral meshes are considered, where the cell c
 %mesh.6 - 96x96 - 9216 CVs\\
 %mesh.7 - 192x192 - 36864 CVs
 
-%\hl{Add figures: finest mesh stress distributions and deformation Add figures: corner displacement prediction vs average cell width}
-\hl{For this section, I think it is fine if we only discuss the hex.snes results (and maybe hex.snes.seg)}
-\hl{If hex.snes diverges for case iii, we can state that and give on the preconditioner}
-\hl{I suggest we show sigmaEq for all three cases => case (iii) may have to be hex.snes.seg results}
-
-\hl{@Philip, the figures for cases (i) and (ii) were made with snes. The figure for case (iii) was made with snes.seg. I did not notice any difference between snes and snes.seg in all the cases I ran. I ran the hyperelastic case with the TLTD solver and the hyperelastoplastic case with the UL solver. This combination produced the "nicest" convergence curves}
-
-Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for cases i, ii and iii.
-\hl{Add a comment on the distributions}\\ 
-\hl{@Philp, Maybe something like this: In the case of linear elastic and hyperelastic materials, the top-left corner is the location of the highest stresses. The area near the top surface is under positive hydrostatic compression, while the area near the bottom surface is under negative hydrostatic compression. One can easily see the transition between these two zones in the hyperelastoplastic case.}
-
+Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for linear elastic, hyperelastic and hyperelastoplastic cases.
+The stress distribution is consistent with bending, with regions of high stress near the upper and lower surfaces and a line of relatively unstressed material in the centre.
+The greatest equivalent stresses occur at the top-left corner and the lower surface
+In the hyperelastoplastic case, almost the entire domain is plastically yielding with only a small thin region remaining elastic, indicated by the blue line in Figure \ref{fig:cooksMembrane_sigmaEq}(c).
 \begin{figure}[htbp]
    \centering
 	\subfigure[Linear elastic case]
@@ -1047,27 +1038,26 @@ Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress dis
 	{
 		\includegraphics[width=0.3\textwidth]{figures/cooksMembrane-neoHookeanPlastic-sigmaEq.pdf}  
 	}
-   \caption{Equivalent (von Mises) stress distribution for the three cases using the mesh with $36\,842$ cells}
+   \caption{Equivalent (von Mises) stress distribution for the three Cook's membrane cases using the mesh with $36\,842$ cells}
    \label{fig:cooksMembrane_sigmaEq}
 \end{figure}
 
-\hl{@Philip, please add the maximum range for Figure} \ref{fig:cooksMembrane_sigmaEq} \hl{c). I can't find that font in Inkscape. The maximum limit should be 0.74 MPa.}
-
-Figure \ref{fig:cooksMembrane_disp} presents the predicted vertical displacement for the top right point (48,60) vs the average cell widths, where results from the literature are given for comparison.
-\hl{Comment on results -> good/bad/etc}
-\hl{Comment on JFNK not working for plasticty}\\
-\hl{Philip, I'll leave this to you to comment on, as you'll be able to explain it better.}
+Figure \ref{fig:cooksMembrane_disp} compares the predicted vertical displacement at the reference point as a function of the average cell widths with results from the literature.
+The reference point is taken as the top right point -- (48,60) mm -- in the elastic and hyperelastoplastic cases, while it is taken as the midway point of the loading surface -- (48,52) mm -- in the hyperelastic case.
+%\hl{Comment on results -> good/bad/etc}
+%\hl{Comment on JFNK not working for plasticty}\\
+%\hl{Philip, I'll leave this to you to comment on, as you'll be able to explain it better.}
 \begin{figure}[htbp]
    \centering
    	\subfigure[Linear elastic case]
 	{
 		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-hookeanTipDispConvergence}  
 	}
-	\subfigure[Hyperelastic case]
+	\subfigure[Hyperelastic case \hl{Update @Ivan}]
 	{
 		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-neoHookeanTipDispConvergence}  
 	}
-	\subfigure[Hyperelastoplastic case]
+	\subfigure[Hyperelastoplastic case \hl{@Ivan: we need to get closer agreement}]
 	{
 		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-neoHookeanPlasticTipDispConvergence}  
 	}
@@ -1079,10 +1069,17 @@ Figure \ref{fig:cooksMembrane_disp} presents the predicted vertical displacement
 %	{
 %		\includegraphics[height=0.35\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
 %	}
-   \caption{Cook's membrane top right corner vertical displacement predictions vs the average cell width. Comparisons are given with the results from \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}}
+   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}.}
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
+No difference is seen in the predictions whether using the Jacobian-free Newton-Krylov or segregated approach, assuming convergence is achieved.
+This is expected since both use the same discretisation, and the solution tolerances are shown to ensure the iteration errors are small.
+Consequently, only the Jacobian-free Newton-Krylov results are shown for the linear elastic and hyperelastic cases.
+However, the Jacobian-free Newton-Krylov showed poor convergence in the hyperelastoplastic case and failed to converge on many of the meshes.
+As a result, the results for the segregated approach are presented instead for the hyperelastoplastic case.
+Discussion of the relative convergence and robustness of the Jacobian-free Newton-Krylov and segregated methods is left to Section \ref{sec:resource_requirements}.
+%I ran the hyperelastic case with the TLTD solver and the hyperelastoplastic case with the UL solver. This combination produced the "nicest" convergence curves}
 
 
 
@@ -1246,9 +1243,10 @@ while the frequency is calculated as the inverse of the period.
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Time and Memory Requirements}
+\subsection{Robustness and Resource Requirements}
+\label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section presents the time and memory requirements of the proposed Jacobian-free Newton Krylov approach for the cases described above.
+This section presents the time and memory requirements of the proposed Jacobian-free Newton-Krylov approach for the cases described above.
 % where several mesh densities are examined.
 Time and memory requirements from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
 The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
@@ -1299,6 +1297,8 @@ To highlight the effect of hardware specification, Table \ref{tab:times_memory_s
 	\caption{Execution times and maximum memory usage for \hl{Hardware Spec 2}}
 	\label{tab:times_memory_spec2}
 \end{table}
+
+\hl{Mention cases that diverge using one or both approaches: JFNK -> plastic; seg -> ventricle}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
