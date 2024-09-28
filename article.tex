@@ -129,7 +129,6 @@ The described implementations are made publicly available in the solids4foam too
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}\label{sec:intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %Paper outline:
 %
 %Intro
@@ -138,9 +137,6 @@ The described implementations are made publicly available in the solids4foam too
 %- Extension to block-coupled Newton methods is not easy, in terms of derivation, and code refactoring (matrix storage, extended stencil, linear solver, etc.).
 %- JFNK promises the performance of Newton methods, but without the need to form the full Jacobian. Define JFNK method. Hence, an existing segregated code can easily be adapted to use JFNK without major refactoring, albeit this process is made easier by the availability of open-source JFNK implementations.
 %- this paper examines JFNK for linear and nonlinear FV CSM procedures, where the compact stencil approximate Jacobian is used for preconditioning.
-
-
-
 Finite volume formulations for solid mechanics are heavily influenced by their fluid mechanics counterparts, favouring segregated implicit and fully explicit methods.
 Segregated approaches, where the governing momentum equation is temporarily decomposed into scalar component equations, offer memory efficiency and simplicity of implementation, but the outer coupling Picard iterations often suffer from slow convergence.
 Explicit formulations are straightforward to implement and offer superior robustness but are only efficient for high-speed dynamics, where the physics requires small time increments.
@@ -858,7 +854,7 @@ This case, proposed by \citet{Demirdzic1997a}, consists of a narrow engineering 
 The case is 3-D, static, with linear elastic material behaviour.
 Symmetry allows one-quarter of the geometry to be simulated.
 A constant negative pressure of 1 MPa is applied to the lower surface, and the upper left surface is fully clamped.
-The Young’s modulus is $E = 210$ GPa and Poisson’s ratio is $\nu = 0.3$.
+The Young’s modulus is $E = 210$ GPa, and Poisson’s ratio is $\nu = 0.3$.
 A radius $5$ mm hole is located at the expected stress concentration.
 %\begin{figure}[htbp]
 %   \centering
@@ -925,8 +921,8 @@ The chosen parameters produce isotropic behaviour.
 A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
 The geometry is meshed using a structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
 The OpenFOAM utilities \texttt{blockMesh} and \texttt{extrudeMesh} are used to create the meshes.
-Four successively refined meshes are examined: 1,620 (shown in Figure \ref{fig:ventricle}(a)), 12,960, 103,680, and 829,440 cells.
-The case can be simulated as 2-D axisymmetric, but is simulated here using the full 3-D geometry.
+Four successively refined meshes are examined: $1\,620$ (shown in Figure \ref{fig:ventricle}(a)), $12\,960$, $103\,680$, and $829\,440$ cells.
+The case can be simulated as 2-D axisymmetric but is simulated here using the full 3-D geometry.
 %Figure \ref{fig:ventricle} shows the mesh with 1,620 cells (1,512 hexahedra and 108 prisms).
 \begin{figure}[htbp]
    \centering
@@ -1237,7 +1233,8 @@ while the frequency is calculated as the inverse of the period.
 			\citet{Turek2006} & $-2.69 \pm 2.53\,[10.9]$ & $1.48 \pm 34.38\,[5.3]$ \\
 			\hline
 		\end{tabular}
-	\caption{Average predicted displacements (mean $\pm$ amplitude $[$frequency$]$) of the free end of the plate. Note that large-scale plate oscillations in mesh 1 (coarsest mesh) die out within the first 10 s. \hl{Hron-Turek say to use the last cycle, but surely taking the average of cycles would be better for benchmarking...} \hl{e.g. the average of the mesh 3 cycle is slightly lower than the rest} \hl{we could also report the average}}
+	\caption{Average predicted displacements (mean $\pm$ amplitude $[$frequency$]$) of the free end of the plate. Note that large-scale plate oscillations in mesh 1 (coarsest mesh) die out within the first 10 s.}
+%	 \hl{Hron-Turek say to use the last cycle, but surely taking the average of cycles would be better for benchmarking...} \hl{e.g. the average of the mesh 3 cycle is slightly lower than the rest} \hl{we could also report the average}
 		\label{tab:hronTurekDisp}
 \end{table}
 
@@ -1246,34 +1243,58 @@ while the frequency is calculated as the inverse of the period.
 \subsection{Robustness and Resource Requirements}
 \label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section presents the time and memory requirements of the proposed Jacobian-free Newton-Krylov approach for the cases described above.
+This section compares the robustness and resource requirements of the Jacobian-free Newton-Krylov and segregated approach on the cases presented in Section \ref{sec:accuracy}.
+Specifically, cases where either approach diverges are examined, and the time and memory requirements are presented.
+In some cases, time and memory requirements from finite element procedures for reference.
+Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
 % where several mesh densities are examined.
-Time and memory requirements from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
-The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
-\hl{Take care when comparing times between different hardware}
+%Time and memory requirements from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
+%The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
+%\hl{Take care when comparing times between different hardware}
 
-Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage according to the GNU time utility.
-All clock times and memory usage were generated using \hl{hardware details} using one CPU core.
-Times and maximum memory usage were recorded using the GNU time utility.
-\hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy if any}.
-Multi-CPU-core parallelisation is examiend in Section \ref{sec:parallelisation}.
+Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall, rounded to the nearest second) and maximum memory usage according to the GNU time utility.
+All clock times and memory usage were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler.
+\hl{Present data for one hardware first, and give comparison after.}
+Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parallelisation}.
 \begin{table}[htb]
 	\centering
-		\begin{tabular}{llll}
+		\begin{tabular}{ll|ll|ll}
 			\hline
-			Case & Number of Cells & Time (in s) & Memory (in MB) \\
+			Case & Cell Count & \multicolumn{2}{c|}{JFNK} & \multicolumn{2}{c}{Segregated} \\
+			     &            & Time (s) & Memory (MB) & Time (s) & Memory (MB) \\
 			\hline 
-			Spherical cavity & 1,234 & 345 & 1,234  \\
-			Spherical cavity & 12,345 & 345 & 1,234  \\
-			Spherical cavity & 123,456 & 345 & 1,234  \\
-			Case 2, etc & 123,456 & 345 & 1,234  \\
-			Case 3, etc & 123,456 & 345 & 1,234  \\
-			Case 4, etc & 123,456 & 345 & 1,234  \\
+			MMS & 384 & 0 & $78$ & X & Y \\
+				& $4\,374$ & 0 & $86$ & X & Y \\
+				& $41\,154$ & 1 & $195$ & X & Y \\
+				&  $355\,914$ & 4 & $1\,063$ & X & Y \\
+				& $2\,958\,234$ & 41 & $6\,724$ & X & Y \\
+				& $24\,118\,074$ & 486 & $30\,606$ & X & Y \\
+			\hline
+			Elliptic & 45 & 0 & $72$ & X & Y \\
+				& 472 & 0 & $78$ & X & Y \\
+				& $4\,140$ & 1 & $153$ & X & Y \\
+				& $34\,968$ & 7 & $754$ & X & Y \\
+				& $287\,280$ & 95 & $3\,943$ & X & Y \\
+				& $2\,438\,242$ & 988 & $21\,884$ & X & Y \\
+			\hline
+			T-member & 624& 0 & 84 & X & Y \\
+				& $4\,992$ & 1 & 127 & X & Y \\
+				& $39\,936$ & 10 & 557 & X & Y \\
+				& $319\,488$ & 154 & $4\,024$ & X & Y \\
+				& $2\,555\,904$ & $1\,751$ & $22\,814$ & X & Y \\
+			\hline
+			Ventricle & $1\,620$ & 54 & 133 & & \\
+				& $12\,960$ & 576 & 553 & & \\
+				& $103\,680$ & $8\,362$ & $3\,435$ & & \\
+				& $829\,440$ & $150\,023$ & $11\,746$ & & \\
 			\hline
 		\end{tabular}
-	\caption{Execution times and maximum memory usage \hl{speed-up column?}}
+	\caption{Execution times and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods. Resource requirements are shown for the following cases: manufactured solution (MMS), XX }
 	\label{tab:times_memory}
 \end{table}
+
+
+\hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy: where best to say this...}.
 
 The trends shown in Table \ref{tab:times_memory} are common to all typical modern computer systems, however, the exact values depend on the particular details of the CPU, the memory configuration and the operating system.
 To highlight the effect of hardware specification, Table \ref{tab:times_memory_spec2} lists the time and memory usage for a different system: \hl{e.g. Mac M2/M3 seem to give excellent performance vs Meluxina AMD EPYC cores}.
@@ -1297,6 +1318,7 @@ To highlight the effect of hardware specification, Table \ref{tab:times_memory_s
 	\caption{Execution times and maximum memory usage for \hl{Hardware Spec 2}}
 	\label{tab:times_memory_spec2}
 \end{table}
+
 
 \hl{Mention cases that diverge using one or both approaches: JFNK -> plastic; seg -> ventricle}
 
