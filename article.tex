@@ -1091,7 +1091,7 @@ A sudden, constant traction $\bb{T} = \left(0.1, 0.1, 0 \right)$ MPa is applied 
 %In the current study, $\mathcal{F} = 1$.
 A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = 0.04$ m$^2$ and the second moment of area $I = \frac{1}{7\,500}$ m$^4$. %0.0001333
 The geometric and material parameters were chosen for the first natural frequency to be 1 Hz in the small strain limit.
-The magnitude of the applied traction was chosen to ensure significant geometric nonlinearity with the upper surface of the beam expected to drop below the plane of the lower surface.
+The magnitude of the applied traction was chosen to ensure significant geometric nonlinearity, with the upper surface of the beam expected to drop below the plane of the lower surface.
 Four succesively refined hexahedral meshes are generated using the OpenFOAM \texttt{blockMesh} utility, with cell counts of 270, $2\,160$, $17\,280$ and $138\,240$.
 %A fixed time step size of 0.001617274174 s is chosen, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
 %A fixed time step size of 1 ms is chosen.
@@ -1256,50 +1256,78 @@ Table \ref{tab:times_memory} lists the wall clock times (time according to a clo
 All clock times and memory usage were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler.
 \hl{Present data for one hardware first, and give comparison after.}
 Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parallelisation}.
-\begin{table}[htb]
+\begin{table}[!htb]
 	\centering
 		\begin{tabular}{ll|ll|ll}
 			\hline
-			Case & Cell Count & \multicolumn{2}{c|}{JFNK} & \multicolumn{2}{c}{Segregated} \\
-			     &            & Time & Memory & Time & Memory \\
+			\textbf{Case} & \textbf{Cell Count} & \multicolumn{2}{c|}{\textbf{JFNK}} & \multicolumn{2}{c}{\textbf{Segregated}} \\
+			     &            & \textbf{Time} & \textbf{Memory} & \textbf{Time} & \textbf{Memory} \\
 			     &            & (in s) & (in MB) & (in s) & (in MB) \\
 			\hline 
-			MMS & 384 & 0 & $78$ & X & Y \\
-				& $4\,374$ & 0 & $86$ & X & Y \\
-				& $41\,154$ & 1 & $195$ & X & Y \\
-				&  $355\,914$ & 4 & $1\,063$ & X & Y \\
-				& $2\,958\,234$ & 41 & $6\,724$ & X & Y \\
-				& $24\,118\,074$ & 486 & $30\,606$ & X & Y \\
+			\textbf{MMS} & 384 & 0 & $78$ 				& 0 & 79 \\
+			\emph{2-D, static,}	& $4\,374$ & 0 & $86$ 			& 0 & 94 \\
+			\emph{linear elastic} & $41\,154$ & 1 & $195$  		& 2 & 181 \\
+				&  $355\,914$ & 4 & $1\,063$ 		& 9 & $1\,289$ \\
+				& $2\,958\,234$ & 41 & $6\,724$ 	& 92 & $6\,174$ \\
+				& $24\,118\,074$ & 486 & $30\,606$ & $1\,732$ & $30\,601$ \\
 			\hline
-			Elliptic & 45 & 0 & $72$ & X & Y \\
-				& 472 & 0 & $78$ & X & Y \\
-				& $4\,140$ & 1 & $153$ & X & Y \\
-				& $34\,968$ & 7 & $754$ & X & Y \\
-				& $287\,280$ & 95 & $3\,943$ & X & Y \\
-				& $2\,438\,242$ & 988 & $21\,884$ & X & Y \\
+			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
+			\emph{3-D, static,} & 472 & 0 & $78$ & 0 & 81 \\
+			\emph{linear elastic} & $4\,140$ & 1 & $153$ & 8 & 124 \\
+				& $34\,968$ & 7 & $754$ & 149 & 660 \\
+				& $287\,280$ & 95 & $3\,943$ &  &  \\
+				& $2\,438\,242$ & 988 & $21\,884$ &  &  \\
 			\hline
-			T-member & 624& 0 & 84 & X & Y \\
-				& $4\,992$ & 1 & 127 & X & Y \\
-				& $39\,936$ & 10 & 557 & X & Y \\
-				& $319\,488$ & 154 & $4\,024$ & X & Y \\
-				& $2\,555\,904$ & $1\,751$ & $22\,814$ & X & Y \\
+			\textbf{T-member} & 624& 0 & 84 					&  &  \\
+			\emph{3-D, static,} & $4\,992$ & 1 & 127 				&  &  \\
+			\emph{linear elastic} & $39\,936$ & 10 & 557				&  &  \\
+				& $319\,488$ & 154 & $4\,024$ 		&  &  \\
+				& $2\,555\,904$ & $1\,751$ & $22\,814$ 	&  &  \\
 			\hline
-			Ventricle & $1\,620$ & 54 & 133 & & \\
-				& $12\,960$ & 576 & 553 & & \\
-				& $103\,680$ & $8\,362$ & $3\,435$ & & \\
+			\textbf{Ventricle} & $1\,620$ & 54 & 133 & & \\
+			\emph{3-D, static,}& $12\,960$ & 576 & 553 & & \\
+			\emph{hyperelastic} & $103\,680$ & $8\,362$ & $3\,435$ & & \\
 				& $829\,440$ & $150\,023$ & $11\,746$ & & \\
 			\hline
-			Membrane i & $x$ & x & x & & \\
+			\textbf{Membrane i} & 9 & 0 & 77 & & \\
+			\emph{2-D, static,}& 36 & 0 & 77  & & \\
+			\emph{linear elastic}& 144 & 0 & 78  & & \\
+				& 576 & 0 & 82 & & \\
+				& $2\,304$ & 0 & 94 & & \\
+				& $9\,216$ & 1 & 152 & & \\
+				& $36\,864$ & 2& 497 & & \\
+				& $147\,456$ & 10& $1\,461$ & & \\
 			\hline
-			Membrane ii & $x$ & x & x & & \\
+			\textbf{Membrane ii} & 9 & x & x & & \\
+			\emph{2-D, static,} & 36 & x & x & & \\
+			\emph{hyperelastic} & 144 & x & x & & \\
+				& 576 & x & x & & \\
+				& $2\,304$ & x & x & & \\
+				& $9\,216$ & x & x & & \\
+				& $36\,864$ & x & x & & \\
+				& $147\,456$ & & $x$ & & \\
 			\hline
-			Membrane iii & $x$ & x & x & & \\
+			\textbf{Membrane iii} & 9 & x & x & & \\
+			\emph{2-D, static,} & 36 & x & x & & \\
+			\emph{hyperelastoplastic}& 144 & x & x & & \\
+				& 576 & x & x & & \\
+				& $2\,304$ & x & x & & \\
+				& $9\,216$ & x & x & & \\
+				& $36\,864$ & x & x & & \\
+				& $147\,456$ & & $x$ & & \\
 			\hline
-			Cantilever & $x$ & x & x & & \\
+			\textbf{Cantilever} & $270$ & 11 & 85 & & \\
+			\emph{3-D, dynamic,} & $2\,160$ & 71 & 181 & & \\
+			\emph{hyperelastic}& $17\,280$ & 854 & 752 & & \\
+				& $138\,240$ & $11\,800$ & $5\,790$ & & \\
 			\hline
-			Turbine & $x$ & x & x & & \\
+			\textbf{Turbine} & $x$ & x & x & & \\
+			\emph{3-D, static,} & & & & & \\
+			\emph{linear elastic} & & & & & \\
 			\hline
-			FSI & $x$ & x & x & & \\
+			\textbf{FSI} & $1\,252$ + 156 & $4\,265$ & 743 & $4\,820$ & 752 \\
+			\emph{2-D, dynamic,}	& $5\,008$ + 624 & $33\,366$ & 788 & $46\,328$ & 786 \\
+			\emph{hyperelastic} & $20\,032$ + $2\,496$ & $154\,237$ & 729 & & \\
 			\hline
 		\end{tabular}
 	\caption{Execution times and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods. Resource requirements are shown for the following cases: manufactured solution (MMS), XX }
