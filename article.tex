@@ -1261,7 +1261,8 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 		\begin{tabular}{ll|ll|ll}
 			\hline
 			Case & Cell Count & \multicolumn{2}{c|}{JFNK} & \multicolumn{2}{c}{Segregated} \\
-			     &            & Time (s) & Memory (MB) & Time (s) & Memory (MB) \\
+			     &            & Time & Memory & Time & Memory \\
+			     &            & (in s) & (in MB) & (in s) & (in MB) \\
 			\hline 
 			MMS & 384 & 0 & $78$ & X & Y \\
 				& $4\,374$ & 0 & $86$ & X & Y \\
@@ -1287,6 +1288,18 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 				& $12\,960$ & 576 & 553 & & \\
 				& $103\,680$ & $8\,362$ & $3\,435$ & & \\
 				& $829\,440$ & $150\,023$ & $11\,746$ & & \\
+			\hline
+			Membrane i & $x$ & x & x & & \\
+			\hline
+			Membrane ii & $x$ & x & x & & \\
+			\hline
+			Membrane iii & $x$ & x & x & & \\
+			\hline
+			Cantilever & $x$ & x & x & & \\
+			\hline
+			Turbine & $x$ & x & x & & \\
+			\hline
+			FSI & $x$ & x & x & & \\
 			\hline
 		\end{tabular}
 	\caption{Execution times and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods. Resource requirements are shown for the following cases: manufactured solution (MMS), XX }
