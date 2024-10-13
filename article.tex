@@ -1293,18 +1293,18 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
 			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
 				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
-				& $2\,438\,242$ & 988 & $21\,884$ &  &  running (increase snes-max-funcs)\\
+				& $2\,438\,242$ & 988 & $21\,884$ &  &  running (increase snes-max-funcs and max-it)\\
 			\hline
 			\textbf{T-member} & 624& 0 & 84 					&  1 & 85 \\
 			\emph{3-D, static,} & $4\,992$ & 1 & 127 				&  7 &  141 \\
 			\emph{linear elastic} & $39\,936$ & 10 & 557			& 133 & 723  \\
-				& $319\,488$ & 154 & $4\,024$ 				&  & running  \\
-				& $2\,555\,904$ & $1\,751$ & $22\,814$ 			&  &  \\
+				& $319\,488$ & 154 & $4\,024$ 				& $2\,916$ & $3\,547$  \\
+				& $2\,555\,904$ & $1\,751$ & $22\,814$ 			&  &  running (increase snes-max-funcs and max-it)\ \\
 			\hline
-			\textbf{Ventricle} & $1\,620$ & 54 & 133 				& & running \\
-			\emph{3-D, static,}& $12\,960$ & 576 & 553 			& & \\
-			\emph{hyperelastic} & $103\,680$ & $8\,362$ & $3\,435$ 	& & \\
-				& $829\,440$ & $150\,023$ & $11\,746$ 			& & \\
+			\textbf{Ventricle} & $1\,620$ & 54 & 133 				& $\dag$ & $\dag$  \\ % & crashed at 0.23 s &  \\
+			\emph{3-D, static,}& $12\,960$ & 576 & 553 			& $\dag$  & $\dag$ \\ % & crashed at 0.25 s & \\
+			\emph{hyperelastic} & $103\,680$ & $8\,362$ & $3\,435$ 	& $\dag$  & $\dag$ \\ % & crashed at 0.18 s & \\
+				& $829\,440$ & $150\,023$ & $11\,746$ 			& $\dag$  & $\dag$ \\ % & crashed at 0.16 s & \\
 			\hline
 			\textbf{Membrane i} & 9 & 0 & 77 	& 0 & 76 \\
 			\emph{2-D, static,}& 36 & 0 & 77  	& 0 & 76 \\
@@ -1312,31 +1312,31 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 				& 576 & 0 & 82 				& 1 & 84 \\
 				& $2\,304$ & 0 & 94 			& 4 & 102 \\
 				& $9\,216$ & 1 & 152 		& 33 & 186 \\
-				& $36\,864$ & 2& 497 		& & running \\
-				& $147\,456$ & 10& $1\,461$ 	& & \\
+				& $36\,864$ & 2& 497 		& 350 & re-run store mem \\
+				& $147\,456$ & 10& $1\,461$ 	& & re-run increase max-it \\
 			\hline
-			\textbf{Membrane ii} & 9 & x & x 	& 1 & 78 \\
-			\emph{2-D, static,} & 36 & x & x 	& 2 & 78 \\
-			\emph{hyperelastic} & 144 & x & x 	& 5 & 80 \\
-				& 576 & x & x 			& 26 & 91 \\
-				& $2\,304$ & x & x 		& & running \\
-				& $9\,216$ & x & x 		& & \\
-				& $36\,864$ & x & x 		& & \\
-				& $147\,456$ & & $x$ 	& & \\
+			\textbf{Membrane ii} & 9 	& 1 & 81 		& 1 & 78 \\
+			\emph{2-D, static,} & 36 	& 1& 81 		& 2 & 78 \\
+			\emph{hyperelastic} & 144 & 3 & 84 		& 5 & 80 \\
+				& 576 			& 9 & 97 		& 26 & 91 \\
+				& $2\,304$ 		& 34 & 144 	& 166 & 132  \\
+				& $9\,216$ 		& 161 & 256  	& $1\,374$ & 357 \\
+				& $36\,864$ 		&  &  	& $15\,991$ & $1\,053$ \\
+				& $147\,456$ 		& rnng & 	& $135\,851$ & $2\,341$ \\
 			\hline
-			\textbf{Membrane iii} & 9 & x & x 		& 3 & 78 \\
-			\emph{2-D, static,} & 36 & x & x 		& 6 & 79 \\
-			\emph{hyperelastoplastic}& 144 & x & x	& 27 & 82 \\
-				& 576 & x & x			& & running \\
-				& $2\,304$ & x & x 		& & \\
-				& $9\,216$ & x & x 		& & \\
-				& $36\,864$ & x & x 		& & \\
-				& $147\,456$ & & $x$ 	& & \\
+			\textbf{Membrane iii} & 9 & $\dag$ & $\dag$	& 3 & 78 \\
+			\emph{2-D, static,} & 36 & $\dag$ & $\dag$	& 6 & 79 \\
+			\emph{hyperelastoplastic}& 144 & $\dag$ & $\dag$	& 27 & 82 \\
+				& 576 & $\dag$ & $\dag$				& 231 & 104 \\
+				& $2\,304$ & $\dag$ & $\dag$ 			& $1\,379$ & 180 \\
+				& $9\,216$ & $\dag$ & $\dag$ 			& $8\,321$ & 451 \\
+				& $36\,864$ & $\dag$ & $\dag$ 		& $60\,698$ & $1\,396$ \\
+				& $147\,456$ & $\dag$ & $\dag$ 		& $341\,212$ & $3\,466$ \\
 			\hline
-			\textbf{Cantilever} & $270$ & 11 & 85 		& & all diverged \\
-			\emph{3-D, dynamic,} & $2\,160$ & 71 & 181 	& & \\
-			\emph{hyperelastic}& $17\,280$ & 854 & 752 	& & \\
-				& $138\,240$ & $11\,800$ & $5\,790$ 	& & \\
+			\textbf{Cantilever} & $270$ & 11 & 85 		& $\dag$ & $\dag$ \\
+			\emph{3-D, dynamic,} & $2\,160$ & 71 & 181 	& $\dag$ & $\dag$ \\
+			\emph{hyperelastic}& $17\,280$ & 854 & 752 	& $\dag$ & $\dag$ \\
+				& $138\,240$ & $11\,800$ & $5\,790$ 	& $\dag$ & $\dag$ \\
 			\hline
 			\textbf{Turbine} & $322\,161$ & $2\,386$ & x & & decide on meshes \\
 			\emph{3-D, static,} & & & & & \\
@@ -1347,7 +1347,7 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 			\emph{hyperelastic} & $20\,032$ + $2\,496$ & $154\,237$ & 729 	& & \\
 			\hline
 		\end{tabular}
-	\caption{Execution times and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods. Resource requirements are shown for the following cases: manufactured solution (MMS), XX }
+	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods. $\dag$ indicates the solver crashed. }
 	\label{tab:times_memory}
 \end{table}
 
