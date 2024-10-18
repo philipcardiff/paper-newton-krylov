@@ -1257,23 +1257,30 @@ while the frequency is calculated as the inverse of the period.
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Robustness and Resource Requirements}
+\subsection{Resource Requirements and Robustness}
 \label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
 This section compares the robustness and resource requirements of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
 Specifically, cases where either approach diverges are examined, and the time and memory requirements are presented.
-In some cases, time and memory requirements from finite element software Abaqus are given for reference.
+In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
 Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
+Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler.
+%\hl{Present data for one hardware first, and give comparison after.}
+Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parallelisation}.
 % where several mesh densities are examined.
 %Time and memory requirements from the classic segregated approach are given for comparison, along with the requirements from commercial finite element software Abaqus (version XXX): \hl{ask Dylan to create the Abaqus results when we are happy the paper will not change}.
 %The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
 %\hl{Take care when comparing times between different hardware}
 
-Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall, rounded to the nearest second) and maximum memory usage according to the GNU time utility.
-All clock times and memory usage were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler.
-%\hl{Present data for one hardware first, and give comparison after.}
-Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parallelisation}.
-\begin{table}[!htb]
+Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage.
+Figure \ref{fig:times_memory}(a) plots the corresponding speedup on all cases as a function of the number of degrees of freedom, where the speedup is calculated as the segregated clock time divided by the Jacobian-free Newton-Krylov clock time.
+The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case where the fluid domain has three degrees of freedom (velocity vector and pressure) in 2-D.
+Speedup is only calculated for clock times greater than 2 seconds to avoid the comparison of small numbers.
+In all cases where convergence was achieved, the Jacobian-free Newton-Krylov approach was faster (speedup $> 1$), with speedups of one or two orders of magnitude in many cases.
+Additionally, it can be observed from Figure \ref{fig:times_memory}(a) that the speedup increases as the number of degrees of freedom increases.
+The largest speedup was 237 on the finest mesh of the membrane i (2-D, linear elastic) case, while the lowest speed was 1.09 and occurred on the coarsest mesh in the fluid-solid interaction case.
+Excluding the fluid-solid interaction, where the majority of degrees of freedom are placed in the fluid region, the next lowest speed-up was 1.66 and occurred on a coarse mesh in the membrane ii (2-D, hyperelastic) case.
+\begin{table}[!htbp]
 	\centering
 		\begin{tabular}{ll|ll|ll}
 			\hline
@@ -1338,90 +1345,85 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 			\emph{hyperelastic}& $17\,280$ & 854 & 752 	& $\dag$ & $\dag$ \\
 				& $138\,240$ & $11\,800$ & $5\,790$ 	& $\dag$ & $\dag$ \\
 			\hline
-			\textbf{Turbine} & $322\,161$ & $2\,386$ & x & & \hl{to run} \\
-			\emph{3-D, static,} & $2\,493\,299$  & & & & \\
+			\textbf{Turbine} & $322\,161$ & $22\,782$ & $11\,102$ & & \hl{rnng} \\
+			\emph{3-D, static,} & $2\,493\,299$  & \hl{to-rn}& & & \hl{to-rn} \\
 			\emph{linear elastic} & & & & & \\
 			\hline
-			\textbf{FSI} & $1\,252$ + 156 & $4\,265$ & 743 				& $4\,820$ & 752 \\
-			\emph{2-D, dynamic,}	& $5\,008$ + 624 & $33\,366$ & 788 	& $46\,328$ & 786 \\
-			\emph{hyperelastic} & $20\,032$ + $2\,496$ & $154\,237$ & 729 	& & \hl{to run} \\
+			\textbf{FSI} & $1\,252$ + 156 & $4\,084$ & 758 				& $4\,490$ & 732 \\
+			\emph{2-D, dynamic,}	& $5\,008$ + 624 & $28\,445$ & 777 	& $48\,440$ & 760 \\
+			\emph{hyperelastic} & $20\,032$ + $2\,496$ & $154\,237$ & 729 	& & \hl{re-rnng all} \\
 			\hline
 		\end{tabular}
-	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods. $\dag$ indicates the solver crashed. }
+	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver crashed. }
 	\label{tab:times_memory}
 \end{table}
 
-\hl{Comment on: Robustness, Time, Memory}
-\hl{Comment on the effect of items in list at the start of this section}
+Figure \ref{fig:times_memory}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
+The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
+In addition, unlike for the speedup, there is no general trend in the relative memory usage as the number of degrees of freedom increases.
+The maximum value for relative memory was 1.9 and occurred in the second-finest mesh for the membrane ii (2-D, hyperelastic) case, although for all other meshes in this case, the value was less than one (between 0.82 and 0.95).
+The maximum memory usage is primarily attributed to the linear solver and preconditioner; the choice of preconditioner and linear solver settings are examined further in Section \ref{sec:preconditioner}.
+\\
+\hl{Note: we use segregated in PETSc, so it is a vector system}
+\begin{figure}[htbp]
+   \centering
+	\subfigure[Speedup]
+	{
+   		\includegraphics[width=0.48\textwidth]{figures/speedup}
+	}
+	\subfigure[Relative memory]
+	{
+   		\includegraphics[width=0.48\textwidth]{figures/relative_memory}  
+   	}
+   \caption{The speedup (segregated clock time divided by the Jacobian-free Newton-Krylov clock time) and relative memory usage (segregated maximum memory usage divided by the Jacobian-free Newton-Krylov maximum memory usage) as a function of degrees of freedom}
+   \label{fig:times_memory}
+\end{figure}
 
+Regarding robustness, the Jacobian-free Newton-Krylov approach converged well in all cases bar one, requiring less than ten outer Newton iterations for most time/load increments.
+The only case where the Jacobian-free Newton-Krylov approach failed to converge was for the Membrane iii problem, the only elastoplastic case examined.
+As soon as plasticity occurred, the outer Newton loop diverged \hl{or inner? check}.
+The cause of this divergence is likely related to the proposed compact preconditioner matrix, which is formulated entirely based on small \emph{elastic} strains.
+Interestingly, convergence problems were not encountered in the hyperelastic cases (Membrane ii, Ventricle, Cantilever, Fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable.
+Potentially, modifying the compact preconditioner matrix to account for plasticity would allow the method to work in those cases, but this will be left for future studies.
+In contrast, the segregated approach - which uses the same matrix - had no problems with the elastoplastic case (Membrane iii) but did fail to converge on two of the hyperelastic cases (Ventricle, Cantilever).
+In both cases, large strains (\hl{number?}) and rotations are observed, which seem to cause issues for the segregated approach.
+
+\hl{Comment on the effect of items in list at the start of this section}
 \hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy: where best to say this...}.
 
+\hl{Hardware comparison? could go in the appendix}
 The trends shown in Table \ref{tab:times_memory} are common to all typical modern computer systems, however, the exact values depend on the particular details of the CPU, the memory configuration and the operating system.
 To highlight the effect of hardware specification, Table \ref{tab:times_memory_spec2} lists the time and memory usage for a different system: \hl{e.g. Mac M2/M3 seem to give excellent performance vs Meluxina AMD EPYC cores}.
 \hl{Describe the difference, e.g. 2-3 faster but same memory usage}
 \hl{Additional comments/insights, e.g. time trends are the same for both systems}
 \hl{We could even include multiple systems here, e.g. Mac Studio vs Meluxina AMD vs Zagreb Intel workstation vs Intel i9/i7}
-\begin{table}[htb]
-	\centering
-		\begin{tabular}{lllll}
-			\hline
-			Hardware & Case & Number of Cells & Time (in s) & Memory (in MB) \\
-			\hline 
-			Mac Studio, M2 Ultra & Spherical cavity & 1,234 & 345 & 1,234  \\
-			Mac Studio, M2 Ultra & Spherical cavity & 12,345 & 345 & 1,234  \\
-			Mac Studio, M2 Ultra & Spherical cavity & 123,456 & 345 & 1,234  \\
-			Meluxina, AMD EPYC & Spherical cavity & 1,234 & 345 & 1,234  \\
-			Meluxina, AMD EPYC & Spherical cavity & 12,345 & 345 & 1,234  \\
-			Meluxina, AMD EPYC & Spherical cavity & 123,456 & 345 & 1,234  \\
-			\hline
-		\end{tabular}
-	\caption{Execution times and maximum memory usage for \hl{Hardware Spec 2}}
-	\label{tab:times_memory_spec2}
-\end{table}
+%\begin{table}[htb]
+%	\centering
+%		\begin{tabular}{lllll}
+%			\hline
+%			Hardware & Case & Number of Cells & Time (in s) & Memory (in MB) \\
+%			\hline 
+%			Mac Studio, M2 Ultra & Spherical cavity & 1,234 & 345 & 1,234  \\
+%			Mac Studio, M2 Ultra & Spherical cavity & 12,345 & 345 & 1,234  \\
+%			Mac Studio, M2 Ultra & Spherical cavity & 123,456 & 345 & 1,234  \\
+%			Meluxina, AMD EPYC & Spherical cavity & 1,234 & 345 & 1,234  \\
+%			Meluxina, AMD EPYC & Spherical cavity & 12,345 & 345 & 1,234  \\
+%			Meluxina, AMD EPYC & Spherical cavity & 123,456 & 345 & 1,234  \\
+%			\hline
+%		\end{tabular}
+%	\caption{Execution times and maximum memory usage for \hl{Hardware Spec 2}}
+%	\label{tab:times_memory_spec2}
+%\end{table}
 
 
 \hl{Mention cases that diverge using one or both approaches: JFNK -> plastic; seg -> ventricle}
 
 
-%%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Effect of Mesh Type}
-%%--------------------------------------------------------------------------------------------------------------------%%
-To highlight the effect of mesh type on the performance of the proposed Jacobian-free Newton-Krylov approach, case \hl{X} is re-examined using several mesh types:
-(i) structured hexahedral; (ii) structured tetrahedral; (iii) unstructured tetehrahedral; and (iv) unstructured poyhedral.
-%Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
-The hexahedral and tetahedral meshes have been generated using the Gmsh utility \citep{geuzaine2009gmsh} and the polyhedral mesh has been created by converting a tetrahedral mesh using the OpenFOAM \texttt{polyDualMesh} utility.
-
-Table \ref{tab:mesh_types} lists the execution times and total number of linear solver iterations for the different mesh types and densities.
-\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
-\hl{Provide insights, if any: e.g. why is one faster or slower}
-\hl{Conclusion: mesh type does or does not affect the performance.}
-\begin{table}[htb]
-	\centering
-		\begin{tabular}{llll}
-			\hline
-			Mesh Type & Number of Cells & Time (in s) & Linear Solver Iterations  \\
-			\hline 
-			Structured hexahedral & 1,234 & 345 & 1,234  \\
-			Structured hexahedral & 12,345 & 345 & 1,234  \\
-			Structured hexahedral & 123,456 & 345 & 1,234  \\
-			Structured tetrahedral & 1,234 & 345 & 1,234  \\
-			Structured tetrahedral & 12,345 & 345 & 1,234  \\
-			Structured tetrahedral & 123,456 & 345 & 1,234  \\
-			Unstructured tetrahedral & 1,234 & 345 & 1,234  \\
-			Unstructured tetrahedral & 12,345 & 345 & 1,234  \\
-			Unstructured tetrahedral & 123,456 & 345 & 1,234  \\
-			Unstructured polyhedral & 1,234 & 345 & 1,234  \\
-			Unstructured polyhedral & 12,345 & 345 & 1,234  \\
-			Unstructured polyhedral & 123,456 & 345 & 1,234  \\
-			\hline
-		\end{tabular}
-	\caption{Execution times on Case \hl{X} for different mesh types}
-	\label{tab:mesh_types}
-\end{table}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Effect of the Preconditioner Choice}
+\label{sec:preconditioner}
 %%--------------------------------------------------------------------------------------------------------------------%%
 A critical factor contributing to the performance of Jacobian-free Newton Krylov methods is the formulation of the linear solver preconditioner and related linear solver settings.
 In this section, three choices of preconditioner are compared:
@@ -1512,6 +1514,45 @@ Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement
    \caption{Stress predictions along the line \hl{XXX} for the \hl{YYY} case using different values of the Rhie-Chow stabilisation factor $\alpha$}
    \label{fig:rhie_chow}
 \end{figure}
+
+
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Effect of Mesh Type}
+%%--------------------------------------------------------------------------------------------------------------------%%
+\hl{Remove section?}\\
+\hl{The effect of mesh quality may be more important} \\
+To highlight the effect of mesh type on the performance of the proposed Jacobian-free Newton-Krylov approach, case \hl{X} is re-examined using several mesh types:
+(i) structured hexahedral; (ii) structured tetrahedral; (iii) unstructured tetehrahedral; and (iv) unstructured poyhedral.
+%Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
+The hexahedral and tetahedral meshes have been generated using the Gmsh utility \citep{geuzaine2009gmsh} and the polyhedral mesh has been created by converting a tetrahedral mesh using the OpenFOAM \texttt{polyDualMesh} utility.
+
+Table \ref{tab:mesh_types} lists the execution times and total number of linear solver iterations for the different mesh types and densities.
+\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
+\hl{Provide insights, if any: e.g. why is one faster or slower}
+\hl{Conclusion: mesh type does or does not affect the performance.}
+\begin{table}[htb]
+	\centering
+		\begin{tabular}{llll}
+			\hline
+			Mesh Type & Number of Cells & Time (in s) & Linear Solver Iterations  \\
+			\hline 
+			Structured hexahedral & 1,234 & 345 & 1,234  \\
+			Structured hexahedral & 12,345 & 345 & 1,234  \\
+			Structured hexahedral & 123,456 & 345 & 1,234  \\
+			Structured tetrahedral & 1,234 & 345 & 1,234  \\
+			Structured tetrahedral & 12,345 & 345 & 1,234  \\
+			Structured tetrahedral & 123,456 & 345 & 1,234  \\
+			Unstructured tetrahedral & 1,234 & 345 & 1,234  \\
+			Unstructured tetrahedral & 12,345 & 345 & 1,234  \\
+			Unstructured tetrahedral & 123,456 & 345 & 1,234  \\
+			Unstructured polyhedral & 1,234 & 345 & 1,234  \\
+			Unstructured polyhedral & 12,345 & 345 & 1,234  \\
+			Unstructured polyhedral & 123,456 & 345 & 1,234  \\
+			\hline
+		\end{tabular}
+	\caption{Execution times on Case \hl{X} for different mesh types}
+	\label{tab:mesh_types}
+\end{table}
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
