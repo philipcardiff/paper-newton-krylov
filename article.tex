@@ -311,7 +311,7 @@ From this perspective, the segregated solution algorithm commonly employed in fi
 In this case, the approximate Jacobian $\bb{\tilde{J}}$ comes from the compact stencil discretisation of a simple diffusion (Laplacian) term.
 A benefit of this approach is that the inter-component coupling is removed from the Jacobian, allowing the solution of three smaller scalar systems rather than one larger vector system in 3-D (or two smaller systems in 2-D).
 
-A fully explicit procedure can also be viewed from this perspective by selecting an approximate Jacobian which is diagonal $\bb{\tilde{D}}$, making solution of the linear system trivial:
+A fully explicit procedure can also be viewed from this perspective by selecting an approximate Jacobian, which is diagonal $\bb{\tilde{D}}$, making the solution of the linear system trivial:
 \begin{eqnarray} \label{eq:exp}
     \bb{\tilde{D}}(\bb{u}_k) \;\delta \bb{u} = -\bb{R}(\bb{u}_k)
 \end{eqnarray}
@@ -1666,8 +1666,124 @@ Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre 
 \label{app:RhieChow}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\hl{Add this for 1-D}
+On a 1-D uniform mesh with spacing $\Delta x$ and unity areas, the Rhie-Chow term stabilisation term (Equation \ref{eq:RhieChow}) for centre cell $P$ becomes
+\begin{eqnarray}
+\mathcal{D}_{\text {Rhie-Chow}}
+	&=&
+	\sum_{f \in N_f} \alpha \bar{K}_f
+	\left[
+	\left|\bb{\Delta}_f\right| \frac{ \bb{u}_{N_f} - \bb{u}_P}{\left|\bb{d}_f\right|}
+	- \bb{\Delta}_f \cdot \left(\bb{\nabla} \bb{u} \right)_f
+	\right]
+	\left|\bb{\Gamma}_{f}\right| \notag \\
+	&=& 
+	\alpha \bar{K} \left[ \frac{ \bb{u}_{E} - \bb{u}_P}{\Delta x} - \left(\bb{\nabla} \bb{u} \right)_e \right]
+	+ \alpha \bar{K} \left[ \frac{ \bb{u}_{W} - \bb{u}_P}{\Delta x} + \left(\bb{\nabla} \bb{u} \right)_w \right]
+	\notag \\
+\end{eqnarray}
+where $E$ and $W$ indicate the east and west neighbour cell centre values, $EE$ and $WW$ are the far east and west neighbour cell centre values, and $e$ and $w$ indicate east and west face values;
+$\alpha$ and $\bar{K}$ are assumed uniform.
+The face gradients are calculated as
+\begin{eqnarray}
+	\left(\bb{\nabla} \bb{u} \right)_e = \frac{1}{2} \left[ \left(\bb{\nabla} \bb{u} \right)_P + \left(\bb{\nabla} \bb{u} \right)_E \right]  \notag \\
+	\left(\bb{\nabla} \bb{u} \right)_w = \frac{1}{2} \left[ \left(\bb{\nabla} \bb{u} \right)_W + \left(\bb{\nabla} \bb{u} \right)_P \right]
+\end{eqnarray}
+where the cell centre gradients are calculated as
+\begin{eqnarray}
+	\left(\bb{\nabla} \bb{u} \right)_W = \frac{\bb{u}_{P} - \bb{u}_{WW}}{2\Delta x} \notag \\
+	\left(\bb{\nabla} \bb{u} \right)_P = \frac{\bb{u}_{E} - \bb{u}_{W}}{2\Delta x} \notag \\
+	\left(\bb{\nabla} \bb{u} \right)_E = \frac{\bb{u}_{EE} - \bb{u}_{P}}{2\Delta x}
+\end{eqnarray}
 
+The final Rhie-Chow term becomes
+\begin{eqnarray} \label{eq:Rhie_Chow_1D}
+	\mathcal{D}_{\text {Rhie-Chow}}
+	&=& 
+	\alpha \bar{K}
+		\left\{
+		\frac{ \bb{u}_{E} - \bb{u}_P}{\Delta x}
+		- \frac{1}{2} \left[ \left(\bb{\nabla} \bb{u} \right)_P + \left(\bb{\nabla} \bb{u} \right)_E \right]
+	+ \frac{ \bb{u}_{W} - \bb{u}_P}{\Delta x}
+		+ \frac{1}{2} \left[ \left(\bb{\nabla} \bb{u} \right)_W + \left(\bb{\nabla} \bb{u} \right)_P \right]
+		\right\}
+	\notag \\
+	&=& 
+	\alpha \bar{K}
+		\left\{
+		\frac{ \bb{u}_{E} - \bb{u}_P}{\Delta x}
+		- \frac{1}{2} \left(\bb{\nabla} \bb{u} \right)_E
+	+ \frac{ \bb{u}_{W} - \bb{u}_P}{\Delta x}
+		+ \frac{1}{2} \left(\bb{\nabla} \bb{u} \right)_W 
+		\right\}
+	\notag \\
+	&=& 
+	\alpha \bar{K}
+		\left[
+		\frac{ \bb{u}_{E} - \bb{u}_P}{\Delta x}
+%		- \frac{1}{2} \left( \frac{\bb{u}_{E} - \bb{u}_{W}}{2\Delta x} + \frac{\bb{u}_{EE} - \bb{u}_{P}}{2\Delta x} \right)
+		- \frac{\bb{u}_{EE} - \bb{u}_{P}}{4\Delta x}
+	+ \frac{ \bb{u}_{W} - \bb{u}_P}{\Delta x}
+%		+ \frac{1}{2} \left( \frac{\bb{u}_{P} - \bb{u}_{WW}}{2\Delta x}  + \frac{\bb{u}_{E} - \bb{u}_{W}}{2\Delta x} \right)
+		+ \frac{\bb{u}_{P} - \bb{u}_{WW}}{4\Delta x} 
+		\right]
+	\notag \\
+%	&=& 
+%	\alpha \bar{K}
+%		\left[
+%		\frac{ \bb{u}_{E} - 2\bb{u}_P + \bb{u}_W}{\Delta x}
+%		- \frac{1}{2} \left(
+%			\frac{\bb{u}_{E} - \bb{u}_{W}}{2\Delta x} + \frac{\bb{u}_{EE} - \bb{u}_{P}}{2\Delta x}
+%			+ \frac{\bb{u}_{P} - \bb{u}_{WW}}{2\Delta x}  + \frac{\bb{u}_{E} - \bb{u}_{W}}{2\Delta x}
+%		\right)
+%		\right]
+%	\notag \\
+%	&=& 
+%	\frac{\alpha \bar{K}}{4 \Delta x}
+%		\left[
+%		4\bb{u}_{E} - 8\bb{u}_P + 4\bb{u}_W
+%		-  \bb{u}_{E} + \bb{u}_{W} + \bb{u}_{EE} - \bb{u}_{P}
+%	 	+ \bb{u}_{P} - \bb{u}_{WW}  + \bb{u}_{E} - \bb{u}_{W}
+%		\right]
+%	\notag \\
+	&=& 
+	\frac{\alpha \bar{K}}{4 \Delta x}	\left[- \bb{u}_{WW} + 4\bb{u}_W - 6\bb{u}_P + 4\bb{u}_{E} - \bb{u}_{EE} \right]
+\end{eqnarray}
+
+A local truncation analysis can be performed using the following truncated Taylor series about the true solution ($\bb{U}$) and its gradients ($\left( \bb{\nabla} \bb{U} \right)_P$, $\left( \bb{\nabla}^2 \bb{U} \right)_P$, $...$) at $P$:
+\begin{eqnarray} \label{eq:taylor_series_1d}
+	\bb{u}_{WW} &=& \bb{U}_P - 2\Delta x \left( \bb{\nabla} \bb{U} \right)_P + \frac{4\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P
+		- \frac{8\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P + O(\Delta x^4) \notag \\
+	\bb{u}_W &=& \bb{U}_P - \Delta x \left( \bb{\nabla} \bb{U} \right)_P + \frac{\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P
+		- \frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P + O(\Delta x^4) \notag \\
+	\bb{u}_P &=& \bb{U}_P \notag \\
+	\bb{u}_E &=& \bb{U}_P + \Delta x \left( \bb{\nabla} \bb{U} \right)_P + \frac{\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P 
+		+ \frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P + O(\Delta x^4) \notag \\
+	\bb{u}_{EE} &=& \bb{U}_P + 2\Delta x \left( \bb{\nabla} \bb{U} \right)_P + \frac{4\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P 
+		+ \frac{8\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P + O(\Delta x^4)
+\end{eqnarray}
+where $O(\Delta x^4)$ are higher-order terms with a leading term porportional to $\Delta x^4$.
+
+Substituting the expressions above (Equations \ref{eq:taylor_series_1d}) for the true solution into Equation \ref{eq:Rhie_Chow_1D} results in
+\begin{eqnarray}
+	\mathcal{D}_{\text {Rhie-Chow}}
+	&=& 	\frac{\alpha \bar{K}}{4 \Delta x}	\left[- \bb{u}_{WW} + 4\bb{u}_W - 6\bb{u}_P + 4\bb{u}_{E} - \bb{u}_{EE} \right] \notag \\
+	&=& 	\frac{\alpha \bar{K}}{4 \Delta x}
+	\Bigg[
+	- \bb{U}_P + 2\Delta x \left( \bb{\nabla} \bb{U} \right)_P - 4\frac{\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P 
+		+ 8\frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P \notag \\
+	&&\quad\quad + 4\bb{U}_P - 4\Delta x \left( \bb{\nabla} \bb{U} \right)_P + 4\frac{\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P
+		- 4\frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P \notag \\
+	&&\quad\quad - 6\bb{U}_P \notag \\
+	&&\quad\quad + 4\bb{U}_P + 4\Delta x \left( \bb{\nabla} \bb{U} \right)_P + 4\frac{\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P
+		+ 4 \frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P \notag \\
+	&&\quad\quad - \bb{U}_P - 2\Delta x \left( \bb{\nabla} \bb{U} \right)_P - 4\frac{\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P 
+		+ 8\frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P + O(\Delta x^4) \Bigg] \notag \\
+	&=& 	\frac{\alpha \bar{K}}{4 \Delta x}	\left[ 16\frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P  + O(\Delta x^4) \right] \notag \\
+	&=& 	\frac{2}{3} \alpha \bar{K}  \Delta x^2 \left( \bb{\nabla}^3 \bb{U} \right)_P  + O(\Delta x^3)
+\end{eqnarray}
+
+\hl{The leading truncation error is proportional to $\Delta x^2$!}
+\hl{Did I make a mistake...?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Body Force for the Method of Manufactured Solutions Case} \label{app:mms}
