@@ -1260,9 +1260,11 @@ while the frequency is calculated as the inverse of the period.
 \subsection{Resource Requirements and Robustness}
 \label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section compares the robustness and resource requirements of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
-Specifically, cases where either approach diverges are examined, and the time and memory requirements are presented.
+This section compares resource requirements and robustness of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
+Specifically, time and memory requirements are analysed, and cases where either approach diverges are examined.
 In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
+In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre \emph{BoomerAMG} multigrid preconditioner for 3-D.
+In contrast, The segregated approach used the conjugate gradient linear solver and the Hypre \emph{BoomerAMG} multigrid preconditioner for all cases.
 Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
 Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler.
 %\hl{Present data for one hardware first, and give comparison after.}
@@ -1272,9 +1274,9 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 %The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
 %\hl{Take care when comparing times between different hardware}
 
-Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage.
-Figure \ref{fig:times_memory}(a) plots the corresponding speedup on all cases as a function of the number of degrees of freedom, where the speedup is calculated as the segregated clock time divided by the Jacobian-free Newton-Krylov clock time.
-The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case where the fluid domain has three degrees of freedom (velocity vector and pressure) in 2-D.
+Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage for all cases and all meshes.
+Figure \ref{fig:times_memory}(a) plots the corresponding speedup on all cases as a function of the number of degrees of freedom, where the speedup is defined as the segregated clock time divided by the Jacobian-free Newton-Krylov clock time.
+The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case where the fluid domain has three degrees of freedom (two velocity components and pressure) in 2-D.
 Speedup is only calculated for clock times greater than 2 seconds to avoid the comparison of small numbers.
 In all cases where convergence was achieved, the Jacobian-free Newton-Krylov approach was faster (speedup $> 1$), with speedups of one or two orders of magnitude in many cases.
 Additionally, it can be observed from Figure \ref{fig:times_memory}(a) that the speedup increases as the number of degrees of freedom increases.
@@ -1331,14 +1333,14 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 				& $36\,864$ 		& 860 & 554  	& $15\,991$ & $1\,053$ \\
 				& $147\,456$ 		& $1\,585$ & $2\,847$ & $135\,851$ & $2\,341$ \\
 			\hline
-			\textbf{Membrane iii} & 9 & $\dag$ & $\dag$	& 3 & 78 \\
-			\emph{2-D, static,} & 36 & $\dag$ & $\dag$	& 6 & 79 \\
+			\textbf{Membrane iii} & 9 & $0$ & $78$	& 3 & 78 \\
+			\emph{2-D, static,} & 36 & $1$ & $79$	& 6 & 79 \\
 			\emph{hyperelastoplastic}& 144 & $\dag$ & $\dag$	& 27 & 82 \\
-				& 576 & $\dag$ & $\dag$				& 231 & 104 \\
-				& $2\,304$ & $\dag$ & $\dag$ 			& $1\,379$ & 180 \\
-				& $9\,216$ & $\dag$ & $\dag$ 			& $8\,321$ & 451 \\
-				& $36\,864$ & $\dag$ & $\dag$ 		& $60\,698$ & $1\,396$ \\
-				& $147\,456$ & $\dag$ & $\dag$ 		& $341\,212$ & $3\,466$ \\
+				& 576 & 			$8$ & $90$ 			& 231 & 104 \\
+				& $2\,304$ & 		$\dag$ & $\dag$		& $1\,379$ & 180 \\
+				& $9\,216$ & 		$\dag$ & $\dag$			& $8\,321$ & 451 \\
+				& $36\,864$ & 		$\dag$ & $\dag$ 		& $60\,698$ & $1\,396$ \\
+				& $147\,456$ & 	$\dag$ & $\dag$ 		& $341\,212$ & $3\,466$ \\
 			\hline
 			\textbf{Cantilever} & $270$ & 11 & 85 		& $\dag$ & $\dag$ \\
 			\emph{3-D, dynamic,} & $2\,160$ & 71 & 181 	& $\dag$ & $\dag$ \\
@@ -1379,24 +1381,50 @@ The maximum memory usage is primarily attributed to the linear solver and precon
    \label{fig:times_memory}
 \end{figure}
 
-Regarding robustness, the Jacobian-free Newton-Krylov approach converged well in all cases bar one, requiring less than ten outer Newton iterations for most time/load increments.
+% Average SNES iterations can be calculated with (assuming the SNES converged reason flag is enabled):
+% grep "Nonlinear solve converged due to" log.solids4Foam | awk '{sum += $9; count++} END {if (count > 0) print sum / count}'
+% or, if the SNES converged reason flag was not enabled then:
+% grep "SNES Function norm" log.solids4Foam | awk '{print $2}' | awk -F" " '{sum += $1; count++} END {if (count > 0) print sum / count}'
+%
+% ADD 1 to all the numbers below
+% Membrane ii (hyperelastic): m1 = 0.768913; m2 = 0.816138; m3 = 0.854033; m4 = 0.868521; m5 = 0.875628; m6 = 0.878446; m7 = 0.87985; m8 = 0.87985
+% Ventricle: m1 = 
+% Cantilever: m1 = 1.00133; m2 = 1.00731; m3 = 1.02502; m4 = 1.74552
+% FSI: m1 = 2.00182; m2 = 2.81157; m3 = 2.89065 
+
+Regarding robustness, the Jacobian-free Newton-Krylov approach converged in all cases bar one, requiring less than five outer Newton iterations on average in all converged cases.
 The only case where the Jacobian-free Newton-Krylov approach failed to converge was for the Membrane iii problem, the only elastoplastic case examined.
-As soon as plasticity occurred, the outer Newton loop diverged \hl{or inner? check}.
-The cause of this divergence is likely related to the proposed compact preconditioner matrix, which is formulated entirely based on small \emph{elastic} strains.
-Interestingly, convergence problems were not encountered in the hyperelastic cases (Membrane ii, Ventricle, Cantilever, Fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable.
-Potentially, modifying the compact preconditioner matrix to account for plasticity would allow the method to work in those cases, but this will be left for future studies.
-In contrast, the segregated approach - which uses the same matrix - had no problems with the elastoplastic case (Membrane iii) but did fail to converge on two of the hyperelastic cases (Ventricle, Cantilever).
-In both cases, large strains (\hl{number?}) and rotations are observed, which seem to cause issues for the segregated approach.
+For the failed meshes, they each reached approximately 80\% of the total load before the linear solver diverged.
+The cause of this divergence is likely related to the proposed compact preconditioner matrix, which is formulated based on small \emph{elastic} strains, being a poor approximation of the true Jacobian for large plastic strains.
+Interestingly, convergence problems were not encountered in the hyperelastic cases (Membrane ii, Ventricle, Cantilever, Fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable for such large strain hyperelastic cases.
+%Potentially, modifying the compact preconditioner matrix to account for plasticity would allow the method to work in the failed cases, but this will be left for future studies.
+In contrast, the segregated approach—which uses the same matrix—had no problems with the elastoplastic case (Membrane iii) but failed to converge on two of the hyperelastic cases (Ventricle, Cantilever).
+In both cases where the segregated approach failed, large elastic strains and large rotations were observed, and the segregated solver failed in the early time steps.
+It is interesting to note that the same linear elastic preconditioner matrix works well with the Jacobian-free Newton-Krylov approach for hyperelastic cases but not for the segregated approach, while the opposite is true for elastoplastic cases.
 
-\hl{Comment on the effect of items in list at the start of this section}
-\hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy: where best to say this...}.
+Regarding geometric dimension, the same general trends are observed in 2-D and 3-D, with no major distinctions in behaviour.
+The same can be said for geometric nonlinearity (small strain vs. large strain) with similar speed-ups for both linear elastic and hyperelastic cases.
+One observation worth highlighting is the relatively lower speed for the method of manufactured solutions case (3-D, linear elastic): a possible explanation is that the segregated approach has previously been seen to be efficient on geometry with low aspect ratios (ratio of maximum to minimum dimensions);
+in this case, the aspect ratio is at its minimum (unity).
+In contrast, in other 3-D, linear elastic cases (Elliptic plate, Narrow T-Member, Membrane i, Turbine), the aspect ratios are greater than unity, and the segregated approach performs worse relative to the Jacobian-free Newton-Krylov approach. 
 
-\hl{Hardware comparison? could go in the appendix}
-The trends shown in Table \ref{tab:times_memory} are common to all typical modern computer systems, however, the exact values depend on the particular details of the CPU, the memory configuration and the operating system.
-To highlight the effect of hardware specification, Table \ref{tab:times_memory_spec2} lists the time and memory usage for a different system: \hl{e.g. Mac M2/M3 seem to give excellent performance vs Meluxina AMD EPYC cores}.
-\hl{Describe the difference, e.g. 2-3 faster but same memory usage}
-\hl{Additional comments/insights, e.g. time trends are the same for both systems}
-\hl{We could even include multiple systems here, e.g. Mac Studio vs Meluxina AMD vs Zagreb Intel workstation vs Intel i9/i7}
+
+%\hl{Comment on the effect of items in list at the start of this section}
+%	\item Geometric dimension (2-D vs. 3-D),
+%	\item Geometric nonlinearity (small strain vs. large strain),
+%	\item Geometric complexity (basic geometric shapes vs. complex geometry),
+%	\item Statics vs. dynamics, and
+%	\item Material behaviour (elasticity, elastoplasticity, hyperelasticity).
+
+%\hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy: where best to say this...}.
+
+%\hl{Hardware comparison? could go in the appendix}
+\hl{Should we add Table 1 for other hardware in the appendix?}
+%The trends shown in Table \ref{tab:times_memory} are common to all typical modern computer systems, however, the exact values depend on the particular details of the CPU, the memory configuration and the operating system.
+%To highlight the effect of hardware specification, Table \ref{tab:times_memory_spec2} lists the time and memory usage for a different system: \hl{e.g. Mac M2/M3 seem to give excellent performance vs Meluxina AMD EPYC cores}.
+%\hl{Describe the difference, e.g. 2-3 faster but same memory usage}
+%\hl{Additional comments/insights, e.g. time trends are the same for both systems}
+%\hl{We could even include multiple systems here, e.g. Mac Studio vs Meluxina AMD vs Zagreb Intel workstation vs Intel i9/i7}
 %\begin{table}[htb]
 %	\centering
 %		\begin{tabular}{lllll}
@@ -1416,21 +1444,20 @@ To highlight the effect of hardware specification, Table \ref{tab:times_memory_s
 %\end{table}
 
 
-\hl{Mention cases that diverge using one or both approaches: JFNK -> plastic; seg -> ventricle}
-
-
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Effect of the Preconditioner Choice}
 \label{sec:preconditioner}
 %%--------------------------------------------------------------------------------------------------------------------%%
-A critical factor contributing to the performance of Jacobian-free Newton Krylov methods is the formulation of the linear solver preconditioner and related linear solver settings.
-In this section, three choices of preconditioner are compared:
+This section examines the effect of preconditioning procedure choice on the performance of the Jacobian-free Newton Krylov approach.
+%In addition, the effect of the restart parameter for the GMRES linear solver is also examined.
+Three choices of preconditioning procedure are compared:
 \begin{itemize}
-	\item \textbf{LU} - A LU decomposition direct solver \hl{Is this MUMPS? To be checked}. A direct solver is expected to be the more robust but suffer from excessive time and memory requirements for larger numbers of unknowns.
-	\item \textbf{ILU(N)} - Incomplete LU decomposition with $N$ fill-in. ILU(N) is expected to have lower memory requirements but at the expense of robustness. Additionally, as the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ is increased, the performance of ILU(N) approaches that of the LU direct solver.
-	\item \textbf{Algebraic multigrid} - The HYPRE Boomerang parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near linear scaling of time and memory requirement.
+	\item \textbf{LU} - The \emph{MUltifrontal Massively Parallel sparse direct Solver} (MUMPS) \citep{MUMPS:1, MUMPS:2} LU decomposition direct solver. A direct solver is expected to be the more robust but may suffer from excessive time and memory requirements for larger numbers of unknowns.
+	\item \textbf{ILU(N)} - Incomplete LU decomposition with N fill-in. ILU(N) is expected to have lower memory requirements than the LU direct solver but at the expense of robustness.
+	As the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ increases, ILU(N) approaches the behaviour of a LU direct solver.
+	\item \textbf{Algebraic multigrid} - The Hypre Boomerang \citep{hypre} parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near linear scaling of time and memory requirements.
 \end{itemize}
 
 An additional consideration when selecting a preconditioner is its ability to scale in parallel as the number of CPU cores increases.
@@ -1641,6 +1668,8 @@ The key findings of the work are:
 	\item Main important choices
 	\item How it compares to segregated methods and FE (Abaqus)
 \end{itemize}
+
+Potentially, modifying the compact preconditioner matrix to account for plasticity would allow the method to work in the failed cases, but this will be left for future studies.
 
 
 
