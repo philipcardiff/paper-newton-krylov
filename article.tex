@@ -1360,7 +1360,7 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 	\label{tab:times_memory}
 \end{table}
 
-Figure \ref{fig:times_memory}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
+Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
 The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
 In addition, unlike for the speedup, there is no general trend in the relative memory usage as the number of degrees of freedom increases.
 The maximum value for relative memory was 1.9 and occurred in the second-finest mesh for the membrane ii (2-D, hyperelastic) case, although for all other meshes in this case, the value was less than one (between 0.82 and 0.95).
@@ -1378,7 +1378,7 @@ The maximum memory usage is primarily attributed to the linear solver and precon
    		\includegraphics[width=0.48\textwidth]{figures/relative_memory}  
    	}
    \caption{The speedup (segregated clock time divided by the Jacobian-free Newton-Krylov clock time) and relative memory usage (segregated maximum memory usage divided by the Jacobian-free Newton-Krylov maximum memory usage) as a function of degrees of freedom}
-   \label{fig:times_memory}
+   \label{fig:speedup_rel_mem}
 \end{figure}
 
 % Average SNES iterations can be calculated with (assuming the SNES converged reason flag is enabled):
@@ -1464,32 +1464,49 @@ An additional consideration when selecting a preconditioner is its ability to sc
 From this perspective, the iterative approaches (ILU(N) and multigrid) are expected to show better parallel scaling than direct methods (LU).
 Analysis of this point is left to Section \ref{sec:parallelisation}.
 
-Table \ref{tab:preconditioner} presents the execution times and memory requirements for cases \hl{X, Y and Z} for different mesh densities.
+The preconditioning approaches are compared in three cases: membrane i (2-D, linear elastic), elliptic plate (3-D, linear elastic), and idealised ventricle (3-D, hyperelastic).
+ 
+Figure \ref{fig:times_memory} compares the clock times and maximum memory requirements for the three preconditioning approaches as a function of degrees of freedom.
+\hl{ILU1 diverges on the ventricle for the finer two meshes: re-rnng with ILU2}
+\hl{LU ventricle: mesh4 is running}
 \hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
 \hl{Provide insights, if any: e.g. why is one faster or slower}
 \hl{Conclusion: which preconditioner if 'best' for which situation: probably LU is best for 'small' cases and multigrid for 'large' cases}
-\begin{table}[htb]
-	\centering
-		\begin{tabular}{lllll}
-			\hline
-			Case & Number of Cells & Preconditioner & Time (in s) & Memory (in MB)  \\
-			\hline 
-			Case X & 1,234 & LU & 345 & 1,234  \\
-			Case X & 12,345 & LU & 345 & 1,234  \\
-			Case X & 123,456 & LU & 345 & 1,234  \\
-			Case X & 1,234 & ILU(0) & 345 & 1,234  \\
-			Case X & 12,345 & ILU(0) & 345 & 1,234  \\
-			Case X & 123,456 & ILU(0) & 345 & 1,234  \\
-			Case X & 1,234 & Multigrid & 345 & 1,234  \\
-			Case X & 12,345 & Multigrid & 345 & 1,234  \\
-			Case X & 123,456 & Multigrid & 345 & 1,234  \\
-			Case Y & 1,234 & LU & 345 & 1,234  \\
-			Case Z & 1,234 & LU & 345 & 1,234  \\
-			\hline
-		\end{tabular}
-	\caption{Execution times and maximum memory usage for different preconditioners on varying cases and mesh densities \hl{Try other value of N for ILU?}}
-	\label{tab:preconditioner}
-\end{table}
+\begin{figure}[htbp]
+   \centering
+	\subfigure[Clock time]
+	{
+   		\includegraphics[width=0.48\textwidth]{figures/time}
+	}
+	\subfigure[Maximum memory]
+	{
+   		\includegraphics[width=0.48\textwidth]{figures/memory}  
+   	}
+   \caption{The clock times and maximum memory usage for three preconditioning approaches (multigrid, ILU(1), and LU) as a function of degrees of freedom}
+   \label{fig:times_memory}
+\end{figure}
+%\begin{table}[htb]
+%	\centering
+%		\begin{tabular}{lllll}
+%			\hline
+%			Case & Number of Cells & Preconditioner & Time (in s) & Memory (in MB)  \\
+%			\hline 
+%			Case X & 1,234 & LU & 345 & 1,234  \\
+%			Case X & 12,345 & LU & 345 & 1,234  \\
+%			Case X & 123,456 & LU & 345 & 1,234  \\
+%			Case X & 1,234 & ILU(0) & 345 & 1,234  \\
+%			Case X & 12,345 & ILU(0) & 345 & 1,234  \\
+%			Case X & 123,456 & ILU(0) & 345 & 1,234  \\
+%			Case X & 1,234 & Multigrid & 345 & 1,234  \\
+%			Case X & 12,345 & Multigrid & 345 & 1,234  \\
+%			Case X & 123,456 & Multigrid & 345 & 1,234  \\
+%			Case Y & 1,234 & LU & 345 & 1,234  \\
+%			Case Z & 1,234 & LU & 345 & 1,234  \\
+%			\hline
+%		\end{tabular}
+%	\caption{Execution times and maximum memory usage for different preconditioners on varying cases and mesh densities \hl{Try other value of N for ILU?}}
+%	\label{tab:preconditioner}
+%\end{table}
 
 
 \hl{Other linear solver settings: mention these but no need for analyses}
@@ -1505,33 +1522,51 @@ This can also be considered a linear solver setting. For segregated, we always u
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Effect of Rhie-Chow Stabilisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section highlights a key effect in the performance of the proposed Jacobian-free Newton Krylov method: the choice of the global scaling factor $\alpha$ in the Rhie-Chow stabilisation (Equation \ref{eq:RhieChow}).
-Without this (or a similar) stabilisation term, zero-energy oscillations, such as checkerboarding, may appear in the solution fields.
-As the amount of stabilisation is increased (increasing $\alpha$), these numerical modes are quelled and the solution is stabilisation; however, at some point, further increases in amount of stabilisation reduce the accuracy of the discretisation due to oversmoothing.
-Consequently, a good choice of the stabilisation global scaling factor $\alpha$ is one which is sufficiently high to quell oscillations but not higher.
-This challenge is related to the discretisation and hence is common to all solution algorithms, including segregated and Jacobian-free Newton Krylov methods.
-Nonetheless, the amount of stabilisation can affect the convergence of the linear solver in Jacobian-free Newton Krylov methods, for example, as examined by \citet{Nishikawa} for a \hl{XXX} Euler flow finite volume formulation.
+This section highlights the effect of the choice of the global scaling factor $\alpha$ in the Rhie-Chow stabilisation (Equation \ref{eq:RhieChow}) on the performance of the proposed Jacobian-free Newton Krylov method.
+As described in Section \ref{sec:discretisation}, the stabilisation term is introduced to quell zero-energy modes (oscillations) in the discrete solution, such as checkerboarding.
+As the amount of stabilisation increases (increasing $\alpha$), these numerical modes are quelled, and the solution stabilises; however, at some point, further increases in the amount of stabilisation reduce the accuracy of the discretisation due to over-smoothing.
+A less obvious consequence of changing the stabilisation magnitude is its effect on the convergence of the linear solver in the Jacobian-free Newton-Krylov solution procedure.
+This section examines this effect.
+%Consequently, a good choice of the stabilisation global scaling factor $\alpha$ is sufficiently high to quell oscillations but not higher.
+%This challenge is related to discretisation and is, hence, common to all solution algorithms, including segregated and Jacobian-free Newton Krylov methods.
+Similar analyses have been performed by, for example, \citet{Nishikawa} for a \hl{XXX} Euler flow finite volume formulation using a Jacobian-free Newton-Krylov approach.
 
-Table \ref{tab:rhie_chow} presents the execution times and total number of linear solver iterations for the case \hl{XX} for $\alpha = \left[ 0.01, 0.1, 1 \right]$ for several mesh densities.
-\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, if any cases diverged or needed a higher 'restarts' value, etc}
-\hl{Provide insights, if any: e.g. why is one faster or slower}
-\begin{table}[htb]
-	\centering
-		\begin{tabular}{lllll}
-			\hline
-			Case & Number of Cells & $\alpha$ & Time (in s) & Linear Solver Iterations  \\
-			\hline 
-			Idealised Ventricle & 1,234 & 0.01 & 345 & 1,234  \\
-			Idealised Ventricle & 12,345 & 0.1 & 345 & 1,234  \\
-			Idealised Ventricle & 123,456 & 1.0 & 345 & 1,234  \\
-			Axial Turbine & 1,234 & 0.01 & diverged & diverged  \\
-			Axial Turbine & 12,345 & 0.1 & 345 & 1,234  \\
-			Axial Turbine & 123,456 & 1.0 & 345 & 1,234  \\
-			\hline
-		\end{tabular}
-	\caption{Execution times and total number linear solver iterations for different values of the Rhie-Chow stabilisation factor $\alpha$}
-	\label{tab:rhie_chow}
-\end{table}
+As in the previous section, three cases are used to highlight the effect: membrane i (2-D, linear elastic), elliptic plate (3-D, linear elastic), and idealised ventricle (3-D, hyperelastic).
+The LU preconditioning method is used for the 2-D membrane i case, while the multigrid approach is used for the two 3-D cases.
+Figure \ref{fig:times_rhie_chow} presents the execution times and the number of accumulated linear solver iterations for three values of global stabilisation factor ($\alpha = \left[ 0.01, 0.1, 1 \right]$) for several mesh densities.
+The memory usage is unaffected by the value of $\alpha$ and is hence not shown.
+%\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, if any cases diverged or needed a higher 'restarts' value, etc}
+%\hl{Provide insights, if any: e.g. why is one faster or slower}
+\begin{figure}[htbp]
+   \centering
+	\subfigure[Clock time]
+	{
+   		\includegraphics[width=0.48\textwidth]{figures/stabilisation_time}
+	}
+	\subfigure[Accumulated linear solver iterations]
+	{
+   		\includegraphics[width=0.48\textwidth]{figures/stabilisation_iterations}  
+   	}
+   \caption{The clock times and accumulated linear solver iterations for different values of Rhie-Chow global stabilisation factor $\alpha$}
+   \label{fig:times_rhie_chow}
+\end{figure}
+%\begin{table}[htb]
+%	\centering
+%		\begin{tabular}{lllll}
+%			\hline
+%			Case & Number of Cells & $\alpha$ & Time (in s) & Linear Solver Iterations  \\
+%			\hline 
+%			Idealised Ventricle & 1,234 & 0.01 & 345 & 1,234  \\
+%			Idealised Ventricle & 12,345 & 0.1 & 345 & 1,234  \\
+%			Idealised Ventricle & 123,456 & 1.0 & 345 & 1,234  \\
+%			Axial Turbine & 1,234 & 0.01 & diverged & diverged  \\
+%			Axial Turbine & 12,345 & 0.1 & 345 & 1,234  \\
+%			Axial Turbine & 123,456 & 1.0 & 345 & 1,234  \\
+%			\hline
+%		\end{tabular}
+%	\caption{Execution times and total number linear solver iterations for different values of the Rhie-Chow stabilisation factor $\alpha$}
+%	\label{tab:rhie_chow}
+%\end{table}
 
 Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement)} along the line \hl{XXX -> we need to show the effect on accuracy for different values of alpha}
 \begin{figure}[htbp]
@@ -1543,50 +1578,50 @@ Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement
 \end{figure}
 
 
-%%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Effect of Mesh Type}
-%%--------------------------------------------------------------------------------------------------------------------%%
-\hl{Remove section?}\\
-\hl{The effect of mesh quality may be more important} \\
-To highlight the effect of mesh type on the performance of the proposed Jacobian-free Newton-Krylov approach, case \hl{X} is re-examined using several mesh types:
-(i) structured hexahedral; (ii) structured tetrahedral; (iii) unstructured tetehrahedral; and (iv) unstructured poyhedral.
-%Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
-The hexahedral and tetahedral meshes have been generated using the Gmsh utility \citep{geuzaine2009gmsh} and the polyhedral mesh has been created by converting a tetrahedral mesh using the OpenFOAM \texttt{polyDualMesh} utility.
+%%%--------------------------------------------------------------------------------------------------------------------%%
+%\subsection{Effect of Mesh Type}
+%%%--------------------------------------------------------------------------------------------------------------------%%
+%\hl{Remove section?}\\
+%\hl{The effect of mesh quality may be more important} \\
+%To highlight the effect of mesh type on the performance of the proposed Jacobian-free Newton-Krylov approach, case \hl{X} is re-examined using several mesh types:
+%(i) structured hexahedral; (ii) structured tetrahedral; (iii) unstructured tetehrahedral; and (iv) unstructured poyhedral.
+%%Pick one case and show its timings and memory for tet (Gmsh), hex and poly (Gmsh + polyDualMesh).
+%The hexahedral and tetahedral meshes have been generated using the Gmsh utility \citep{geuzaine2009gmsh} and the polyhedral mesh has been created by converting a tetrahedral mesh using the OpenFOAM \texttt{polyDualMesh} utility.
+%
+%Table \ref{tab:mesh_types} lists the execution times and total number of linear solver iterations for the different mesh types and densities.
+%\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
+%\hl{Provide insights, if any: e.g. why is one faster or slower}
+%\hl{Conclusion: mesh type does or does not affect the performance.}
+%\begin{table}[htb]
+%	\centering
+%		\begin{tabular}{llll}
+%			\hline
+%			Mesh Type & Number of Cells & Time (in s) & Linear Solver Iterations  \\
+%			\hline 
+%			Structured hexahedral & 1,234 & 345 & 1,234  \\
+%			Structured hexahedral & 12,345 & 345 & 1,234  \\
+%			Structured hexahedral & 123,456 & 345 & 1,234  \\
+%			Structured tetrahedral & 1,234 & 345 & 1,234  \\
+%			Structured tetrahedral & 12,345 & 345 & 1,234  \\
+%			Structured tetrahedral & 123,456 & 345 & 1,234  \\
+%			Unstructured tetrahedral & 1,234 & 345 & 1,234  \\
+%			Unstructured tetrahedral & 12,345 & 345 & 1,234  \\
+%			Unstructured tetrahedral & 123,456 & 345 & 1,234  \\
+%			Unstructured polyhedral & 1,234 & 345 & 1,234  \\
+%			Unstructured polyhedral & 12,345 & 345 & 1,234  \\
+%			Unstructured polyhedral & 123,456 & 345 & 1,234  \\
+%			\hline
+%		\end{tabular}
+%	\caption{Execution times on Case \hl{X} for different mesh types}
+%	\label{tab:mesh_types}
+%\end{table}
 
-Table \ref{tab:mesh_types} lists the execution times and total number of linear solver iterations for the different mesh types and densities.
-\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
-\hl{Provide insights, if any: e.g. why is one faster or slower}
-\hl{Conclusion: mesh type does or does not affect the performance.}
-\begin{table}[htb]
-	\centering
-		\begin{tabular}{llll}
-			\hline
-			Mesh Type & Number of Cells & Time (in s) & Linear Solver Iterations  \\
-			\hline 
-			Structured hexahedral & 1,234 & 345 & 1,234  \\
-			Structured hexahedral & 12,345 & 345 & 1,234  \\
-			Structured hexahedral & 123,456 & 345 & 1,234  \\
-			Structured tetrahedral & 1,234 & 345 & 1,234  \\
-			Structured tetrahedral & 12,345 & 345 & 1,234  \\
-			Structured tetrahedral & 123,456 & 345 & 1,234  \\
-			Unstructured tetrahedral & 1,234 & 345 & 1,234  \\
-			Unstructured tetrahedral & 12,345 & 345 & 1,234  \\
-			Unstructured tetrahedral & 123,456 & 345 & 1,234  \\
-			Unstructured polyhedral & 1,234 & 345 & 1,234  \\
-			Unstructured polyhedral & 12,345 & 345 & 1,234  \\
-			Unstructured polyhedral & 123,456 & 345 & 1,234  \\
-			\hline
-		\end{tabular}
-	\caption{Execution times on Case \hl{X} for different mesh types}
-	\label{tab:mesh_types}
-\end{table}
 
-
-%%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Effect of Globalisation Strategies}
-%%--------------------------------------------------------------------------------------------------------------------%%
-\hl{We already have many section so it may be better to just mention this rather than providing an analysis}
-%As a by the way, I think the default line search in PETSc may not be the best one for JFNK.
+%%%--------------------------------------------------------------------------------------------------------------------%%
+%\subsection{Effect of Globalisation Strategies}
+%%%--------------------------------------------------------------------------------------------------------------------%%
+%\hl{We already have many section so it may be better to just mention this rather than providing an analysis}
+%%As a by the way, I think the default line search in PETSc may not be the best one for JFNK.
 
 
 
@@ -1652,6 +1687,8 @@ In the ideal case, the efficiency should be unity, but inter-CPU-core communicat
 	\caption{Weak parallel scaling study comparing the performance of three preconditioning strategies: a LU direct solver, and ILU(N) and multigrid iterative solvers}
 	\label{fig:parallelisation_weak}
 \end{figure}
+
+\hl{Compare preconditioners}
 
 %Comments from \cite{Knoll2004}:
 %"The first is a scalable implementation, in the sense that time per iteration is reduced in inverse proportion to the number of processors (strong scaling), or that time per iteration is constant as problem size and processor number are scaled proportionally (weak scaling). The second is good per processor performance on contemporary cache-based microprocessors. The third is algorithmic scalability, in the sense that the number of iterations to convergence does not grow with increased numbers of processors (or problem size). The third factor arises because the requirement of a scalable implementation generally forces parameterized changes in the algorithm as the number of processors grows. If the convergence is allowed to degrade, however, the overall execution is not scalable, and this must be countered algorithmically."

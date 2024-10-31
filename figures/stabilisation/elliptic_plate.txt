@@ -1,0 +1,7 @@
+# Cells timeAlpha0.001 itersAlpha0.001 timeAlpha0.01 itersAlpha0.01 timeAlpha0.1 itersAlpha0.1 timeAlpha1 itersAlpha1
+45 - - 0 196 0 100 0 40
+472 1 1685 0 196 0 99 0 66
+4140 2 626 1 223 1 145 1 151
+34968 - - 10 252 8 210 9 225
+287280 - - 119 391 114 364 118 387
+2438242 - - 1037 444 1091 455 1093 456
