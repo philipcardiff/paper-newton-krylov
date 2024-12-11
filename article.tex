@@ -74,8 +74,9 @@ textheight=24cm, % llncs has 19.3cm
 \newcommand{\RMTS}{\s{\bm{\Lambda}}_t}
 \newcommand{\bb}{\boldsymbol}
 \usepackage{nicefrac}
-\usepackage{tikz}
-\usepackage{tikz-3dplot}
+%\usepackage{tikz}
+%\usepackage{tikz-3dplot}
+\usepackage{mathtools}
 
 %% For contact
 \newcommand{\rbar}{\bar{\bm{r}}}
@@ -304,6 +305,7 @@ The displacement increment is the change in displacement between the current tim
 The definition of the engineering stress ($\bb{\sigma}_s$) and true stress ($\bb{\sigma}$) in Equations \ref{eqn:momentum_lingeom}, \ref{eqn:momentum_TL} and \ref{eqn:momentum_UL} is given by a chosen mechanical law, e.g. linear elasticity, neo-Hookean hyperelasticity.
 Several mechanical laws are considered in this work, as briefly described in Section \ref{sec:test_cases}.
 
+\hl{Mention BCs: disp, trac, symm}.
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
@@ -411,10 +413,12 @@ The set of all faces of cell $P$ is denoted by $\mathcal{F}_P$. This set is furt
 \begin{itemize}
     \item \textbf{Internal Faces} ($\mathcal{F}^{\text{int}}_P$): Faces that are shared with neighbouring cells.
     \item \textbf{Boundary Faces} ($\mathcal{F}^{\text{bnd}}_P$): Faces that lie on the boundary of the spatial domain.
+    The boundary faces of cell $P$ are further classed into three disjoint sets, $\mathcal{F}^{\text{bnd}}_P \coloneqq \mathcal{F}^{\text{disp}}_P \cup \mathcal{F}^{\text{trac}}_P \cup \mathcal{F}^{\text{symm}}_P$, representing boundary faces where displacement ($\mathcal{F}^{\text{disp}}_P$), traction ($\mathcal{F}^{\text{trac}}_P$) and symmetry ($\mathcal{F}^{\text{symm}}_P$) conditions are prescribed.
+       % \quad \text{with} \quad \mathcal{F}^{\text{disp}}_P \cap \mathcal{F}^{\text{trac}}_P = \mathcal{F}^{\text{disp}}_P \cap \mathcal{F}^{\text{symm}}_P = \mathcal{F}^{\text{trac}}_P \cap \mathcal{F}^{\text{symm}}_P = \emptyset.$
 \end{itemize}
-Each internal face $f_i \in \mathcal{F}^{\text{int}}_P$ corresponds to a neighbouring cell $N_{f_i} \in \mathcal{N}_P$, where $\mathcal{N}_P$ is the set of all neighbouring cells of $P$. The outward unit normal vector associated with an internal face $f_i$ is denoted by $\mathbf{n}_{f_i}$. The vector $\mathbf{d}_{f_i}$ connects the centroid of cell $P$ with the centroid of the neighbouring cell $N_{f_i}$.
-
-
+Each internal face $f_i \in \mathcal{F}^{\text{int}}_P$ corresponds to a neighbouring cell $N_{f_i} \in \mathcal{N}_P$, where $\mathcal{N}_P$ is the set of all neighbouring cells of $P$. The outward unit normal vector associated with an internal face $f_i$ is denoted by $\mathbf{n}_{f_i}$, while the outward unit normal vector associated with a boundary face $b_i$ is denoted by $\mathbf{n}_{b_i}$.
+The vector $\mathbf{d}_{f_i}$ connects the centroid of cell $P$ with the centroid of the neighbouring cell $N_{f_i}$, whereas the vector $\mathbf{d}_{b_i}$ connects the centroid of cell $P$ with the centroid of boundary face ${b_i}$.
+For convenience, we will also define the set of all faces of cell $P$ excluding those on a traction boundary as $\mathcal{F}_P^{\text{non-trac}} \coloneqq \mathcal{F}_P^{\text{int}} \cup \mathcal{F}_P^{\text{disp}} \cup \mathcal{F}_P^{\text{symm}}$.
 %The proposed solution discretisation follows closely the approach of \citet{cardiff_lagrangian_2017}; consequently, only an overview of the final discretised form of equations and adopted solution algorithm are given below.
 \begin{figure}[htbp]
 	\centering
@@ -428,7 +432,7 @@ Each internal face $f_i \in \mathcal{F}^{\text{int}}_P$ corresponds to a neighbo
 %		\label{fig:mms_mesh}
 %   		\includegraphics[height=0.45\textwidth]{figures/mms_mesh}  
 %   	}
-	\caption{Representative convex polyhedral cell $P$ and neighbouring cell $N_{f_i}$, which share a face $f_i$}
+	\caption{Representative convex polyhedral cell $P$ and neighbouring cell $N_{f_i}$, which share a face $f_i$. \hl{Add boundary face}}
 	\label{fig:cell}
 \end{figure}
 
@@ -493,49 +497,86 @@ Consequently, the displacement and velocity at the two previous time steps must 
 
 
 \subsubsection{Surface Integrals}
-The surface integrals are discretised in a similar fashion to the volume integrals, where the integrand $\bb{\phi}$ is assumed to locally vary accoding to a truncated Taylor series expansion about a face centroid $\bb{x}_{f_i}$:
+The surface integrals are discretised in a similar fashion to the volume integrals, where the integrand $\bb{\phi}$ is assumed to vary locally according to a truncated Taylor series expansion about a face centroid $\bb{x}_{f_i}$:
 \begin{eqnarray}
-	\bb{\phi}(\bb{x})  \approx \bb{\phi}_f + (\bb{x} - \bb{x}_{f_i}) \cdot \nabla \bb{\phi}_f
+	\bb{\phi}(\bb{x})  \approx \bb{\phi}_{f_i} + (\bb{x} - \bb{x}_{f_i}) \cdot \left(\nabla \bb{\phi} \right)_{f_i}
 \end{eqnarray}
-where subscript $f$ indicates a value at the centroid of the face.
-Consequently, surface integrals about a cell $P$ can approximated to second order accuracy as
+where subscript $f_i$ indicates a value at the centroid of the face $f_i$.
+Consequently, surface integrals about a cell $P$ can be approximated to second order accuracy as
 \begin{eqnarray} \label{eq:surface_integral}
 	\oint_{\Gamma_P} \bb{\phi} \, d \Gamma_P
 		&=& \sum_{f_i \in \mathcal{F}_P} \int_{\Gamma_{f_i}} \bb{\phi} \,  d \Gamma_{f_i} \notag \\
 		&\approx& \sum_{f_i \in \mathcal{F}_P} \int_{\Gamma_{f_i}}  \left[ \bb{\phi}_{f_i} + (\bb{x} - \bb{x}_{f_i}) \cdot \nabla \bb{\phi}_{f_i} \right] d \Gamma_{f_i} \notag \\
 %		&\approx& \int_{\mathrm{\Omega}}  \bb{\phi}_P d\mathrm{\Omega}  + \int_{\mathrm{\Omega}}  (\bb{x} - \bb{x}_P) \cdot \nabla \bb{\phi}_P d\mathrm{\Omega} \notag \\
-		&\approx& \bb{\phi}_{f_i} |\bb{\Gamma}_{f_i} |
+		&\approx& \sum_{f_i \in \mathcal{F}_P} \bb{\phi}_{f_i} |\bb{\Gamma}_{f_i} |
 \end{eqnarray}
-where $\Gamma_P$ indicates the surface of cell $P$, subscript $f_i$ indicates a quantity at the centroid of face $f_i$, and $\bb{\Gamma}_{f_i}$ indicates the area vector of face $f_i$.
+where $\Gamma_P$ indicates the surface of cell $P$, and $\bb{\Gamma}_{f_i}$ indicates the area vector of face $f_i$.
 %$N_f$ represents the set of neighbouring cells which share a face with cell $P$, 
 
-Consequently, the surface integral term (e.g. first term on the right-hand side of Equation \ref{eqn:momentum_lingeom}), corresponding to the divergence of stress, can be discretised as
+Consequently, the surface integral term (first term on the right-hand side of Equation \ref{eqn:momentum_lingeom}), corresponding to the divergence of stress, can be discretised as
 %by assuming that the stress varies linearly across the face, allowing the mid-point rule to be used:
-\begin{eqnarray}
+\begin{eqnarray} \label{eq:divStressDiscret}
 	\oint_{\Gamma_P} \bb{n} \cdot \bb{\sigma}  \; d\Gamma_P
 	\approx 
-	\sum_{f_i \in \mathcal{F}_P} \bb{\Gamma}_{f_i} \cdot \bb{\sigma}_{f_i}
+%	\sum_{f_i \in \mathcal{F}_P^{\text{int}} \cup \mathcal{F}_P^{\text{disp}} \cup \mathcal{F}_P^{\text{symm}}} \bb{\Gamma}_{f_i} \cdot \bb{\sigma}_{f_i}
+%	\sum_{f_i \in \mathcal{F}_P^{\text{non-trac}}} \bb{\Gamma}_{f_i} \cdot \bb{\sigma}_{f_i}
+	\sum_{f_i \in \mathcal{F}_P^{\text{int}}} \bb{\Gamma}_{f_i} \cdot \bb{\sigma}_{f_i}
+	+ \sum_{d_i \in \mathcal{F}_P^{\text{disp}}} \bb{\Gamma}_{d_i} \cdot \bb{\sigma}_{P}
+	+ \sum_{s_i \in \mathcal{F}_P^{\text{symm}}} \bb{\Gamma}_{s_i} \cdot \bb{\sigma}_{s_i}
+	+ \sum_{t_i \in \mathcal{F}_P^{\text{trac}}} |\bb{\Gamma}_{t_i}| \bar{\bb{T}}_{t_i}
 \end{eqnarray}
+where vector $\bar{\bb{T}}_{t_i}$ represents the prescribed traction on the traction boundary face $t_i$.
+%For faces $f_i$ in Equation \ref{eq:divStressDiscret} that are on traction boundary faces $b_i \in \mathcal{F}_P^{\text{trac}} \subset \mathcal{F}_P$, 
+%the traction $\bar{\bb{t}}_{b_i}$ is known and is directly enforced; that is, $\bb{\Gamma}_{f_i} \cdot \bb{\sigma}_{f_i} = |\bb{\Gamma}_{f_i}| \bb{n}_{f_i} \cdot \bb{\sigma}_{f_i} =  |\bb{\Gamma}_{f_i}| \bar{\bb{t}}_{b_i}$.
 %subscript $f$ indicates a quantity at the centre of a cell face, and 
-The stress $\bb{\sigma}_{f_i}$ at a face is calculated by linear interpolation from the adjacent cell centres \citep{Jasak1996}:
-\begin{eqnarray}
+The stress $\bb{\sigma}_{f_i}$ at an internal face is calculated by linear interpolation from the adjacent cell centres \citep{Jasak1996}:
+\begin{eqnarray} \label{eq:stressInterp}
 	\bb{\sigma}_{f_i} &=& w_{f_i} \bb{\sigma}_P + (1 - w_{f_i}) \bb{\sigma}_{N_{f_i}}
 \end{eqnarray}
 where the interpolation ratio is defined as $w_{f_i} = (\bb{n}_{f_i} \cdot [\bb{x}_{N_{f_i}} - \bb{x}_{f_i}])/(\bb{n}_{f_i} \cdot [\bb{x}_{N_{f_i}} - \bb{x}_{P} ])$.
+%For faces $f_i$ in Equation \ref{eq:divStressDiscret} that are on traction boundary faces $b_i \in \mathcal{F}_P^{\text{trac}} \subset \mathcal{F}_P$, the traction $\bar{\bb{t}}_{b_i}$ is known and is directly enforced; that is, $\bb{\Gamma}_{f_i} \cdot \bb{\sigma}_{f_i} = |\bb{\Gamma}_{f_i}| \bb{n}_{f_i} \cdot \bb{\sigma}_{f_i} =  |\bb{\Gamma}_{f_i}| \bar{\bb{t}}_{b_i}$.
 %Vector $\bb{d}_{f}$ connects cell centre $P$ with cell centre $N_f$, $\bb{d}_f = \bb{x}_{N_f} - \bb{x}_P$, and $\bb{n}_{f}$ is the outward-facing unit normal to the face $f$.
+Similarly, the stress $\bb{\sigma}_{s_i}$ at a symmetry boundary face is calculated as
+\begin{eqnarray} \label{eq:symm}
+	\bb{\sigma}_{s_i}
+		&=& \frac{1}{2} \left (\bb{\sigma}_P + \bb{R}_{s_i} \cdot \bb{\sigma}_{P} \right) \notag \\
+		&=& \left (\textbf{I} - \bb{n}_{s_i} \otimes \bb{n}_{s_i} \right) \cdot \bb{\sigma}_P
+\end{eqnarray}
+where $\bb{R}_{s_i} \cdot \bb{\sigma}_{P}$ represents the mirror reflection of $\bb{\sigma}_P$ across the symmetry boundary face $s_i$.
+The reflection tensor is $\bb{R}_{s_i} = \textbf{I} - 2 \bb{n}_{s_i} \otimes \bb{n}_{s_i}$ \citep{Demirdzic2022}, with $\bb{n}_{s_i}$ indicating the unit normal of the symmetry boundary face $s_i$.
+From Equation \ref{eq:symm}, it is clear that shear stresses are zero on a symmetry plane boundary face.
+Note from Equation \ref{eq:divStressDiscret} that the stress on displacement boundary faces is assumed equal to the stress $\bb{\sigma}_P$ at the centroid of cell $P$.
 
-The cell-centred stress is calculated as a function of the displacement gradient according to the chosen mechanical law, where the cell-centre displacement gradients are determined using a first-neighbours least squares method \citep{Jasak1996}:
-\begin{eqnarray}
+The cell-centred stress $\bb{\sigma}_P$ is calculated as a function of the displacement gradient according to the chosen mechanical law, where the cell-centred displacement gradients are determined using a inverse-distance-weighted first-neighbours least squares method \citep{Jasak1996}:
+\begin{eqnarray} \label{eq:leastSquaresGrad}
 	\left(\bb{\nabla}\bb{u}\right)_P
-		&=& \sum_{f_i \in \mathcal{F}_P} \omega_{f_i}^2 \bb{G}^{-1}_{f_i} \cdot \bb{d}_{f_i} \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right)
+%		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \omega_{f_i}^2 \bb{G}^{-1}_P \cdot \bb{d}_{f_i} \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
+%		&&+ \sum_{b_i \in \mathcal{F}^{\text{disp}}_P} \omega_{b_i}^2 \bb{G}^{-1}_P \cdot \bb{d}_{b_i} \left(\bb{u}_{b_i} - \bb{u}_P \right) \notag \\
+%		&&+ \sum_{b_i \in \mathcal{F}^{\text{symm}}_P} \omega_{b_i}^2 \bb{G}^{-1}_P \cdot \bb{d}_{b_i}^{\text{symm}} \left(\bb{R}_{b_i} \cdot \bb{u}_P - \bb{u}_P \right)
+%		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \left( \nicefrac{1}{|\bb{d}_{f_i}|^2} \right) \bb{G}^{-1}_P \cdot \bb{d}_{f_i} \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
+%		&&+ \sum_{b_i \in \mathcal{F}^{\text{disp}}_P} \left( \nicefrac{1}{|\bb{d}_{b_i}|^2} \right) \bb{G}^{-1}_P \cdot \bb{d}_{b_i} \left(\bb{u}_{b_i} - \bb{u}_P \right) \notag \\
+%		&&+ \sum_{b_i \in \mathcal{F}^{\text{symm}}_P} \left( \nicefrac{1}{|\bb{d}_{b_i}^{\text{symm}}|^2} \right) \bb{G}^{-1}_P \cdot \bb{d}_{b_i}^{\text{symm}} \left(\bb{R}_{b_i} \cdot \bb{u}_P - \bb{u}_P \right) \\
+		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \frac{\bb{G}^{-1}_P \cdot \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}}  \otimes \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
+		&&+ \sum_{d_i \in \mathcal{F}^{\text{disp}}_P} \frac{ \bb{G}^{-1}_P \cdot \bb{d}_{d_i} }{\bb{d}_{d_i} \cdot \bb{d}_{d_i}} \otimes \left(\bb{u}_{d_i} - \bb{u}_P \right) \notag \\
+		&&+ \sum_{s_i \in \mathcal{F}^{\text{symm}}_P} \frac{\bb{G}^{-1}_P \cdot \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}} \otimes \left(\bb{R}_{s_i} \cdot \bb{u}_P - \bb{u}_P \right)
 \end{eqnarray}
-where the least squares weight is $\omega_{f_i} = 1/|\bb{d}_{f_i}|$. The $\bb{G}_{f_i}$ tensor is
+%where the least squares weights are $\omega_{f_i} = 1/|\bb{d}_{f_i}|$ and  $\omega_{b_i} = 1/|\bb{d}_{b_i}|$.
+The vector $\bb{u}_{b_i}$ indicates the displacement at the centroid of boundary face ${b_i}$, while vector $\bb{d}_{d_i}$ connects the centroid of cell $P$ to the centroid of displacement boundary face $d_i$.
+The quantity $\bb{R}_{s_i} \cdot \bb{u}_P$ represents the mirror reflection of $\bb{u}_P$ across the symmetry boundary face $s_i$.
+% where the reflection tensor is $\bb{R}_{s_i} = \textbf{I} - 2 \bb{n}_{s_i} \otimes \bb{n}_{s_i}$ \citep{Demirdzic2022}.
+The vector $\bb{d}_{s_i}$ connects the centroid $\bb{x}_P$ of cell $P$ with its mirror reflection $\bb{R}_{s_i}  \cdot \bb{x}_P$ through boundary face $s_i$.
+Traction boundary faces are excluded in Equation \ref{eq:leastSquaresGrad}, as the displacement is unknown there; this is in contrast to the default approach in OpenFOAM \citep{Jasak2011}.
+The $\bb{G}_P$ tensor for cell $P$ is calculated as
 \begin{eqnarray}
-	 \bb{G}_{f_i} &=& \sum_{{f_i} \in \mathcal{F}_P} \omega_{f_i}^2 \bb{d}_{f_i} \bb{d}_{f_i}
+	 \bb{G}_P &=&
+%	 \sum_{{f_i} \in \mathcal{F}^{\text{int}}_P} \omega_{f_i}^2 \bb{d}_{f_i} \bb{d}_{f_i}
+%	 +  \sum_{{b_i} \in \mathcal{F}^{\text{disp}}_P} \omega_{b_i}^2 \bb{d}_{b_i} \bb{d}_{b_i}
+%	 +  \sum_{{b_i} \in \mathcal{F}^{\text{symm}}_P} \omega_{b_i}^2 \bb{d}_{b_i}^{\text{symm}} \bb{d}_{b_i}^{\text{symm}}
+	 \sum_{{f_i} \in \mathcal{F}^{\text{int}}_P} \frac{\bb{d}_{f_i} \otimes \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}}
+	 +  \sum_{{d_i} \in \mathcal{F}^{\text{disp}}_P} \frac{\bb{d}_{d_i} \otimes \bb{d}_{d_i}}{\bb{d}_{d_i} \cdot \bb{d}_{d_i}}
+	 +  \sum_{{s_i} \in \mathcal{F}^{\text{symm}}_P} \frac{\bb{d}_{s_i} \otimes \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}}
 \end{eqnarray}
-The $\bb{G}^{-1}_{f_i} \cdot \bb{d}_{f_i}$ vectors are purely a function of the mesh and can be computed once and stored.
-
-\hl{Update above to allow for boundary contributions}
+where the $\bb{G}^{-1}_P \cdot \bb{d}/(\bb{d}\cdot \bb{d})$ vectors are purely a function of the mesh and can be computed once and stored.
 
 
 \subsubsection{Rhie-Chow Stabilisation}
@@ -547,24 +588,31 @@ To quell zero-energy solution modes (i.e. checkerboarding oscillations), a Rhie-
 %One issue encountered with the finite volume method is that the discretisation of the governing conservation of momentum equation ( can be unstable and is known to suffer from checker-boarding errors .
 %In order to rectify these issues, the Rhie-Chow stabilisation term \cite{rhie_numerical_1983} as introduced into solid mechanics by  is added to the discretised divergence of the stress in equation \ref{eqn:MomentumImplicitExplicit}.
 %In the current approach, 
-The Rhie-Chow stabilisation term  $\mathcal{D}_{\text {Rhie-Chow }}$ for a cell $P$ takes the following form:
-\begin{equation} \label{eq:RhieChow}
-	\mathcal{D}_{\text {Rhie-Chow}}
-	= \sum_{f \in N_f} \alpha \bar{K}_f
-	\left[
-	\left|\bb{\Delta}_f\right| \frac{ \bb{u}_{N_f} - \bb{u}_P}{\left|\bb{d}_f\right|}
-	- \bb{\Delta}_f \cdot \left(\bb{\nabla} \bb{u} \right)_f
-	\right]
-	\left|\bb{\Gamma}_{f}\right| 
-\end{equation}
+The Rhie-Chow stabilisation term  $\mathcal{D}_P^{\text {Rhie-Chow }}$ for a cell $P$ takes the following form:
+\begin{eqnarray} \label{eq:RhieChow}
+	\mathcal{D}_P^{\text {Rhie-Chow}}
+	&=& \sum_{f_i \in \mathcal{F}^{\text{int}}_P} \alpha \bar{K}_{f_i} \left[
+		\left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}	- \bb{\Delta}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i}
+		\right]    \left|\bb{\Gamma}_{f_i}\right| \notag \\
+	&&+ \sum_{d_i \in \mathcal{F}^{\text{disp}}_P} \alpha \bar{K}_{d_i} \left[
+		\left|\bb{\Delta}_{d_i} \right| \frac{ \bar{\bb{u}}_{d_i} - \bb{u}_P}{\left|\bb{d}_{d_i}\right|}	- \bb{\Delta}_{d_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{P}
+		\right]    \left|\bb{\Gamma}_{d_i}\right| \notag \\
+	&&+ \sum_{s_i \in \mathcal{F}^{\text{symm}}_P} \alpha \bar{K}_{s_i} \left[
+		\left|\bb{\Delta}_{s_i} \right| \frac{ \bb{R}_{s_i} \cdot \bb{u}_{P} - \bb{u}_P}{\left|\bb{d}_{s_i}\right|} - \bb{\Delta}_{s_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{s_i}
+		\right]    \left|\bb{\Gamma}_{s_i}\right|
+\end{eqnarray}
 %which comes from the difference between Equations \ref{eq:diffusion} and \ref{eq:diffusion_exp}.
 where $\alpha > 0$ is a user-defined parameter for globally scaling the amount of stabilisation.
-Parameter $\bar{K}_f$ is a stiffness-type parameter that gives the stabilisation an appropriate scale and dimension.
-Here, $\bar{K}_f = \frac{4}{3}\mu + \kappa = 2\mu + \lambda$ following previous work \cite{Jasak2000, Cardiff2017, Cardiff2018}, where $\mu$ is the shear modulus (first Lam\'{e} parameter), $\kappa$ is the bulk modulus, and $\lambda$ is the second Lam\'{e} parameter.
+Parameter $\bar{K}$ is a stiffness-type parameter that gives the stabilisation an appropriate scale and dimension.
+Here, $\bar{K} = \frac{4}{3}\mu + \kappa = 2\mu + \lambda$ following previous work \cite{Jasak2000, Cardiff2017, Cardiff2018}, where $\mu$ is the shear modulus (first Lam\'{e} parameter), $\kappa$ is the bulk modulus, and $\lambda$ is the second Lam\'{e} parameter.
+Vector $\bar{\bb{u}}_{d_i}$ represents the prescribed displacement at the centroid of displacement boundary face $d_i$.
 %where $N_f$ represents the set of faces $f$ in cell $P$, and neighbouring cell centre $N_f$ shares face $f$ with the cell $P$.
 %Vector $\bb{n}_{f}$ is the outward-facing unit normal to the face $f$.
-The vector $\bb{\Delta}_{f} = \nicefrac{\bb{d}_{f}}{\bb{d}_{f} \cdot \bb{n}_{f}}$ is termed the \emph{over-relaxed orthogonal} vector \cite{Jasak1996}.
-The face gradient $\left(\bb{\nabla} \bb{u} \right)_f$ is calculated by interpolation from adjacent cell centres.
+The quantities $\bb{\Delta} = \nicefrac{\bb{d}}{\bb{d} \cdot \bb{n}}$ are termed the \emph{over-relaxed orthogonal} vectors \cite{Jasak1996}.
+The displacement gradient $\left(\bb{\nabla} \bb{u} \right)_{f_i}$ at the internal face $f_i$ is calculated by interpolation from adjacent cell centres (like in Equation \ref{eq:stressInterp}).
+Similarly, the displacement gradient $\left(\bb{\nabla} \bb{u} \right)_{s_i}$ at a symmetry boundary face $s_i$ is averaged from cell $P$ and its mirror reflection across face $s_i$, as in Equation \ref{eq:symm}.
+Note that the displacement gradient at the displacemenet boundary $d_i$ is assumed equal to the displacement gradient at the centroid of cell $P$.
+In addition, no stabilisation term is applied on a traction boundary face $t_i$.
 %and increases in magnitude as the deviation between the $\bb{d}_{f}$ and $\bb{n}_{f}$ vectors increases, 
 %In this way, the amount of stabilisation increases on distorted meshes.
 %\hl{Should we mention Nishikawa alpha scheme?} \hl{Very similar: but scales differently with mesh distortion}
@@ -572,9 +620,12 @@ The face gradient $\left(\bb{\nabla} \bb{u} \right)_f$ is calculated by interpol
 %Vector $\bb{d}_f$ connects the centre of cell $P$ with the centre of cell $N_f$ in the updated configuration.
 %The first term on the right-hand side is treated implicitly, while the second term - representing non-orthogonal corrections at the face - is treated in a deferred correction manner.
 %The Rhie-Chow stabilisation term, first used for finite volume solid mechanics by  \citet{Demirdzic1995}, consists of the numerical difference between a diffusion (Laplacian) term calculated using compact and larger computational stencils.
-In Equation \ref{eq:RhieChow}, the first term within the brackets on the right-hand side represents a compact stencil (two-node) approximation of the face normal gradient, while the second term represents a larger stencil approximation.
+
+In Equation \ref{eq:RhieChow}, the first terms within the square brackets on the right-hand side represent a compact stencil (two-node) approximation of the face normal gradient, while the second terms represent a larger stencil approximation.
 These two terms cancel out in the limit of mesh refinement (or if the solution varies linearly); otherwise, they produce a stabilisation effect that tends to smooth the solution fields.
-As the term reduces at a third-order rate, it does not affect the overall scheme's second-order accuracy.
+As the term reduces at a third-order rate, it does not affect the overall scheme's second-order accuracy; the 1-D local truncation error is derived for this Rhie-Chow stabilisation term in Appendix \ref{app:RhieChow}.
+
+\hl{HERE}
 
 %All dependent variables must be specified at the initial time.
 
@@ -2029,7 +2080,9 @@ Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre 
 \label{app:RhieChow}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\hl{Update set notation}
 On a 1-D uniform mesh with spacing $\Delta x$ and unity areas, the Rhie-Chow term stabilisation term (Equation \ref{eq:RhieChow}) for centre cell $P$ becomes
+\hl{Did I drop Gamma in the second equation?}
 \begin{eqnarray}
 \mathcal{D}_{\text {Rhie-Chow}}
 	&=&
@@ -2124,7 +2177,7 @@ A local truncation analysis can be performed using the following truncated Taylo
 	\bb{u}_{EE} &=& \bb{U}_P + 2\Delta x \left( \bb{\nabla} \bb{U} \right)_P + \frac{4\Delta x^2}{2!} \left( \bb{\nabla}^2 \bb{U} \right)_P 
 		+ \frac{8\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P + O(\Delta x^4)
 \end{eqnarray}
-where $O(\Delta x^4)$ are higher-order terms with a leading term porportional to $\Delta x^4$.
+where $O(\Delta x^4)$ are higher-order terms with a leading term proportional to $\Delta x^4$.
 
 Substituting the expressions above (Equations \ref{eq:taylor_series_1d}) for the true solution into Equation \ref{eq:Rhie_Chow_1D} results in
 \begin{eqnarray}
@@ -2147,10 +2200,14 @@ Substituting the expressions above (Equations \ref{eq:taylor_series_1d}) for the
 
 \hl{The leading truncation error is proportional to $\Delta x^2$!}
 \hl{Did I make a mistake...?}
+\hl{If I dropped Gamma then it will be 4th order}
+\hl{2nd or 4th order are both fine for a second order scheme, but it would be good to clarify this point}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Body Force for the Method of Manufactured Solutions Case} \label{app:mms}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hl{Cite Federico's thesis}
 The body force for the manufactured solution case is
 \begin{align}
 \bb{f}_b = 
