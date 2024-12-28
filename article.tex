@@ -1729,6 +1729,7 @@ This section compares resource requirements and robustness of the Jacobian-free 
 Specifically, time and memory requirements are analysed, and whether the solution approach converged for all meshes and loading steps.
 %In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
 In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre \emph{BoomerAMG} multigrid preconditioner for 3-D, unless stated otherwise.
+A restart value of 30 is used for the GMRES solver, where the \emph{loose} variant of the GMRES solver is used, which retains a small number of extra solution vectors across restarts (2 in this case).
 In contrast, The segregated approach used the conjugate gradient linear solver and the Hypre \emph{BoomerAMG} multigrid preconditioner for all cases.
 Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
 Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler (version 16.0.0).
@@ -1927,7 +1928,7 @@ Three choices of preconditioning procedure are compared:
 \begin{itemize}
 	\item \textbf{LU} - The \emph{MUltifrontal Massively Parallel sparse direct Solver} (MUMPS) \citep{MUMPS:1, MUMPS:2} LU decomposition direct solver. A direct solver is expected to be the more robust but may suffer from excessive time and memory requirements for larger numbers of unknowns.
 	\item \textbf{ILU(N)} - Incomplete LU decomposition with $N$ fill-in. ILU(N) is expected to have lower memory requirements than the LU direct solver but at the expense of robustness.
-	As the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ increases, ILU(N) approaches the robustness of a LU direct solver.
+	As the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ increases, ILU(N) approaches the robustness of a LU direct solver. In the current section, $N = 5$ for all cases examined.
 	\item \textbf{Algebraic multigrid} - The Hypre Boomerang \citep{hypre} parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near linear scaling of time and memory requirements.
 \end{itemize}
 
@@ -1937,13 +1938,24 @@ Analysis of this point is left to Section \ref{sec:parallelisation}.
 
 The preconditioning approaches are compared in three cases: membrane i (2-D, linear elastic), elliptic plate (3-D, linear elastic), and idealised ventricle (3-D, hyperelastic).
  Figure \ref{fig:times_memory} compares the clock times and maximum memory requirements for the three preconditioning approaches as a function of degrees of freedom.
-\begin{itemize}
-	\item \hl{ILU1 diverges on the ventricle for the finer two meshes: re-rnng with ILU2}
-	\item \hl{LU ventricle: mesh4 is running}
-	\item \hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
-	\item \hl{Provide insights, if any: e.g. why is one faster or slower}
-	\item \hl{Conclusion: which preconditioner if 'best' for which situation: probably LU is best for 'small' cases and multigrid for 'large' cases}
-\end{itemize}
+ Examining the clock times, the LU preconditioner is seen to be faster for all meshes in the membrane i and idealised ventricle cases, while the multigrid approach is faster for all meshes in the elliptic plate cases.
+The LU approach was found to be up to $5.4 \times$ faster in the membrane i case than the multigrid approach, and $1.8 \times$ faster in the idealised ventricle case.
+In contrast, the multigrid was up to $1.4 \times$ faster than the LU approach in the elliptic plate case.
+%A potential explanation for why LU approach was faster in the membrane i and idealised ventricle
+% for the elliptic plate case
+The ILU(5) approach is seen to be slowest in all cases, in addition, the ILU(5) approach diverged on the idealised ventricle finest mesh.
+
+Regarding memory usage, below approximately $50\,000$ degrees if freedom, the memory usage is the same for all three approaches (approximately $80$ MB), corresponding to the solver's minimum memory overhead.
+For greater numbers of degrees of freedom, the LU approach uses the greatest amount of memory for both 3-D cases (idealised ventricle, elliptic plate), while the ILU(5) uses the least.
+In contrast, the LU approach uses the smallest amount of memory for the 2-D case (membrane i) mesh densities examined.
+The rate of memory increase is seen to be much steeper for the LU approach on the 3-D cases than the multigrid and ILU(5) approaches, with the LU results for the finest meshes not shown as they required more than the maximum available memory (64 GB).
+%\begin{itemize}
+%	\item \hl{Ventricle finesh mesh: ILU5 diverges and LU requires too much memory}
+%	\item \hl{Elliptic plate finest mesh: LU requires too much memory}
+%	\item \hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
+%	\item \hl{Provide insights, if any: e.g. why is one faster or slower}
+%	\item \hl{Conclusion: which preconditioner if 'best' for which situation: probably LU is best for 'small' cases and multigrid for 'large' cases}
+%\end{itemize}
 \begin{figure}[htbp]
    \centering
 	\subfigure[Clock time]
@@ -1954,7 +1966,7 @@ The preconditioning approaches are compared in three cases: membrane i (2-D, lin
 	{
    		\includegraphics[width=0.48\textwidth]{figures/memory}  
    	}
-   \caption{The clock times and maximum memory usage for three preconditioning approaches (multigrid, ILU(1), and LU) as a function of degrees of freedom}
+   \caption{The clock times and maximum memory usage for three preconditioning approaches (multigrid, ILU(5), and LU) as a function of degrees of freedom}
    \label{fig:times_memory}
 \end{figure}
 %\begin{table}[htb]
@@ -1981,13 +1993,13 @@ The preconditioning approaches are compared in three cases: membrane i (2-D, lin
 %\end{table}
 
 
-\hl{Other linear solver settings: mention these but no need for analyses}
+%\hl{Other linear solver settings: mention these but no need for analyses}
 
-In GMRES, we must choose the value of the "restarts" parameter; the default in PETSc of 30 does not always seem good enough (I have been setting it to 100). We could show its affect on one case. I think the optimal choice is linked with the choice of preconditioner (a better preconditioner means we can use a small restart value) so maybe we include this with the "preconditioner choices" section.
-\hl{I suggest we do not add an analysis of this: instead we can just mention it}
-
-This can also be considered a linear solver setting. For segregated, we always use a relative tolerance of 0.1, but initial tests for JFNK show that 0.1 is too loose and 1e-3 seems better, although maybe there is no difference with using 1e-6.
-\hl{I suggest we do not add an analysis of this: instead we can just mention it}
+%In GMRES, we must choose the value of the "restarts" parameter; the default in PETSc of 30 does not always seem good enough (I have been setting it to 100). We could show its affect on one case. I think the optimal choice is linked with the choice of preconditioner (a better preconditioner means we can use a small restart value) so maybe we include this with the "preconditioner choices" section.
+%\hl{I suggest we do not add an analysis of this: instead we can just mention it}
+%
+%This can also be considered a linear solver setting. For segregated, we always use a relative tolerance of 0.1, but initial tests for JFNK show that 0.1 is too loose and 1e-3 seems better, although maybe there is no difference with using 1e-6.
+%\hl{I suggest we do not add an analysis of this: instead we can just mention it}
 
 
 
@@ -2041,14 +2053,15 @@ The memory usage is unaffected by the value of $\alpha$ and is hence not shown.
 %	\label{tab:rhie_chow}
 %\end{table}
 
-Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement)} along the line \hl{XXX -> we need to show the effect on accuracy for different values of alpha}
-\begin{figure}[htbp]
-   \centering
-%   \includegraphics[width=0.2\textwidth]{figures/rhie_chow.pdf} 
-   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   \caption{Stress predictions along the line \hl{XXX} for the \hl{YYY} case using different values of the Rhie-Chow stabilisation factor $\alpha$}
-   \label{fig:rhie_chow}
-\end{figure}
+\hl{Comment on: - crashed cases; - faster/slower/most/fewest iterations}
+%Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement)} along the line \hl{XXX -> we need to show the effect on accuracy for different values of alpha}
+%\begin{figure}[htbp]
+%   \centering
+%%   \includegraphics[width=0.2\textwidth]{figures/rhie_chow.pdf} 
+%   \includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+%   \caption{Stress predictions along the line \hl{XXX} for the \hl{YYY} case using different values of the Rhie-Chow stabilisation factor $\alpha$}
+%   \label{fig:rhie_chow}
+%\end{figure}
 
 
 %%%--------------------------------------------------------------------------------------------------------------------%%
