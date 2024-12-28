@@ -38,6 +38,7 @@
 \usepackage{subfigure}
 \usepackage{siunitx}
 \usepackage{float}
+\usepackage{comment}
 
 \geometry
 {
@@ -1069,6 +1070,10 @@ Subsequently, the efficiency of the Jacobian-free Newton-Krylov approach compare
 %%--------------------------------------------------------------------------------------------------------------------%%
 This section solely focuses on assessing the accuracy and order of accuracy of the discretisation.
 Assessment of the computational efficiency regarding time and memory requirements is left to the subsequent sections.
+In all cases where convergence is achieved, the differences between the Jacobian-free Newton-Raphson and segregated approaches are minimal;
+%No difference is seen in the predictions whether using the Jacobian-free Newton-Krylov or segregated approach, assuming convergence is achieved.
+this is expected since both approaches use the same discretisation, and the solution tolerances have been chosen to ensure the iteration errors are small.
+Consequently, the results presented below (Section \ref{sec:accuracy}) have been solely generated using the Jacobian-free Newton-Raphson solution algorithm, unless stated otherwise.
 
 %\hl{Here, for the selected 4-6 cases, we should describe:}
 %\hl{- geometry (+ image) and meshes (maybe image of one type of mesh)}
@@ -1083,7 +1088,7 @@ Assessment of the computational efficiency regarding time and memory requirement
  
 \paragraph{Case 1: Order Verification via the Manufactured Solution Procedure}
 The first test case consists of a $0.2 \times 0.2 \times 0.2$ m cube with linear elastic ($E = 200$ GPa, $\nu = 0.3$) properties.
-A manufactured solution for displacement (Figure \ref{fig:mms_solution}) is employed of the form:
+A manufactured solution for displacement (Figure \ref{fig:mms_solution}) is employed of the form \citep{Mazzanti2024}
 \begin{eqnarray}
 	\bb{u} =
 	\begin{pmatrix}
@@ -1092,9 +1097,9 @@ A manufactured solution for displacement (Figure \ref{fig:mms_solution}) is empl
 	a_z \sin(4 \pi x) \sin(2 \pi y) \sin(\pi z) 
 	\end{pmatrix}
 \end{eqnarray}
-where $a_x = 2\times10^{-6}$ m, $a_y = 4\times10^{-6}$ m, and $a_z = 6\times10^{-6}$ m.
+where $a_x = 2\,\mu$m, $a_y = 4\,\mu$m, and $a_z = 6\,\mu$m.
 The Cartesian coordinates are given by $x$, $y$ and $z$.
-The corresponding manufactured body force term is given in Appendix \ref{app:mms}.
+The corresponding manufactured body force term ($\bb{f}_b$  in Equation \ref{eqn:momentum_lingeom}) is given in Appendix \ref{app:mms}.
 %\begin{figure}[htbp]
 %   \centering
 %   \includegraphics[width=0.5\textwidth]{figures/mms_solution} 
@@ -1108,7 +1113,7 @@ The corresponding manufactured body force term is given in Appendix \ref{app:mms
 		\label{fig:mms_solution}
    		\includegraphics[height=0.45\textwidth]{figures/mms_solution} 
    	}
-	\subfigure[Polyhedral mesh with $1\,000$ cells]
+	\subfigure[Regular polyhedral mesh with $1\,000$ cells]
 	{
 		\label{fig:mms_mesh}
    		\includegraphics[height=0.45\textwidth]{figures/mms_mesh}  
@@ -1118,16 +1123,48 @@ The corresponding manufactured body force term is given in Appendix \ref{app:mms
 \end{figure}
 
 The manufactured displacement solution is applied at the domain's boundaries, and inertial effects are neglected.
-Three mesh types are examined: (i) hexahedra, (ii) tetrahedra, and (iii) regular polyhedra (Figure \ref{fig:mms_mesh}).
+Three mesh types are examined:
+%(i) \emph{regular} hexahedra, (ii) \emph{distorted} hexahedra, (iii) tetrahedra, and (iv) polyhedra (shown in Figure \ref{fig:mms_mesh}).
+(i) hexahedra, (ii) tetrahedra, and (iii) polyhedra (shown in Figure \ref{fig:mms_mesh}).
 The hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} utility, while the tetrahedral meshes are created using Gmsh \citep{geuzaine2009gmsh}.
 To create the polyhedral meshes, the tetrahedra meshes are converted to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
-Starting from an initial mesh spacing of $0.04$ m, six meshes are created by successively halving the spacing.
+%The distorted hexahedral meshes are created by perturbing the points of the regular hexahedra by a random vector of magnitude less than 0.3 times the local minimum edge length.
+%Points on the corners and edges of the cube domain are not moved, while the remaining boundary points are limited to slide along the boundary.
+%During perturbation, if needed, the local point perturbation is iteratively reduced to ensure the local distorted cell volumes are not less than 10\% of their original volume and the maximum face non-orthogonality is less than $70^\circ$.
+%Consequently, the meshes can be considered moderately distorted.
+%Appendix \ref{app:meshes} includes images of all three cell types for both regular and distorted configurations.
+Starting from an initial mesh spacing of $0.04$ m, six meshes of each type are created by successively halving the spacing.
 The cell numbers for the hexahedral and polyhedral meshes are 125, $1\,000$, $8\,000$, $64\,000$, $512\,000$, and $4\,096\,000$, while the tetrahedral mesh cell counts are 384, $4\,374$, $41\,154$, $355\,914$, $2\,958\,234$, and $24\,118\,074$.
-For the same average cell width, the cell counts show that the tetrahedral meshes have larger cell counts by a factor of 3 to 6.
+For the same average cell width, the cell counts show that the tetrahedral meshes have more cells by a factor of 3 to 6.
+Table \ref{tab:mmsMesh} lists the average and maximum face non-orthogonality for the meshes of different cell types, where face non-orthogonality is defined as the angle made by the vector between the two adjacent cell centres across the common face and the face normal.
+\begin{table}[htb]
+    \centering
+    \begin{tabular}{lll}
+        \hline
+        Cell type & Average & Maximum \\
+        \hline
+        Hexahedra & 0 &0  \\
+        Tetrahedra & 32.71 & 35.26 \\
+        Polyhedra & 30.65 & 38.45 \\
+        \hline
+    \end{tabular}
+%    \begin{tabular}{l|cc|cc}
+%        \hline
+%        Cell type & \multicolumn{2}{c|}{Regular} & \multicolumn{2}{c}{Distorted} \\
+%        & Average & Maximum & Average & Maximum \\
+%        \hline
+%        Hexahedra & 0 &0 & 13.10 & 52.51 \\
+%        Tetrahedra & 32.73 & 35.26 & 34.83 & 69.96 \\
+%        Polyhedra & 30.90 & 38.38 & 3 & 4 \\
+%        \hline
+%    \end{tabular}
+    \caption{Average and maximum face non-orthogonality (in $^\circ$) for the meshes of different cell types and sizes}
+    \label{tab:mmsMesh}
+\end{table}
 
-Figure \ref{fig:mms_disp_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for all three mesh types (hexahedral, tetrahedral and polyhedral), while Figure \ref{fig:mms_disp_accuracy}(b) shows the corresponding order of accuracy plots.
+Figure \ref{fig:mms_disp_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for the three mesh types (hexahedral, tetrahedral and polyhedral), while Figure \ref{fig:mms_disp_accuracy}(b) shows the corresponding order of accuracy plots.
 For ease of interpretation, the symbol shapes in the figures have been chosen to correspond to the cell shapes: a square for hexahedra, a triangle for tetrahedra and a pentagon for polyhedra.
-The maximum ($L_\infty$) and average ($L_2$) discretisation errors are seen to reduce at an approximately second-order rate for all mesh types, except for the $L_2$ error on the hexahedral meshes, which is approximately 2.3 on the finest grid.
+The maximum ($L_\infty$) and average ($L_2$) displacement discretisation errors are seen to reduce at an approximately second-order rate for all mesh types, except for the $L_2$ error on the hexahedral meshes, which is approximately 2.3 on the finest grid.
 %where, interestingly, the errors are, on average, smaller on the polyhedral meshes.
 %The reason for this is unclear but may be due to the stencil of the structured polyhedra being more isotropic and containing close neighbours.
 \begin{figure}[htbp]
@@ -1140,13 +1177,13 @@ The maximum ($L_\infty$) and average ($L_2$) discretisation errors are seen to r
 	{
    		\includegraphics[width=0.45\textwidth]{figures/mms_disp_orderOfAccuracy}  
    	}
-	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement magnitude}
+	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement magnitude on the \emph{regular} meshes}
 	\label{fig:mms_disp_accuracy}
 \end{figure}
 
 The predicted $\sigma_{xx}$ stress distribution for a hexahedral mesh with $512\,000$ cells is shown in Figure \ref{fig:mms_stress}(a).
 The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure \ref{fig:mms_stress}(b).
-The errors of greatest magnitude ($43$ kPa) occur at the boundaries, corresponding to where the local truncation error is higher due to the use of one-sided differencing.
+The errors of greatest magnitude ($43$ kPa) occur at the boundaries, corresponding to where the local truncation error is higher. % due to the use of one-sided differencing.
 \begin{figure}[htbp]
 	\centering
 	\subfigure[Predicted $\sigma_{xx}$ stress distribution]
@@ -1159,10 +1196,10 @@ The errors of greatest magnitude ($43$ kPa) occur at the boundaries, correspondi
 		\label{fig:mms_sxx_diff}
    		\includegraphics[height=0.35\textwidth]{figures/mms_sxx_diff}  
    	}
-	\caption{Manufactured solution cube case: the predicted $\sigma_{xx}$ stress distribution on a cut-plane for the hexahedral mesh with $512\,000$ cells (left).}
+	\caption{Manufactured solution cube case: the predicted $\sigma_{xx}$ stress distribution on a cut-plane for the regular hexahedral mesh with $512\,000$ cells (left).}
 	\label{fig:mms_stress}
 \end{figure}
-The discretisation errors in the stress magnitude are shown in Figure \ref{fig:mms_stress_accuracy}(a), and the order of accuracy in Figure \ref{fig:mms_stress_accuracy}(b).
+The discretisation errors in the stress magnitude as a function of cell size are shown in Figure \ref{fig:mms_stress_accuracy}(a), and the order of accuracy in Figure \ref{fig:mms_stress_accuracy}(b).
 The order of accuracy for the average ($L_2$) stress error is seen to be approximately 1.5 for the hexahedral and polyhedral meshes.
 In contrast, the average stress error order for the tetrahedral meshes is 1.
 Similarly, the maximum ($L_\infty$) stress order of accuracy is seen to approach 1 for all three mesh types.
@@ -1180,16 +1217,14 @@ Similarly, the maximum ($L_\infty$) stress order of accuracy is seen to approach
 	\label{fig:mms_stress_accuracy}
 \end{figure}
 
-The presented results have been generated using the Jacobian-free Newton-Raphson solution algorithm; however, minimal differences were seen when using the segregated solution algorithm, and hence, the segregated results are not shown.
-%This section assesses the order of accuracy of the discretisation using a manufactured solution on a cube domain (case 1).
-%A secondary purpose is to demonstrate that the choice of solution algorithm (Jacobian-free Newton-Krylov vs segregated) does not affect the predictions, assuming iteration errors are small.
-
-% Note: this is PETSc segregated so discretisation is exactly the same; OF segregated will be slightly different as boundary gradients are different
-% \hl{check - maybe one comparison graph}.
-%\hl{Seg and JFNK are the same when including boundary values but this causes a problem for the poly grid}
+%\hl{Distorted grids}
 
 
 
+
+%%%%%%%%%%%%
+\begin{comment}
+%%%%%%%%%%%%
 
 
 \paragraph{Case 1b: Spherical Cavity in an Infinite Solid Subjected to Remote Stress}
@@ -1213,6 +1248,15 @@ Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing
 \hl{The spherical cavity case errors seem to approach zero order accuracy}
 \hl{Maybe we have hit the precision limit...?}
 \hl{We may leave this case out}
+
+%%%%%%%%%%%%
+\end{comment}
+%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%
+\begin{comment}
+%%%%%%%%%%%%
 
 
 \paragraph{Case 2: Out-of-plane bending of an elliptic plate}
@@ -1240,7 +1284,7 @@ Six successively refined hexahedral meshes are used, with cell counts of 45, 472
 The predictions for the equivalent (von Mises) stress along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m is shown in Figure \ref{fig:elliptic_plate_sigmaEq}.
 The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen;
 the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} are likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
-The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\frac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
+The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\nicefrac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
 \begin{figure}[htbp]
    \centering
    %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
@@ -1256,8 +1300,12 @@ The sample values have been calculated by generating 40 uniformly spaced angles 
    \label{fig:elliptic_plate_sigmaEq}
 \end{figure}
 
+%%%%%%%%%%%%
+\end{comment}
+%%%%%%%%%%%%
 
-\paragraph{Case 3: Narrow T-section component under tension}
+
+\paragraph{Case 2: Narrow T-section component under tension}
 This case, proposed by \citet{Demirdzic1997a}, consists of a narrow engineering component with a T cross-section (Figure \ref{fig:narrowTmember}).
 The case is 3-D, static, with linear elastic material behaviour.
 Symmetry allows one-quarter of the geometry to be simulated.
@@ -1293,8 +1341,9 @@ The corresponding average cell widths—calculated as the cubed root of the tota
 
 The predicted equivalent (von Mises) stress distribution on the $z = 0$ plane is shown in Figure \ref{fig:narrowTmember_sigmaEq}(a), where a stress concentration is apparent near the hole.
 The equivalent stress along the line $r = 1.5R$, $z = 0$ is shown for the different meshes in Figure \ref{fig:narrowTmember_sigmaEq}(b), where $R$ is the hole radius.
+%Similarly to the elliptic plate case, 
+The stress values have been sampled at 30 uniformly spaced angles between $-\frac{\pi}{2}$ and $-\pi$ along the line $r = 1.5R$, $z = 0$, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
 The predictions are seen converge to the results reported in \citet{Demirdzic1997a}.
-Similarly to the elliptic plate case, the sample values have been to by generating 30 uniformly spaced angles between $-\frac{\pi}{2}$ and $-\pi$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
 \begin{figure}[htbp]
    \centering
 	\subfigure[Equivalent stress distribution for the mesh with $2\,555\,904$ cells on the $z = 0$ m plane]
@@ -1311,7 +1360,7 @@ Similarly to the elliptic plate case, the sample values have been to by generati
 
 
 
-\paragraph{Case 4: Inflation of an idealised ventricle}
+\paragraph{Case 3: Inflation of an idealised ventricle}
 Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{Land2015} as a benchmark problem for cardiac mechanics software.
 The case is 3-D, static, with finite hyperelastic strains.
 The initial geometry is defined as a truncated ellipsoid:
@@ -1323,10 +1372,9 @@ The initial geometry is defined as a truncated ellipsoid:
 where on the inner (endocardial) surface $r_s =7$ mm, $r_l = 17$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{17} \right) \right]$ and $v \in \left[-\pi, \pi \right]$, while on the outer (epicardial) surface $r_s =10$ mm, $r_l = 20$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{20} \right) \right]$ and $v \in \left[-\pi, \pi \right]$.
 The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 %Constitutive parameters: isotropic, 
-The hyperelastic material behaviour is described by the transversely isotropic constitutive proposed by \citet{Guccione1995} law, where the parameters are $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$.
+The hyperelastic material behaviour is described by the transversely isotropic constitutive law proposed by \citet{Guccione1995} law, where the parameters are $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$; the specified parameters produce isotropic behaviour.
 The benchmark specifies an incompressible material; in the current work, incompressibility is enforced weakly using a penalty approach, where the bulk modulus parameter is chosen to be two orders of magnitude greater ($\kappa = 1000$ kPa) than the greatest shear modulus parameter.
-The chosen parameters produce isotropic behaviour.
-A pressure of 10 kPa is applied to the inner surface, and the base plane is fixed.
+A pressure of 10 kPa is applied to the inner surface, applied here over 100 equal load increments, and the base plane is fixed.
 The geometry is meshed using a structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
 The OpenFOAM utilities \texttt{blockMesh} and \texttt{extrudeMesh} are used to create the meshes.
 Four successively refined meshes are examined: $1\,620$ (shown in Figure \ref{fig:ventricle}(a)), $12\,960$, $103\,680$, and $829\,440$ cells.
@@ -1347,8 +1395,8 @@ The case can be simulated as 2-D axisymmetric but is simulated here using the fu
    \label{fig:ventricle}
 \end{figure}
 
-The equivalent (von Mises) stress at full inflation is shown for the mesh with 829,440 cells in Figure \ref{fig:ventricle}(b), where the high stresses on the endocardial (inner) surface quickly drop off through the wall thickness towards the endocardial (outer) surface.
-The predicted deformed configuration of the midline of the ventricle wall is shown in Figure \ref{fig:ventricle_accuracy}, where a side-by-side comparison is given with the round-robin benchmark results from \citet{Land2015}.
+The equivalent (von Mises) stress at full inflation is shown for the mesh with 829,440 cells in Figure \ref{fig:ventricle}(b), where the high stresses on the inner (endocardial) surface quickly drop off through the wall thickness towards the outer (endocardial) surface.
+The predicted deformed configuration of the ventricle wall midline is shown in Figure \ref{fig:ventricle_accuracy}, where a side-by-side comparison is given with the round-robin benchmark results from \citet{Land2015}.
 The predictions are seen to become quickly mesh-independent and fall within the benchmark ranges.
 %The variation in the round-robin results may be explained by the sensitivity of the predictions to the allowed compressibility; when a penalty bulk modulus approach is adopted, like in the current work, increasing
 \begin{figure}[htbp]
@@ -1367,7 +1415,7 @@ The predictions are seen to become quickly mesh-independent and fall within the 
 \end{figure}
 
 
-\paragraph{Case 5: Cook's membrane}
+\paragraph{Case 4: Cook's membrane}
 Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
 The 2-D plane strain tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
 The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
@@ -1415,7 +1463,7 @@ where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is th
 %\textbf{Sources for case ii:} \cite{dealII95}\\
 %https://www.dealii.org/current/doxygen/deal.II/code\_gallery\_Quasi\_static\_Finite\_strain\_Compressible\_Elasticity.html\\
 %\textbf{Sources for case iii:} \citep{Simo1992}
-Seven successively refined quadrilateral meshes are considered, where the cell counts are 9, 36, 144 (Figure \ref{fig:cooks_membrane}(b)), 576, $2\,304$, $9\,216$, and $36\,864$.
+Eight successively refined quadrilateral meshes are considered, where the cell counts are 9, 36, 144 (Figure \ref{fig:cooks_membrane}(b)), 576, $2\,304$, $9\,216$, $36\,864$, and $147\,456$.
 %mesh.1 - 3x3 - 9 CVs\\
 %mesh.2 - 6x6 - 36 CVs\\
 %mesh.3 - 12x12 - 144 CVs\\
@@ -1423,10 +1471,11 @@ Seven successively refined quadrilateral meshes are considered, where the cell c
 %mesh.5 - 48-48 - 2304 CVs\\
 %mesh.6 - 96x96 - 9216 CVs\\
 %mesh.7 - 192x192 - 36864 CVs
+%mesh.8 - 384x384 - 147456 CVs
 
 Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for linear elastic, hyperelastic and hyperelastoplastic cases.
 The stress distribution is consistent with bending, with regions of high stress near the upper and lower surfaces and a line of relatively unstressed material in the centre.
-The greatest equivalent stresses occur at the top-left corner and the lower surface
+The greatest equivalent stresses occur at the top-left corner and the lower surface in all versions of the case.
 In the hyperelastoplastic case, almost the entire domain is plastically yielding with only a small thin region remaining elastic, indicated by the blue line in Figure \ref{fig:cooksMembrane_sigmaEq}(c).
 \begin{figure}[htbp]
    \centering
@@ -1447,7 +1496,7 @@ In the hyperelastoplastic case, almost the entire domain is plastically yielding
 \end{figure}
 
 Figure \ref{fig:cooksMembrane_disp} compares the predicted vertical displacement at the reference point as a function of the average cell widths with results from the literature.
-The reference point is taken as the top right point -- (48,60) mm -- in the elastic and hyperelastoplastic cases, while it is taken as the midway point of the loading surface -- (48,52) mm -- in the hyperelastic case.
+The reference point is taken as the top right point -- $(48,60)$ mm -- in the elastic and hyperelastoplastic cases, while it is taken as the midway point of the loading surface -- $(48,52)$ mm -- in the hyperelastic case.
 %\hl{Comment on results -> good/bad/etc}
 %\hl{Comment on JFNK not working for plasticty}\\
 %\hl{Philip, I'll leave this to you to comment on, as you'll be able to explain it better.}
@@ -1477,17 +1526,20 @@ The reference point is taken as the top right point -- (48,60) mm -- in the elas
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
-No difference is seen in the predictions whether using the Jacobian-free Newton-Krylov or segregated approach, assuming convergence is achieved.
-This is expected since both use the same discretisation, and the solution tolerances are shown to ensure the iteration errors are small.
-Consequently, only the Jacobian-free Newton-Krylov results are shown for the linear elastic and hyperelastic cases.
-However, the Jacobian-free Newton-Krylov showed poor convergence in the hyperelastoplastic case and failed to converge on many of the meshes.
-As a result, the results for the segregated approach are presented instead for the hyperelastoplastic case.
-Discussion of the relative convergence and robustness of the Jacobian-free Newton-Krylov and segregated methods is left to Section \ref{sec:resource_requirements}.
+The results shown for the hyperelastoplastic case were generated using the segregated solution procedure as the Jacobian-free Newton-Krylov approach diverged for five of the eight mesh densitities, as discussed further in Section \ref{sec:resource_requirements}.
+%Discussion of the relative convergence and robustness of the Jacobian-free Newton-Krylov and segregated methods is left to Section \ref{sec:resource_requirements}.
+
+%No difference is seen in the predictions whether using the Jacobian-free Newton-Krylov or segregated approach, assuming convergence is achieved.
+%This is expected since both use the same discretisation, and the solution tolerances are shown to ensure the iteration errors are small.
+%Consequently, only the Jacobian-free Newton-Krylov results are shown for the linear elastic and hyperelastic cases.
+%However, the Jacobian-free Newton-Krylov showed poor convergence in the hyperelastoplastic case and failed to converge on many of the meshes.
+%As a result, the results for the segregated approach are presented instead for the hyperelastoplastic case.
+%Discussion of the relative convergence and robustness of the Jacobian-free Newton-Krylov and segregated methods is left to Section \ref{sec:resource_requirements}.
 %I ran the hyperelastic case with the TLTD solver and the hyperelastoplastic case with the UL solver. This combination produced the "nicest" convergence curves}
 
 
 
-\paragraph{Case 6: Vibration of a 3-D Cantilevered Beam}
+\paragraph{Case 5: Vibration of a 3-D Cantilevered Beam}
 This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \times 0.2$ m cuboid column and was proposed in its initial form by \citet{Tukovic2007}.
 %(Figure \ref{fig:dynamic_cantilever})
 %A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
@@ -1497,7 +1549,7 @@ This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \time
 A sudden, constant traction $\bb{T} = \left(0.1, 0.1, 0 \right)$ MPa is applied to the upper surface.
 %A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
 %In the current study, $\mathcal{F} = 1$.
-A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = 0.04$ m$^2$ and the second moment of area $I = \frac{1}{7\,500}$ m$^4$. %0.0001333
+A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = 0.04$ m$^2$ and the second moment of area $I = \nicefrac{1}{7\,500}$ m$^4$. %0.0001333
 The geometric and material parameters were chosen for the first natural frequency to be 1 Hz in the small strain limit.
 The magnitude of the applied traction was chosen to ensure significant geometric nonlinearity, with the upper surface of the beam expected to drop below the plane of the lower surface.
 Four succesively refined hexahedral meshes are generated using the OpenFOAM \texttt{blockMesh} utility, with cell counts of 270, $2\,160$, $17\,280$ and $138\,240$.
@@ -1508,7 +1560,8 @@ The time step size is 1 ms, and the total period is 10 s.
 %, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
 
 The deformed configuration of the beam at six time steps is shown in Figure \ref{fig:dynamic_cantilever}(a) for the mesh with $2\,160$ cells, where the upper surface is seen to drop below the horizontal from approximately t = 0.2 s to 0.32 s.
-The corresponding displacement magnitude of the centre of the upper surface of the beam vs time is shown in Figure \ref{fig:dynamic_cantilever}(b).
+The corresponding displacement magnitude of the centre of the upper surface of the beam vs time is shown in Figure \ref{fig:dynamic_cantilever}(b), where the predictions are seen to converge as the mesh is refined.
+Although the current case does not have a reference solution, it has been chosen to test the robustness of the solution procedures when large rotations and strains are present.
 \begin{figure}[htbp]
    \centering
 %   \includegraphics[width=0.5\textwidth]{figures/cantilever} 
@@ -1543,6 +1596,9 @@ The corresponding displacement magnitude of the centre of the upper surface of t
 
 %\hl{maybe we should state the nonlinear/linear solver settings for completeness}
 
+%%%%%%%%%%%%
+\begin{comment}
+%%%%%%%%%%%%
 
 \paragraph{Case 7: Axial Turbine Blade}
 This 3-D, quasi-static, small strain, linear elastic case consists of a twisted axial turbine blade (Figure \ref{fig:turbine_blade}) with the Cartesian axis-aligned bounding box $105.55\times177.628\times336.5$ mm.
@@ -1577,15 +1633,19 @@ The equivalent (von Mises) stress distribution (right image in Figure \ref{fig:t
 \end{figure}
 
 
+%%%%%%%%%%%%
+\end{comment}
+%%%%%%%%%%%%
 
-\paragraph{Case 8: Elastic plate behind a rigid cylinder}
-\citet{Turek2006} proposed this well-known fluid-solid interaction benchmark case as an extension of the classic flow around a cylinder in a channel problem \cite{Ferziger2002}.
+
+\paragraph{Case 6: Elastic plate behind a rigid cylinder}
+The final test case, introduced by \citet{Turek2006}, extends the classic flow around a cylinder in a channel problem \citep{Ferziger2002} into a well-established fluid-solid interaction benchmark.
 The \texttt{FSI3} variant of the case examined here (Figure \ref{fig:hronTurek-mesh}) consists of a horizontal channel (0.41 m in height, 2.5 m in length) with a rigid cylinder of radius 0.05 m, where the cylinder centre is 0.2 m from the bottom and inlet (left) boundaries.
 A parabolic velocity is prescribed at the inlet velocity with a mean value of 2 m/s.
-A St.\ Venant-Kirchhoff hyperelastic plate ($E = 5.6$ MPa, $\nu = 0.4$) of 0.35 m in length and 0.02 m in height is attached to the right-hand side of the rigid cylinder.
+A St.~Venant-Kirchhoff hyperelastic plate ($E = 5.6$ MPa, $\nu = 0.4$) of 0.35 m in length and 0.02 m in height is attached to the right-hand side of the rigid cylinder.
 The fluid model is assumed to be isothermal, incompressible, and laminar and adopts the segregated PIMPLE solution algorithm.
 The fluid's kinematic viscosity is 0.001 m$^2$/s and density is 1000 kg/m$^3$, while the solid's density is $10\,000$ kg/m$^3$.
-The interface- quasi-Newton with inverse Jacobian from a least-squares model coupling approach \cite{Degroote2009} is employed for the fluid-solid interaction coupling.
+The interface quasi-Newton coupling approach with inverse Jacobian from a least-squares model \cite{Degroote2009} is employed for the fluid-solid interaction coupling.
 The fluid-solid interface residual is reduced by four orders of magnitude within each time step.
 Further details of the fluid-solid interaction procedure are found in \citet{Tukovic2018a}.
 %\begin{figure}[htbp]
@@ -1666,12 +1726,12 @@ while the frequency is calculated as the inverse of the period.
 \label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
 This section compares resource requirements and robustness of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
-Specifically, time and memory requirements are analysed, and cases where either approach diverges are examined.
-In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
-In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre \emph{BoomerAMG} multigrid preconditioner for 3-D.
+Specifically, time and memory requirements are analysed, and whether the solution approach converged for all meshes and loading steps.
+%In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
+In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre \emph{BoomerAMG} multigrid preconditioner for 3-D, unless stated otherwise.
 In contrast, The segregated approach used the conjugate gradient linear solver and the Hypre \emph{BoomerAMG} multigrid preconditioner for all cases.
 Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
-Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler.
+Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M2 Ultra CPU on one CPU core, where the code was built with the Clang compiler (version 16.0.0).
 %\hl{Present data for one hardware first, and give comparison after.}
 Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parallelisation}.
 % where several mesh densities are examined.
@@ -1679,7 +1739,7 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 %The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
 %\hl{Take care when comparing times between different hardware}
 
-Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage for all cases and all meshes.
+Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage for all cases and all meshes, where cases which diverged are indicated by the symbol $\dag$.
 Figure \ref{fig:times_memory}(a) plots the corresponding speedup on all cases as a function of the number of degrees of freedom, where the speedup is defined as the segregated clock time divided by the Jacobian-free Newton-Krylov clock time.
 The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case where the fluid domain has three degrees of freedom (two velocity components and pressure) in 2-D.
 Speedup is only calculated for clock times greater than 2 seconds to avoid the comparison of small numbers.
@@ -1695,20 +1755,27 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 			     &            & \textbf{Time} & \textbf{Memory} & \textbf{Time} & \textbf{Memory} \\
 			     &            & (in s) & (in MB) & (in s) & (in MB) \\
 			\hline 
-			\textbf{MMS} & 384 & 0 & $78$ 				& 0 & 79 \\
+			\textbf{MMS - regular} & 384 & 0 & $78$ 				& 0 & 79 \\
 			\emph{3-D, static,}	& $4\,374$ & 0 & $86$ 			& 0 & 94 \\
 			\emph{linear elastic} & $41\,154$ & 1 & $195$  		& 2 & 181 \\
 				&  $355\,914$ & 4 & $1\,063$ 		& 9 & $1\,289$ \\
 				& $2\,958\,234$ & 41 & $6\,724$ 	& 92 & $6\,174$ \\
 				& $24\,118\,074$ & 486 & $30\,606$ & $1\,732$ & $30\,601$ \\
 			\hline
-			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
-			\textbf{Plate} & 472 & 0 & $78$ & 0 & 81 \\
-			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
-			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
-				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
-				& $2\,438\,242$ & 988 & $21\,884$ & $45\,692$ & $20\,348$ \\
-			\hline
+%			\textbf{MMS - distorted} 	& 384 		&  & $78$ 				& 0 & 79 \\
+%			\emph{3-D, static,}		& $4\,374$ 	&  & $86$ 			& 0 & 94 \\
+%			\emph{linear elastic} 		& $41\,154$ 	&  & $195$  		& 2 & 181 \\
+%								&  $355\,914$ 	&  & $1\,063$ 		& 9 & $1\,289$ \\
+%								& $2\,958\,234$ &  & $6\,724$ 	& 92 & $6\,174$ \\
+%								& $24\,118\,074$ &  & $30\,606$ & $1\,732$ & $30\,601$ \\
+%			\hline
+%			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
+%			\textbf{Plate} & 472 & 0 & $78$ & 0 & 81 \\
+%			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
+%			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
+%				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
+%				& $2\,438\,242$ & 988 & $21\,884$ & $45\,692$ & $20\,348$ \\
+%			\hline
 			\textbf{T-member} & 624& 0 & 84 					&  1 & 85 \\
 			\emph{3-D, static,} & $4\,992$ & 1 & 127 				&  7 &  141 \\
 			\emph{linear elastic} & $39\,936$ & 10 & 557			& 133 & 723  \\
@@ -1752,16 +1819,16 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 			\emph{hyperelastic}& $17\,280$ & 854 & 752 	& $\dag$ & $\dag$ \\
 				& $138\,240$ & $11\,800$ & $5\,790$ 	& $\dag$ & $\dag$ \\
 			\hline
-			\textbf{Turbine} & $322\,161$ & $22\,782$ & $11\,102$ & & \hl{rnng} \\
-			\emph{3-D, static,} & $2\,493\,299$  & \hl{to-rn}& & & \hl{to-rn} \\
-			\emph{linear elastic} & & & & & \\
-			\hline
+%			\textbf{Turbine} & $322\,161$ & $22\,782$ & $11\,102$ & & \hl{rnng} \\
+%			\emph{3-D, static,} & $2\,493\,299$  & \hl{to-rn}& & & \hl{to-rn} \\
+%			\emph{linear elastic} & & & & & \\
+%			\hline
 			\textbf{FSI} & $1\,252$ + 156 & $3\,830$ & 748 				& $5\,360$ & 738 \\
 			\emph{2-D, dynamic,}	& $5\,008$ + 624 & $32\,074$ & 834 	& $52\,372$ & 775 \\
 			\emph{hyperelastic} & $20\,032$ + $2\,496$ & $170\,919$ & 785 	& $218\,797$ & 748 \\
 			\hline
 		\end{tabular}
-	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver crashed. }
+	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
 
@@ -1770,8 +1837,7 @@ The relative memory usage is close to unity in most cases, indicating there is n
 In addition, unlike for the speedup, there is no general trend in the relative memory usage as the number of degrees of freedom increases.
 The maximum value for relative memory was 1.9 and occurred in the second-finest mesh for the membrane ii (2-D, hyperelastic) case, although for all other meshes in this case, the value was less than one (between 0.82 and 0.95).
 The maximum memory usage is primarily attributed to the linear solver and preconditioner; the choice of preconditioner and linear solver settings are examined further in Section \ref{sec:preconditioner}.
-\\
-\hl{Note: we use segregated in PETSc, so it is a vector system}
+%\hl{Note: we use segregated in PETSc, so it is a vector system}
 \begin{figure}[htbp]
    \centering
 	\subfigure[Speedup]
@@ -1801,7 +1867,7 @@ Regarding robustness, the Jacobian-free Newton-Krylov approach converged in all 
 The only case where the Jacobian-free Newton-Krylov approach failed to converge was for the Membrane iii problem, the only elastoplastic case examined.
 For the failed meshes, they each reached approximately 80\% of the total load before the linear solver diverged.
 The cause of this divergence is likely related to the proposed compact preconditioner matrix, which is formulated based on small \emph{elastic} strains, being a poor approximation of the true Jacobian for large plastic strains.
-Interestingly, convergence problems were not encountered in the hyperelastic cases (Membrane ii, Ventricle, Cantilever, Fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable for such large strain hyperelastic cases.
+Interestingly, convergence problems were not encountered in the hyperelastic cases (Membrane ii, Ventricle, Cantilever, Fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable for such large strain, large rotation hyperelastic cases.
 %Potentially, modifying the compact preconditioner matrix to account for plasticity would allow the method to work in the failed cases, but this will be left for future studies.
 In contrast, the segregated approach—which uses the same matrix—had no problems with the elastoplastic case (Membrane iii) but failed to converge on two of the hyperelastic cases (Ventricle, Cantilever).
 In both cases where the segregated approach failed, large elastic strains and large rotations were observed, and the segregated solver failed in the early time steps.
@@ -1824,7 +1890,7 @@ In contrast, in other 3-D, linear elastic cases (Elliptic plate, Narrow T-Member
 %\hl{Give details of relevant numerical settings, e.g. linear solver, preconditioner, Rhie-Chow scaling, globalisation strategy: where best to say this...}.
 
 %\hl{Hardware comparison? could go in the appendix}
-\hl{Should we add Table 1 for other hardware in the appendix?}
+%\hl{Should we add Table 1 for other hardware in the appendix?}
 %The trends shown in Table \ref{tab:times_memory} are common to all typical modern computer systems, however, the exact values depend on the particular details of the CPU, the memory configuration and the operating system.
 %To highlight the effect of hardware specification, Table \ref{tab:times_memory_spec2} lists the time and memory usage for a different system: \hl{e.g. Mac M2/M3 seem to give excellent performance vs Meluxina AMD EPYC cores}.
 %\hl{Describe the difference, e.g. 2-3 faster but same memory usage}
@@ -1860,8 +1926,8 @@ This section examines the effect of preconditioning procedure choice on the perf
 Three choices of preconditioning procedure are compared:
 \begin{itemize}
 	\item \textbf{LU} - The \emph{MUltifrontal Massively Parallel sparse direct Solver} (MUMPS) \citep{MUMPS:1, MUMPS:2} LU decomposition direct solver. A direct solver is expected to be the more robust but may suffer from excessive time and memory requirements for larger numbers of unknowns.
-	\item \textbf{ILU(N)} - Incomplete LU decomposition with N fill-in. ILU(N) is expected to have lower memory requirements than the LU direct solver but at the expense of robustness.
-	As the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ increases, ILU(N) approaches the behaviour of a LU direct solver.
+	\item \textbf{ILU(N)} - Incomplete LU decomposition with $N$ fill-in. ILU(N) is expected to have lower memory requirements than the LU direct solver but at the expense of robustness.
+	As the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ increases, ILU(N) approaches the robustness of a LU direct solver.
 	\item \textbf{Algebraic multigrid} - The Hypre Boomerang \citep{hypre} parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near linear scaling of time and memory requirements.
 \end{itemize}
 
@@ -1870,13 +1936,14 @@ From this perspective, the iterative approaches (ILU(N) and multigrid) are expec
 Analysis of this point is left to Section \ref{sec:parallelisation}.
 
 The preconditioning approaches are compared in three cases: membrane i (2-D, linear elastic), elliptic plate (3-D, linear elastic), and idealised ventricle (3-D, hyperelastic).
- 
-Figure \ref{fig:times_memory} compares the clock times and maximum memory requirements for the three preconditioning approaches as a function of degrees of freedom.
-\hl{ILU1 diverges on the ventricle for the finer two meshes: re-rnng with ILU2}
-\hl{LU ventricle: mesh4 is running}
-\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
-\hl{Provide insights, if any: e.g. why is one faster or slower}
-\hl{Conclusion: which preconditioner if 'best' for which situation: probably LU is best for 'small' cases and multigrid for 'large' cases}
+ Figure \ref{fig:times_memory} compares the clock times and maximum memory requirements for the three preconditioning approaches as a function of degrees of freedom.
+\begin{itemize}
+	\item \hl{ILU1 diverges on the ventricle for the finer two meshes: re-rnng with ILU2}
+	\item \hl{LU ventricle: mesh4 is running}
+	\item \hl{Comment on the results: e.g. fastest, slowest, most/least iterations, etc}
+	\item \hl{Provide insights, if any: e.g. why is one faster or slower}
+	\item \hl{Conclusion: which preconditioner if 'best' for which situation: probably LU is best for 'small' cases and multigrid for 'large' cases}
+\end{itemize}
 \begin{figure}[htbp]
    \centering
 	\subfigure[Clock time]
@@ -2180,6 +2247,8 @@ The volume-preserving component of the elastic left Cauchy--Green deformation te
 \end{eqnarray}
 In the limit of small deformations $\lVert \nabla \mathbf{u} \rVert  \ll 1$, neo-Hookean hyperelasticity (Equation \ref{eq:neoHook}) reduces to linear elasticity (Equation \ref{eq:linearElastic}).
 
+\hl{Guccione}
+\hl{St.~Venant Kirchhoff}
 
 \subsection{Neo-Hookean $J_2$ Hyperelastoplasticity}
 For neo-Hookean $J_2$ Hyperelastoplasticity, the expression for the true (Cauchy) stress $\bb{\sigma}$ takes the same form as Equation \ref{eq:neoHook}, except $\boldsymbol{b}$ is replaced by its elastic component $\boldsymbol{b}_e$.
@@ -2316,8 +2385,7 @@ It is stated to be third order in \emph{Demirdzic and Muzaferija (1995), Numeric
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Body Force for the Method of Manufactured Solutions Case} \label{app:mms}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\hl{Cite Federico's thesis}
-The body force for the manufactured solution case is
+The body force for the manufactured solution case is \citep{Mazzanti2024}:
 \begin{align}
 \bb{f}_b = 
     \begin{pmatrix}
@@ -2408,11 +2476,37 @@ The body force for the manufactured solution case is
 %	- 2 a_z \mu_ \pi^2 \sin(4\pi x) \sin(2\pi y) \sin(\pi z)
 %	\end{pmatrix}
 %\end{eqnarray}
-where $\mu$ and $\lambda$ are the first and second Lam\'{e} parameters, respectively.
+%where $\lambda$ and $\mu$ are the first and second Lam\'{e} parameters, respectively.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Analytical Expressions for the Stress and Displacement Distributions around a Spherical Cavity under Uniaxial Tensions} \label{app:sphericalCavity}
+%\section{Method of Manufactured Solution Meshes}
+%\label{app:meshes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Figure \ref{fig:mmsMeshes} shows example medium density meshes used in the method of manufactured solutions case.
+%\begin{figure}[htbp]
+%	\centering
+%	\subfigure[Regular hexahedral mesh with $1\,000$ cells]{\includegraphics[height=0.45\textwidth]{figures/mms_mesh}}
+%	\subfigure[Distorted hexahedral mesh with $1\,000$ cells]{\includegraphics[height=0.45\textwidth]{figures/mms_mesh}}
+%
+%	\subfigure[Regular tetrahedral mesh with $1\,000$ cells]{\includegraphics[height=0.45\textwidth]{figures/mms_mesh}}
+%	\subfigure[Distorted tetrahedral mesh with $1\,000$ cells]{\includegraphics[height=0.45\textwidth]{figures/mms_mesh}}
+%
+%	\subfigure[Regular polyhedral mesh with $1\,000$ cells]{\includegraphics[height=0.45\textwidth]{figures/mms_mesh}}
+%	\subfigure[Distorted polyhedral mesh with $1\,000$ cells]{\includegraphics[height=0.45\textwidth]{figures/mms_mesh}}
+%	\caption{Medium meshes (\hl{XX} cells) used in the method of manufactured solutions case. Regular meshes are shown in the left column, while the distorted meshes are shown in the right column. The cell types are hexahedra, tetrahedra, and polyhedral, from top to bottom.}
+%	\label{fig:mmsMeshes}
+%\end{figure}
+
+
+%%%%%%%%%%%%
+\begin{comment}
+%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analytical Expressions for the Stress and Displacement Distributions around a Spherical Cavity under Uniaxial Tensions}
+\label{app:sphericalCavity}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 The analytical expressions for the stress distributions around the cavity, first derived by \citet{Southwell1926}, are
 \begin{eqnarray}
@@ -2445,6 +2539,10 @@ where the constants $A$, $B$ and $C$ are defined as follows:
 \frac{C}{a^3} = -\frac{T}{8\mu}\frac{5(1-2\nu)}{7-5\nu}.
 \end{equation}
 and $\mu$ is the shear modulus.
+
+%%%%%%%%%%%%
+\end{comment}
+%%%%%%%%%%%%
 
 
 \end{appendices}
