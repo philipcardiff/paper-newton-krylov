@@ -1254,9 +1254,6 @@ Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing
 %%%%%%%%%%%%
 
 
-%%%%%%%%%%%%
-\begin{comment}
-%%%%%%%%%%%%
 
 
 \paragraph{Case 2: Out-of-plane bending of an elliptic plate}
@@ -1300,63 +1297,61 @@ The sample values have been calculated by generating 40 uniformly spaced angles 
    \label{fig:elliptic_plate_sigmaEq}
 \end{figure}
 
-%%%%%%%%%%%%
-\end{comment}
-%%%%%%%%%%%%
 
 
-\paragraph{Case 2: Narrow T-section component under tension}
-This case, proposed by \citet{Demirdzic1997a}, consists of a narrow engineering component with a T cross-section (Figure \ref{fig:narrowTmember}).
-The case is 3-D, static, with linear elastic material behaviour.
-Symmetry allows one-quarter of the geometry to be simulated.
-A constant negative pressure of 1 MPa is applied to the lower surface, and the upper left surface is fully clamped.
-The Young’s modulus is $E = 210$ GPa, and Poisson’s ratio is $\nu = 0.3$.
-A radius $5$ mm hole is located at the expected stress concentration.
+
+%\paragraph{Case 2: Narrow T-section component under tension}
+%This case, proposed by \citet{Demirdzic1997a}, consists of a narrow engineering component with a T cross-section (Figure \ref{fig:narrowTmember}).
+%The case is 3-D, static, with linear elastic material behaviour.
+%Symmetry allows one-quarter of the geometry to be simulated.
+%A constant negative pressure of 1 MPa is applied to the lower surface, and the upper left surface is fully clamped.
+%The Young’s modulus is $E = 210$ GPa, and Poisson’s ratio is $\nu = 0.3$.
+%A radius $5$ mm hole is located at the expected stress concentration.
+%%\begin{figure}[htbp]
+%%   \centering
+%%   \includegraphics[width=0.4\textwidth]{figures/narrowTmember-geometry.pdf} 
+%%   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
+%%   \label{fig:narrowTmember}
+%%\end{figure}
+%\begin{figure}[htbp]
+%	\centering
+%	\subfigure[Case geometry (considered quarter geometry)]
+%	{
+%		\label{fig:narrowTmember_geometry}
+%   		\includegraphics[height=0.4\textwidth]{figures/narrowTmember-geometry} 
+%   	}
+%   	\qquad
+%	\subfigure[Mesh with 624 cells]
+%	{
+%		\label{fig:narrowTmember_mesh}
+%   		\includegraphics[height=0.4\textwidth]{figures/narrowTmember-mesh}  
+%   	}
+%	\caption{Narrow T-section component under tension: geometry and mesh}
+%	\label{fig:narrowTmember}
+%\end{figure}
+%
+%Five succesively refined hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} utility, consisting of 624, $4\,992$, $39\,936$, $319\,488$, and $2\,555\,904$ cells.
+%The corresponding average cell widths—calculated as the cubed root of the total domain volume divided by the number of cells—are 6.69, 3.34, 1.67, 0.84, and 0.42 mm.
+%
+%
+%The predicted equivalent (von Mises) stress distribution on the $z = 0$ plane is shown in Figure \ref{fig:narrowTmember_sigmaEq}(a), where a stress concentration is apparent near the hole.
+%The equivalent stress along the line $r = 1.5R$, $z = 0$ is shown for the different meshes in Figure \ref{fig:narrowTmember_sigmaEq}(b), where $R$ is the hole radius.
+%%Similarly to the elliptic plate case, 
+%The stress values have been sampled at 30 uniformly spaced angles between $-\frac{\pi}{2}$ and $-\pi$ along the line $r = 1.5R$, $z = 0$, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
+%The predictions are seen converge to the results reported in \citet{Demirdzic1997a}.
 %\begin{figure}[htbp]
 %   \centering
-%   \includegraphics[width=0.4\textwidth]{figures/narrowTmember-geometry.pdf} 
-%   \caption{Inflation of an idealised ventricle case geometry, mesh and loading conditions}
-%   \label{fig:narrowTmember}
+%	\subfigure[Equivalent stress distribution for the mesh with $2\,555\,904$ cells on the $z = 0$ m plane]
+%	{
+%		\includegraphics[height=0.32\textwidth]{figures/narrowTmember_sigmaEq}  
+%	}
+%	\subfigure[Equivalent stress along the line $r = 1.5R$, $z = 0$ m]
+%	{
+%		\includegraphics[height=0.32\textwidth]{figures/narrowTmember_sigmaEq_line.pdf} 
+%	}
+%   \caption{Equivalent (von Mises) stress distribution in the narrow T-section component under tension}
+%   \label{fig:narrowTmember_sigmaEq}
 %\end{figure}
-\begin{figure}[htbp]
-	\centering
-	\subfigure[Case geometry (considered quarter geometry)]
-	{
-		\label{fig:narrowTmember_geometry}
-   		\includegraphics[height=0.4\textwidth]{figures/narrowTmember-geometry} 
-   	}
-   	\qquad
-	\subfigure[Mesh with 624 cells]
-	{
-		\label{fig:narrowTmember_mesh}
-   		\includegraphics[height=0.4\textwidth]{figures/narrowTmember-mesh}  
-   	}
-	\caption{Narrow T-section component under tension: geometry and mesh}
-	\label{fig:narrowTmember}
-\end{figure}
-
-Five succesively refined hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} utility, consisting of 624, $4\,992$, $39\,936$, $319\,488$, and $2\,555\,904$ cells.
-The corresponding average cell widths—calculated as the cubed root of the total domain volume divided by the number of cells—are 6.69, 3.34, 1.67, 0.84, and 0.42 mm.
-
-
-The predicted equivalent (von Mises) stress distribution on the $z = 0$ plane is shown in Figure \ref{fig:narrowTmember_sigmaEq}(a), where a stress concentration is apparent near the hole.
-The equivalent stress along the line $r = 1.5R$, $z = 0$ is shown for the different meshes in Figure \ref{fig:narrowTmember_sigmaEq}(b), where $R$ is the hole radius.
-%Similarly to the elliptic plate case, 
-The stress values have been sampled at 30 uniformly spaced angles between $-\frac{\pi}{2}$ and $-\pi$ along the line $r = 1.5R$, $z = 0$, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
-The predictions are seen converge to the results reported in \citet{Demirdzic1997a}.
-\begin{figure}[htbp]
-   \centering
-	\subfigure[Equivalent stress distribution for the mesh with $2\,555\,904$ cells on the $z = 0$ m plane]
-	{
-		\includegraphics[height=0.32\textwidth]{figures/narrowTmember_sigmaEq}  
-	}
-	\subfigure[Equivalent stress along the line $r = 1.5R$, $z = 0$ m]
-	{
-		\includegraphics[height=0.32\textwidth]{figures/narrowTmember_sigmaEq_line.pdf} 
-	}
-   \caption{Equivalent (von Mises) stress distribution in the narrow T-section component under tension}
-   \label{fig:narrowTmember_sigmaEq}
-\end{figure}
 
 
 
@@ -1725,7 +1720,7 @@ while the frequency is calculated as the inverse of the period.
 \subsection{Resource Requirements and Robustness}
 \label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section compares resource requirements and robustness of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
+This section compares resource requirements and the robustness of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
 Specifically, time and memory requirements are analysed, and whether the solution approach converged for all meshes and loading steps.
 %In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
 In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre \emph{BoomerAMG} multigrid preconditioner for 3-D, unless stated otherwise.
@@ -1740,7 +1735,7 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 %The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
 %\hl{Take care when comparing times between different hardware}
 
-Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage for all cases and all meshes, where cases which diverged are indicated by the symbol $\dag$.
+Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage for all cases and all meshes, where diverged cases are indicated by the symbol $\dag$.
 Figure \ref{fig:times_memory}(a) plots the corresponding speedup on all cases as a function of the number of degrees of freedom, where the speedup is defined as the segregated clock time divided by the Jacobian-free Newton-Krylov clock time.
 The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case where the fluid domain has three degrees of freedom (two velocity components and pressure) in 2-D.
 Speedup is only calculated for clock times greater than 2 seconds to avoid the comparison of small numbers.
@@ -1770,19 +1765,19 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 %								& $2\,958\,234$ &  & $6\,724$ 	& 92 & $6\,174$ \\
 %								& $24\,118\,074$ &  & $30\,606$ & $1\,732$ & $30\,601$ \\
 %			\hline
-%			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
-%			\textbf{Plate} & 472 & 0 & $78$ & 0 & 81 \\
-%			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
-%			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
-%				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
-%				& $2\,438\,242$ & 988 & $21\,884$ & $45\,692$ & $20\,348$ \\
-%			\hline
-			\textbf{T-member} & 624& 0 & 84 					&  1 & 85 \\
-			\emph{3-D, static,} & $4\,992$ & 1 & 127 				&  7 &  141 \\
-			\emph{linear elastic} & $39\,936$ & 10 & 557			& 133 & 723  \\
-				& $319\,488$ & 154 & $4\,024$ 				& $2\,916$ & $3\,547$  \\
-				& $2\,555\,904$ & $1\,751$ & $22\,814$ 			& $47\,344$ &  $21\,827$ \\
+			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
+			\textbf{Plate} & 472 & 0 & $78$ & 0 & 81 \\
+			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
+			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
+				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
+				& $2\,438\,242$ & 988 & $21\,884$ & $45\,692$ & $20\,348$ \\
 			\hline
+%			\textbf{T-member} & 624& 0 & 84 					&  1 & 85 \\
+%			\emph{3-D, static,} & $4\,992$ & 1 & 127 				&  7 &  141 \\
+%			\emph{linear elastic} & $39\,936$ & 10 & 557			& 133 & 723  \\
+%				& $319\,488$ & 154 & $4\,024$ 				& $2\,916$ & $3\,547$  \\
+%				& $2\,555\,904$ & $1\,751$ & $22\,814$ 			& $47\,344$ &  $21\,827$ \\
+%			\hline
 			\textbf{Ventricle} & $1\,620$ & 54 & 133 				& $\dag$ & $\dag$  \\ % & crashed at 0.23 s &  \\
 			\emph{3-D, static,}& $12\,960$ & 576 & 553 			& $\dag$  & $\dag$ \\ % & crashed at 0.25 s & \\
 			\emph{hyperelastic} & $103\,680$ & $8\,362$ & $3\,435$ 	& $\dag$  & $\dag$ \\ % & crashed at 0.18 s & \\
@@ -1945,7 +1940,7 @@ In contrast, the multigrid was up to $1.4 \times$ faster than the LU approach in
 % for the elliptic plate case
 The ILU(5) approach is seen to be slowest in all cases, in addition, the ILU(5) approach diverged on the idealised ventricle finest mesh.
 
-Regarding memory usage, below approximately $50\,000$ degrees if freedom, the memory usage is the same for all three approaches (approximately $80$ MB), corresponding to the solver's minimum memory overhead.
+Regarding memory usage, below approximately $50\,000$ degrees of freedom, the memory usage is the same for all three approaches (approximately $80$ MB), corresponding to the solver's minimum memory overhead.
 For greater numbers of degrees of freedom, the LU approach uses the greatest amount of memory for both 3-D cases (idealised ventricle, elliptic plate), while the ILU(5) uses the least.
 In contrast, the LU approach uses the smallest amount of memory for the 2-D case (membrane i) mesh densities examined.
 The rate of memory increase is seen to be much steeper for the LU approach on the 3-D cases than the multigrid and ILU(5) approaches, with the LU results for the finest meshes not shown as they required more than the maximum available memory (64 GB).
@@ -2020,6 +2015,13 @@ As in the previous section, three cases are used to highlight the effect: membra
 The LU preconditioning method is used for the 2-D membrane i case, while the multigrid approach is used for the two 3-D cases.
 Figure \ref{fig:times_rhie_chow} presents the execution times and the number of accumulated linear solver iterations for three values of global stabilisation factor ($\alpha = \left[ 0.01, 0.1, 1 \right]$) for several mesh densities.
 The memory usage is unaffected by the value of $\alpha$ and is hence not shown.
+From Figure \ref{fig:times_rhie_chow}(a), the clock time is seen to increase exponentially (linearly on a log-log plot) for all cases and all values of $\alpha$.
+For all meshes in all three cases, the lowest value of global stabilisation factor ($\alpha = 0.01$) -- corresponding to the least amount of stabilisation -- takes the greatest amount of time to converge, while the largest value of global stabilisation factor ($\alpha = 1$) is the fastest to converge.
+In the membrane i case, the largest value of  ($\alpha$) is approximage $1.5\times$ faster than the lowest value of $\alpha$.
+Nonetheless, the clock time is not a linear function of  $\alpha$, and it can be seen that $\alpha = 0.1$ requires approximately the same amount of time as $\alpha = 1$ in all cases.
+In terms of robustness, the idealised ventricle cases failed with $\alpha = 0.01$, suggesting increasing the stabilisation increases robustness.
+From Figure \ref{fig:times_rhie_chow}(b), the accumulated number of linear solver (GMRES) iterations are seen to follow the same trends as the clock times, where $\alpha = 0.01$ requires the greatest number of iterations while $\alpha = 0.1$ and $\alpha = 1$ require approximately the same number of iterations.
+In all cases, the number of iterations are seen to increase as the number of degrees of freedom increase.
 %\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, if any cases diverged or needed a higher 'restarts' value, etc}
 %\hl{Provide insights, if any: e.g. why is one faster or slower}
 \begin{figure}[htbp]
@@ -2053,7 +2055,7 @@ The memory usage is unaffected by the value of $\alpha$ and is hence not shown.
 %	\label{tab:rhie_chow}
 %\end{table}
 
-\hl{Comment on: - crashed cases; - faster/slower/most/fewest iterations}
+%\hl{Comment on: - crashed cases; - faster/slower/most/fewest iterations}
 %Figure \ref{fig:rhie_chow} shows a comparison of the stress \hl{(or displacement)} along the line \hl{XXX -> we need to show the effect on accuracy for different values of alpha}
 %\begin{figure}[htbp]
 %   \centering
@@ -2115,24 +2117,33 @@ The memory usage is unaffected by the value of $\alpha$ and is hence not shown.
 \subsection{Parallelisation}
 \label{sec:parallelisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-In this final analysis, the multi-CPU-core parallel scaling performance of the proposed Jacobian-free Newton Krylov method is examined.
-Two types of parallel scaling analyses are performed \cite{Knoll2004}:
-\begin{itemize}
-	\item Strong scaling study: Strong scaling measures how the execution time of a fixed problem size (fixed number of cells) decreases as the number of CPU cores increases.
-	Good strong scaling indicates that an application effectively utilises additional CPU cores without significant overhead.
-	In contrast, poor strong scaling suggests that adding more cores does not significantly reduce the execution time, often due to increased communication or synchronisation overhead.
+In this final analysis, the multi-CPU-core parallel scaling performance of the proposed Jacobian-free Newton Krylov method is compared with the segregated approach.
+A \emph{strong} scaling study is performed, where the clock time to solve a fixed-size problem is measured as the number of CPU cores is increased.
+The elliptic plate (3-D, linear elastic) mesh with $2\,438\,242$ cells is chosen for the scaling analysis.
+Parallelisation adopts the domain decomposition approach, where the mesh is decompose into one sub-domain for each CPU core.
+In the current work, the Scotch decomposition approach \citep{Pellegrini2012} is employed.
+The Jacobian-free Newton Krylov approach uses the GMRES linear solver with the multigrid preconditioner, while the segregated approach uses the conjugate gradient solver with the incomplete (zero in fill) Cholesky preconditioner.
+The cases are run on the Meluxina high-performance computing system, where each standard computing node contains $2\times$ AMD EPYC Rome 7H12 64c 2.6GHz CPUs with 512 GB of memory.
+In the current study, the number of CPU cores are varied from 1 to $1\,048$ ($\left[ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1\,048 \right]$).
+In the ideal case, the speedup should double when the number of cores is doubled; in reality, inter-CPU-core communication reduces the parallel scaling efficiency below the ideal.
 
-	\item Weak scaling study: Weak scaling measures how the execution time changes as the problem size (the number of cells) and the number of CPU cores increase proportionally, where the problem size per CPU core remains (approximately) constant.
-	Good weak scaling indicates that the application can efficiently manage larger workloads with more cores without a significant increase in execution time.
-	Poor weak scaling implies that the application struggles to maintain performance as the problem size and core count increase.
-\end{itemize}
+%Two types of parallel scaling analyses are performed \cite{Knoll2004}:
+%\begin{itemize}
+%	\item Strong scaling study: Strong scaling measures how the execution time of a fixed problem size (fixed number of cells) decreases as the number of CPU cores increases.
+%	Good strong scaling indicates that an application effectively utilises additional CPU cores without significant overhead.
+%	In contrast, poor strong scaling suggests that adding more cores does not significantly reduce the execution time, often due to increased communication or synchronisation overhead.
+%
+%	\item Weak scaling study: Weak scaling measures how the execution time changes as the problem size (the number of cells) and the number of CPU cores increase proportionally, where the problem size per CPU core remains (approximately) constant.
+%	Good weak scaling indicates that the application can efficiently manage larger workloads with more cores without a significant increase in execution time.
+%	Poor weak scaling implies that the application struggles to maintain performance as the problem size and core count increase.
+%\end{itemize}
 
-The results from the strong scaling study are shown in Figure \ref{fig:parallelisation_strong}.
-The speedup $S$ is defined as $S = \sfrac{t_1}{t_p}$, where $t_1$ is the clock time on one CPU core and $t_p$ is the clock time on $P$ CPU cores.
-In the ideal case, the speedup should double when the number of cores is doubled.
-In reality, inter-CPU-core communication reduces the parallel scaling efficiency below the ideal.
-\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, best/worst scaling}
-\hl{Provide insights, if any: e.g. why is one faster or slower}
+The clock times from the strong scaling study are shown in Figure \ref{fig:parallelisation_strong}(a), where the \emph{ideal} scaling is shown for comparison as a dashed line.
+Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup $S$, defined as $S = \sfrac{t_1}{t_p}$, where $t_1$ is the clock time on one CPU core and $t_p$ is the clock time on $P$ CPU cores.
+Examining the Jacobian-free Newton-Krylov approach, the speedup is seen to increase at an approximately ideal rate up to 128 cores, after which the speedup continues to increase but at a lower rate.
+At 128 cores (corresponding to one node), the number of cells per core is approximately 19 thousand; increasing the number of cores beyond 128 likely shows a less than ideal scaling for two reasons: (i) the number of cells per core is becoming small relative to the amount of inter-core communication, and (ii) inter-node communication is likely slower than intra-node communication.
+Nonetheless, $1\,048$ produces the fastest solution at almost $2$ cells per core, albeit requiring almost 10 times from cores than the 128 core case for a $2\times$ increase in speedup.
+\hl{Comment on seg approach and how it compares to JFNK}
 \begin{figure}[htbp]
 	\centering
 	\subfigure[Clock times vs number of CPU cores]
@@ -2149,41 +2160,41 @@ In reality, inter-CPU-core communication reduces the parallel scaling efficiency
 	\label{fig:parallelisation_strong}
 \end{figure}
 
-\hl{To run:}
-\begin{itemize}
-	\item elliptic plate (static, SS): MG, LU, ILU, Seg
-	\item ventricle (dynamic, LS): MG, LU, ILU, Seg
-\end{itemize}
+%\hl{To run:}
+%\begin{itemize}
+%	\item elliptic plate (static, SS): MG, LU, ILU, Seg
+%	\item ventricle (dynamic, LS): MG, LU, ILU, Seg
+%\end{itemize}
 
 
-The weak scaling results are shown in Figure \ref{fig:parallelisation_weak}.
-The weak scaling efficiency $\eta_w$ is defined as $\eta_w = \sfrac{t^[w]_1}{t^[w]_p}$, where $t^[w]_1$ is the clock time on one CPU core and $t^[w]_p$ is the clock time on $P$ CPU cores where the problem size per CPU core is constant.
-In the ideal case, the efficiency should be unity, but inter-CPU-core communication reduces it.
-\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, best/worst scaling}
-\hl{Provide insights, if any: e.g. why is one faster or slower}
-\begin{figure}[htbp]
-	\centering
-	\subfigure[Clock times vs number of CPU cores]
-	{
-		\label{fig:parallel_weak_times}
-%		\includegraphics[width=0.2\textwidth]{./figures/parallel_weak_times.pdf}
-   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   	}
-	\subfigure[Weak scaling efficiency $\eta_w$ vs number of CPU cores]
-	{
-		\label{fig:parallel_weak_speedup}
-%		\includegraphics[width=0.2\textwidth]{./figures/parallel_weak_efficiency.pdf}
-   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
-   	}
-	\caption{Weak parallel scaling study comparing the performance of three preconditioning strategies: a LU direct solver, and ILU(N) and multigrid iterative solvers}
-	\label{fig:parallelisation_weak}
-\end{figure}
+%The weak scaling results are shown in Figure \ref{fig:parallelisation_weak}.
+%The weak scaling efficiency $\eta_w$ is defined as $\eta_w = \sfrac{t^[w]_1}{t^[w]_p}$, where $t^[w]_1$ is the clock time on one CPU core and $t^[w]_p$ is the clock time on $P$ CPU cores where the problem size per CPU core is constant.
+%In the ideal case, the efficiency should be unity, but inter-CPU-core communication reduces it.
+%\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, best/worst scaling}
+%\hl{Provide insights, if any: e.g. why is one faster or slower}
+%\begin{figure}[htbp]
+%	\centering
+%	\subfigure[Clock times vs number of CPU cores]
+%	{
+%		\label{fig:parallel_weak_times}
+%%		\includegraphics[width=0.2\textwidth]{./figures/parallel_weak_times.pdf}
+%   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+%   	}
+%	\subfigure[Weak scaling efficiency $\eta_w$ vs number of CPU cores]
+%	{
+%		\label{fig:parallel_weak_speedup}
+%%		\includegraphics[width=0.2\textwidth]{./figures/parallel_weak_efficiency.pdf}
+%   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
+%   	}
+%	\caption{Weak parallel scaling study comparing the performance of three preconditioning strategies: a LU direct solver, and ILU(N) and multigrid iterative solvers}
+%	\label{fig:parallelisation_weak}
+%\end{figure}
 
-\hl{Compare preconditioners}
-
-\hl{elliptic plate}\\
-- mesh 7:  \\
-- mesh 8: $18\,751\,680$
+%\hl{Compare preconditioners}
+%
+%\hl{elliptic plate}\\
+%- mesh 7:  \\
+%- mesh 8: $18\,751\,680$
 
 %Comments from \cite{Knoll2004}:
 %"The first is a scalable implementation, in the sense that time per iteration is reduced in inverse proportion to the number of processors (strong scaling), or that time per iteration is constant as problem size and processor number are scaled proportionally (weak scaling). The second is good per processor performance on contemporary cache-based microprocessors. The third is algorithmic scalability, in the sense that the number of iterations to convergence does not grow with increased numbers of processors (or problem size). The third factor arises because the requirement of a scalable implementation generally forces parameterized changes in the algorithm as the number of processors grows. If the convergence is allowed to degrade, however, the overall execution is not scalable, and this must be countered algorithmically."
