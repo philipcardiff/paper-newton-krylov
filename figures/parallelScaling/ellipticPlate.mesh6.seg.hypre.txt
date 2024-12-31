@@ -1,7 +1,7 @@
 #Number of Cores    Time (in seconds)
 1      -
 2      -
-4      17673
+4      -        # Do not show on the figure: 17673
 8      5144
 16     3849
 32     869
