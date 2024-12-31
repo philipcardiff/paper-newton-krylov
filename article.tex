@@ -91,12 +91,14 @@ textheight=24cm, % llncs has 19.3cm
 
 \author*[1,2,3]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
 \author[4]{\fnm{Ivan} \sur{Batisti\'{c}}}
+\author[5]{\fnm{Hiroaki} \sur{Nishikawa}}
 \author[4]{\fnm{\v{Z}eljko} \sur{Tukovi\'{c}}}
 
 \affil*[1]{\orgdiv{School of Mechanical and Materials Engineering}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[3]{\orgdiv{SFI I-Form Centre}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[4]{\orgdiv{Faculty of Mechanical Engineering and Naval Architecture}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
+\affil[5]{\orgname{National Institute of Aerospace}, \orgaddress{\country{Hampton, VA 23666, USA}}}
 
 
 
@@ -180,7 +182,7 @@ For preconditioning, a fully matrix-free approach was proposed, based on the app
 %They found GMRES to be more robust than CG. They proposed a matrix-free preconditioner so that the overall method was truly matrix-free, not just Jacobian-free.
 \citet{Geuzaine2001} examined the use of lower and higher-order discretisations for the preconditioning matrix for steady, compressible high Reynolds number flows.
 % around two-dimensional geometries, with PDE turbulence models: the one-equation Spalart– Allmaras model and the two-equation k–omega model.
-They found that the lower-order compact stencil preconditioner gave the best performance when combined with the GMRES linear solver and ILU(N) preconditioner.
+They found that the lower-order compact stencil preconditioner gave the best performance when combined with the GMRES linear solver and ILU($k$) preconditioner.
 As is common with other Newton approaches, a pseudo transient algorithm and mesh sequencing strategy were used to improve the convergence.
 %CC FVM.
 %pseudotransient approach to improve convergence and mesh sequencing.
@@ -193,7 +195,7 @@ With the aim of exploiting mature segregated solution approaches, \citet{Pernice
 It was found that the SIMPLE-preconditioned Jacobian-free Newton-Krylov substantially accelerated convergence for the incompressible Navier–Stokes problems examined.
 %as preconditioners, they use classical pressure-correction methods such as SIMPLE/SIMPLEC and SIMPLER fulfill this requirement.
 GMRES was the adopted linear solver, where the importance of choosing an appropriate restart parameter was noted.
-They also found a multigrid approach to be more efficient than ILU(N) for preconditioning, where the implementation was based on the PETSc \citep{PETSc} package.
+They also found a multigrid approach to be more efficient than ILU($k$) for preconditioning, where the implementation was based on the PETSc \citep{PETSc} package.
 % as a preconditioner method. MG is more memory efficient than ILU.
 %Staggered grid.
 %They use Algorithm Inexact Newton Backtracking for globalisation => seems to be a form of line search.
@@ -204,7 +206,7 @@ Over the subsequent two decades, Jacobian-free Newton-Krylov methods have seen i
 The use of low-order approximate Jacobians for preconditioning has been established as an efficient and robust approach, e.g. \citep{Nejat2008, Vaassen2008, Nejat2011, Nishikawa2020}.
 A particularly attractive application of the low-order preconditioning approach is for higher-order discretisations; that is, spatial discretisation of order greater than two.
 \citet{Nejat2008} demonstrated such a higher order approach for steady, inviscid compressible flows, with up to fourth order accuracy.
-GMRES was the adopted linear solver with the ILU(N) preconditioner and fill-in values (N) ranging from 2 to 4. 
+GMRES was the adopted linear solver with the ILU($k$) preconditioner and fill-in values ($k$) ranging from 2 to 4. 
 %low-order Jacobian matrix captures the essential physical information about the flow, is narrowly banded after reordering and is much better conditioned than the high-order Jacobian. approximate analytic Jacobian of the first-order flux integral; finite difference approximation to the first-order flux Jacobian; pseudo time step in start-up phase and then switch to Newton; gmres no restart ILU precon (in fill 2-4)
 %steady-state computation of inviscid compressible flows.
 %high order
@@ -218,7 +220,7 @@ A particular benefit was the insensitivity of the Jacobian-free Newton-Krylov me
 %enables a speed up of a factor of 10 compared to standard nonlinear multigrid for two-dimensional, large Reynolds number, unsteady flow computations.
 %stiffness induced by the maximum aspect ratio, the grid density, the physical time step and the Reynolds number. Compared to standard nonlinear multigrid, speed ups up to a factor of 25 are achieved.
 %Compared to nonlinear mul- tigrid, JFNK is virtually insensitive to changes in these stiffness parameters, hence making JFNK a very robust solution method.
-%ILU(k) with k = 1-3. Approximate Jacobian.
+%ILU($k$) with k = 1-3. Approximate Jacobian.
 %\citet{Nishikawa2020} JFNK with generalized conjugate residual linear solver. Approximate Jacobian for preconditioning -> variable preconditioner. Compared with a simple implicit defect-correction approach with first-order Jacobian and Gauss-Seidel linear solver.
 %JFNK is faster and uses less CPU time than IDC.
 % NOT JFNK: \citet{Nishikawa2019} pseudo time with adaptive time-step based on the NR residuals. Linear systems solved by Gauss-Seidel relaxation scheme.
@@ -292,7 +294,7 @@ The displacement increment is the change in displacement between the current tim
 
 The governing equations are complemented by boundary conditions, with three types considered here: prescribed displacement, prescribed traction, and symmetry.
 The definition of the engineering stress ($\bb{\sigma}_s$) and true stress ($\bb{\sigma}$) in Equations \ref{eqn:momentum_lingeom}, \ref{eqn:momentum_TL} and \ref{eqn:momentum_UL} is given by a chosen mechanical law.
-Five mechanical laws are considered in this work, as briefly outlined in Appendix \ref{app:mechLaws}: linear elasticity (Hooke's law), St.\,Venant-Kirchhoff hyperelasticity, neo-Hookean hyperelasticity, Guccione hyperelasticity, and neo-Hookean $J_2$ hyperelastoplasticity.
+Five mechanical laws are considered in this work, as briefly outlined in Appendix \ref{app:mechLaws}: linear elasticity (Hooke's law), three forms of hyperelasticity (St.\,Venant-Kirchhoff, neo-Hookean, and Guccione), and neo-Hookean $J_2$ hyperelastoplasticity.
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
@@ -354,7 +356,7 @@ The components of the $N \times N$ Jacobian are
 	{J}_{ij} = \frac{\partial {R}_i (\bb{u})}{\partial u_j}
 \end{eqnarray}
 
-In the current work, we are interested in vector problems, where the governing momentum equation is formulated in terms of the unknown displacement solution vector.
+The current work focusses on vector problems, where the governing momentum equation is formulated in terms of the unknown displacement solution vector.
 In this case, Equation \ref{eq:J} refers to the individual scalar components of the residual, solution, and Jacobian.
 That is, for 3-D analyses, the residual takes the form
 \begin{eqnarray}
@@ -627,7 +629,7 @@ In addition, no stabilisation term is applied on a traction boundary face $t_i$.
 
 Within the square braces on thr right-hand side of Equation \ref{eq:RhieChow}, the first terms represent a compact stencil (two-node) approximation of the face normal gradient, while the second terms represent a larger stencil approximation.
 These two terms cancel out in the limit of mesh refinement (or if the solution varies linearly); otherwise, they produce a stabilisation effect that tends to smooth the solution fields.
-As the term reduces at a third-order \hl{or second?} rate, it does not affect the overall scheme's second-order accuracy; the 1-D local truncation error is derived for this Rhie-Chow stabilisation term in Appendix \ref{app:RhieChow}.
+The magnitude of the stabilisation is shown in Appendix \ref{app:RhieChow} to reduce at a second-order rate (not a third-order rate as stated previously \citep{Demirdzic1995}), and hence does not affect the overall scheme's second-order accuracy.
 
 %All dependent variables must be specified at the initial time.
 
@@ -777,22 +779,21 @@ The linearised system (Equation \ref{eq:Seg}) is formed for each cell in the dom
 \begin{eqnarray} \label{eq:SegSys}
     \left[ \bb{\tilde{J}} \right]  \; \left[ \delta \bb{u} \right] = - \left[\bb{R}(\bb{u}_n)\right]
 \end{eqnarray}
-where $\left[ \bb{\tilde{J}} \right]$ is a symmetric, $M \times M$ stiffness matrix, where $M = 3|\mathcal{P}|$ in 3-D and $M = 3|\mathcal{P}|$ in 2-D.
-In addition, if $\Delta t < \infty$ or $\mathcal{F}^{\text{disp}}_P \neq \emptyset$, matrix $\left[ \bb{\tilde{J}} \right]$ is strongly diagonally dominant.
+where $\left[ \bb{\tilde{J}} \right]$ is a symmetric, $M \times M$ stiffness matrix, where $M = 3|\mathcal{P}|$ in 3-D and $M = 2|\mathcal{P}|$ in 2-D.
+If $\Delta t < \infty$ or $\mathcal{F}^{\text{disp}}_P \neq \emptyset$, matrix $\left[ \bb{\tilde{J}} \right]$ is strongly diagonally dominant; otherwise, it is weakly diagonally dominant.
 The block ($3\times3$ for 3-D, $2\times2$ for 2-D) diagonal coefficient for cell $P$ (row $P$, column $P$) can be expressed as
 \begin{eqnarray}
 	 \left[ \tilde{\bb{J}}\right]_{PP} &=&
-		\left[
 		- \sum_{f_i \in \mathcal{F}^{\text{int}}_P}  \bar{K}
 		\frac{ \left|\bb{\Delta}_{f_i} \right| }{\left|\bb{d}_{f_i}\right|}    \left|\bb{\Gamma}_{f_i}\right| \textbf{I} 
 	    \quad-  \sum_{d_i \in \mathcal{F}^{\text{disp}}_P}  \bar{K}
 %		\left|\bb{\Delta}_{d_i} \right| \left( \ \frac{ \bar{\bb{u}}_{d_i} - \bb{u}_P}{\left|\bb{d}_{d_i}\right|}  \right) 
 		 \frac{ \left|\bb{\Delta}_{d_i} \right| }{\left|\bb{d}_{d_i}\right|} 
-		\left|\bb{\Gamma}_{d_i}\right| \textbf{I} \right. \notag \\
-	 &&\quad - \left. \sum_{s_i \in \mathcal{F}^{\text{symm}}_P}  \bar{K}
+		\left|\bb{\Gamma}_{d_i}\right| \textbf{I} \notag \\
+	 &&\quad - \sum_{s_i \in \mathcal{F}^{\text{symm}}_P}  \bar{K}
 		 \frac{ \left|\bb{\Delta}_{s_i} \right|}{\left|\bb{d}_{s_i}\right|}
 		\left|\bb{\Gamma}_{s_i}\right|  \bb{n}_{s_i} \otimes \bb{n}_{s_i} 
-	\quad - \quad \frac{9}{4}  \frac{\rho_P \Omega_P}{\Delta t^2} \textbf{I} \right]
+	\quad - \quad \frac{9}{4}  \frac{\rho_P \Omega_P}{\Delta t^2} \textbf{I}
 \end{eqnarray}
 while the off-diagonal coefficients (row $P$, column $Q$) can be expressed as
 \begin{eqnarray}
@@ -828,7 +829,7 @@ where subscript $PQ$ indicates a quantity associated with the internal face $f$ 
 %\end{eqnarray}
 
 
-By design, matrix $\left[ \bb{\tilde{J}} \right]$  contains no inter-component coupling; consequently, three equivalent smaller linear systems can be formed and solved for the Cartesian components of the displacement correction (or two in 2-D), e.g.
+By design, matrix $\left[ \bb{\tilde{J}} \right]$  contains no inter-component coupling, i.e., each block coefficient is diagonal; consequently, three equivalent smaller linear systems can be formed in 3-D (or two linear systems in 2-D) and solved for the Cartesian components of the displacement correction, e.g.
 \begin{eqnarray} \label{eq:SegSysX}
 %     \bb{\tilde{J}}_x(\bb{u}_n)  \;  \Delta \bb{u}_x = - \mathcal{R}_x(\bb{u}_n) \label{eq:segX} \\
 %     \bb{\tilde{J}}_y(\bb{u}_n)  \;  \Delta \bb{u}_y = - \mathcal{R}_y(\bb{u}_n) \label{eq:segY} \\
@@ -839,11 +840,11 @@ By design, matrix $\left[ \bb{\tilde{J}} \right]$  contains no inter-component c
 \end{eqnarray}
 where $ \bullet_x$ represents the components in the $x$ direction, $ \bullet_y$ represents the components in the $y$ direction, and $ \bullet_z$ represents the components in the $z$ direction.
 Matrices $\left[ \bb{\tilde{J}}_x \right]$, $ \left[ \bb{\tilde{J}}_y\right]$ and $\left[ \bb{\tilde{J}}_z\right]$ have the size $|\mathcal{P}| \times |\mathcal{P}|$.
-An additional benefit from a memory perspective, is that matrices $\left[ \bb{\tilde{J}}_x \right]$, $ \left[ \bb{\tilde{J}}_y\right]$ and $\left[ \bb{\tilde{J}}_z\right]$ are identical, except for the effects from including boundary conditions ($\mathcal{F}^{\text{symm}}_P$ terms).
+An additional benefit from a memory and assembly perspective, is that matrices $\left[ \bb{\tilde{J}}_x \right]$, $ \left[ \bb{\tilde{J}}_y\right]$ and $\left[ \bb{\tilde{J}}_z\right]$ are identical, except for the effects from including boundary conditions ($\mathcal{F}^{\text{symm}}_P$ terms).
 From an implementation perspective, this allows a single scalar matrix to be formed and stored, where the boundary condition contributions are inserted before solving a particular component.
 
 The \emph{inner} linear sparse systems (Equations \ref{eq:segX}, \ref{eq:segY} and \ref{eq:segZ}) can be solved using any typical direct or iterative linear solver approach; however, an incomplete Cholesky pre-conditioned conjugate gradient method \cite{Jacobs1986} is often preferred as the diagonally dominant characteristic leads to good convergence characteristics.
-Algebraic multigrid can be used to accelerate convergence.
+Algebraic multigrid can also be used to accelerate convergence.
 %In non-linear problems, this system of equations is solved multiple times with updated coefficients in a fixed-point iteration scheme. 
 %As noted in previous articles on segregated methods, the inner system need not be solved to a tight tolerance as coefficients and source terms are approximated from the previous increment; a reduction in the residuals of one order of magnitude is typically sufficient. The outer iterations are performed until the predefined tolerance, typically $1 \times 10^{-6}$, has been achieved \cite{cardiff_lagrangian_2017}. 
 %In the current updated Lagrangian approach, the mesh is moved to the deformed configuration at the end of each time step rather than after each outer iteration.
@@ -855,8 +856,8 @@ Algebraic multigrid can be used to accelerate convergence.
 In literature, the segregated solution algorithm is typically formulated in terms of the total displacement vector (or its difference between time steps) as the primary unknown; in contrast, in the quasi-Newton interpretation presented here, the primary unknown is the correction to the displacement vector, which goes to zero at convergence.
 Nonetheless, both approaches are equivalent and neither formulation might be expected to display superior performance.
 
-\hl{Comment: we can solve 31 or 34-36; we are using 31 in PETSc, while the native OF code uses 34-36}
-\hl{We should comment on this}
+%\hl{Comment: we can solve 31 or 34-36; we are using 31 in PETSc, while the native OF code uses 34-36}
+%\hl{We should comment on this}
 %The current procedure is implemented and publicly shared in the solids4foam toolbox of OpenFOAM.
 %\hl{Add a section about code sharing: appendix?}
 %\hl{Comment: we have two implementations of segregated: native OpenFOAM (solves Eqs 16-18) and PETSc SNES (solves Eq 15)}
@@ -872,7 +873,7 @@ Nonetheless, both approaches are equivalent and neither formulation might be exp
 
 %\hl{cite KnollKeyes2004}
 
-As noted in the introduction, the Jacobian-free Newton-Krylov avoids the need to explicitly construct the Jacobian matrix by approximating its action on a solution vector using the finite difference method, repeated here:
+As noted in the introduction, the Jacobian-free Newton-Krylov method avoids the need to explicitly construct the Jacobian matrix by approximating its action on a solution vector using the finite difference method, repeated here:
 \begin{eqnarray} \label{eq:JF}
 	\bb{J} \bb{v} \approx \frac{\bb{F}(\bb{x} + \epsilon \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
 \end{eqnarray}
@@ -923,29 +924,29 @@ Using right preconditioning, the finite difference approximation of Equation \re
 	\frac{\bb{F}(\bb{x} + \epsilon \bb{P}^{-1} \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
 \end{eqnarray}
 where $\bb{P}$ is the preconditioning matrix or process.
-In practice, only the action of $\bb{P}^{-1}$ on a vector is required, and the $\bb{P}^{-1}$ may not be explicitly formed.
+In practice, only the action of $\bb{P}^{-1}$ on a vector is required, and $\bb{P}^{-1}$ need not be explicitly formed.
 Concretely, the preconditioner needs to approximately solve the linear system $\bb{y} = \bb{P}^{-1} \bb{v}$.
 %Thus, while we may refer to the matrix P, operationally the algorithm only requires the action of $P^{-1}$ on a vector.
 
 %\hl{3}
 %- we use approx J to form precon
-%- many precon used in lit, we will consider ILU(N) and MG, where MG is expected to be better, but also LU since direct solvers are popular in FE solid mechanics
+%- many precon used in lit, we will consider ILU($k$) and MG, where MG is expected to be better, but also LU since direct solvers are popular in FE solid mechanics
 In the current work, we propose to use the compact-stencil approximate Jacobian from the segregated algorithm $\tilde{\bb{J}}$ as the preconditioning matrix $\bb{P}$ for the preconditioned Jacobian-free Newton-Krylov method.
 %\hl{Comment on literature: used before but not yet for solids}.
 This preconditioning approach can be considered as a ``physics-based" preconditioner in the classifications of \citet{Knoll2004}.
 The approach is conceptually similar to an approximation of the Jacobian of a higher-order large-stencil scheme by a compact-stencil lower-order scheme.
-A benefit of the proposed approach is that existing segregated frameworks can re-use their existing discretisation and storage implementations.
+A benefit of the proposed approach is that existing segregated frameworks can re-use their existing matrix assembly and storage implementations.
 Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for forming this preconditioning matrix and a procedure for explicitly evaluating the residual.
 Both routines are easily implemented -- and are likely already available -- in an existing segregated framework.
 The only additional required procedure is an interface to an existing Jacobian-free Newton-Krylov implementation.
 %"The motivation behind this approach is that there exist numerous, legacy algorithms to solve nonlinear systems, both IVPs and BVPs. These algorithms typically were developed with some insight into the time scales or physical behavior of the problem. As a benefit of this insight, a reduced implicit system, or a sequence of segregated explicit or implicit systems may be solved in place of the fully coupled system. "
-In the current work, the PETSc package \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018a} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
+In the current work, the PETSc package \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018a} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
 
-Several preconditioners are available in the literature, incomplete Cholesky or ILU(k) being popular; however, multigrid methods offer the greatest potential for large-scale problems.
+Several preconditioners are available in the literature, incomplete Cholesky or ILU($k$) being popular; however, multigrid methods offer the greatest potential for large-scale problems.
 As noted by \citet{Knoll2004}, algorithmic simplifications within a multigrid procedure, which may result in loss of convergence for multigrid as a solver, have a much weaker effect when multigrid is used as a preconditioner.
 In this work, three preconditioners are considered:
 \begin{enumerate}
-	\item ILU(k): incomplete lower-upper decomposition with fill-in k. %The segregated solver uses ILU(0), that is, ILU with zero fill-in.
+	\item ILU($k$): incomplete lower-upper decomposition with fill-in $k$. %The segregated solver uses ILU(0), that is, ILU with zero fill-in.
 	\item Multigrid: the HYPRE Boomerang \citep{hypre} multigrid implementation.
 	\item LU: the MUMPS \citep{MUMPS:1, MUMPS:2} lower-upper decomposition direct solver.
 \end{enumerate}
@@ -958,7 +959,7 @@ Several strategies are possible, and it is common to combine approaches \cite{Kn
 In the current work, a line search procedure is used to select the $s$ parameter in the solution update step (the second line in Equations \ref{eq:NewtonRaphson}).
 Line search methods assume the Newton update direction is correct and aim to find a scalar $s > 0$ that decreases the residual $\bb{R}(\bb{u}_k + s \delta \bb{u}) < \bb{R}(\bb{u}_k)$.
 %The scalar $s$ is typically $\leq 1$, but extrapolation ($>1$) is also possible for accelerating convergence, albeit at the expense of robustness.
-In addition to a line search approach, a \emph{transient continuation} globalisation approach is used in the current work, where the displacement $\bb{u}_P$ for cell $P$ at time $t + \Delta t$ is predicted at the start of a new time step, based on a truncated second-order Taylor series expansion:
+In addition to a line search approach, a \emph{transient continuation} globalisation approach is used in the current work, where the displacement $\bb{u}_P$ for cell $P$ at time $t + \Delta t$ is predicted at the start of a new time (or loading) step, based on a truncated second-order Taylor series expansion:
 \begin{eqnarray} \label{eq:predictor}
 %	\bb{u}^{[t+\Delta t]} = \bb{u}^{[t]} + \Delta t \left(\frac{\partial \bb{u}}{\partial t}\right)^{[t]} + \frac{1}{2} \Delta t^2 \left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)^{[t]}
 	\bb{u}^{[t+\Delta t]}_P = \bb{u}^{[t]}_P + \Delta t \, \bb{v}^{[t]}_P + \frac{1}{2} \Delta t^2 \left( \frac{\partial \bb{v}}{\partial t} \right)^{[t]}_P
@@ -1039,7 +1040,7 @@ The cases have been chosen to exhibit a variety of characteristics in terms of
 
 %In addition, through the analysis of the benchmark cases above, the effect of several parameters will be examined, including the mesh types, Rhie-Chow stabilisation scaling, preconditioner choices, linear solver settings, the effect of globalisation strategies, and multi-CPU-core parallelisation.
 %The performance of the Jacobian-free Newton-Krylov algorithm is compared with that of the segregated algorithm in terms of computational time and memory requirements.
-In all cases, the residuals are dropped by six orders of magnitude unless stated otherwise.
+In all cases, the residuals are dropped by six orders of magnitude. % unless stated otherwise.
 %Metrics from a commercial finite element software (Abaqus) are included for reference \hl{ask Dylan to run Abaqus cases once we have our results}.
 Although the presented analyses aim to be extensive, % but not exhaustive;
 several common features of modern solid mechanics procedures are left for future work, including nonlinear boundary conditions (e.g., contact, fracture) and mixed formulations (e.g., incompressibility). %, where mixed formulations are required. 
@@ -1047,7 +1048,7 @@ several common features of modern solid mechanics procedures are left for future
 The remainder of this section is structured as follows:
 The proposed discretisation's accuracy and order are assessed on several test cases of varying dimensions and phenomena.
 %This demonstrates that the predictions are unaffected by the choice of solution algorithm.
-Subsequently, the efficiency of the Jacobian-free Newton-Krylov approach compared with the standard segregated procedure in terms of time, memory and robustness.
+Subsequently, the efficiency of the Jacobian-free Newton-Krylov approach is compared with the standard segregated procedure in terms of time, memory and robustness. Finally, the effect of preconditioning strategy and stabilisation scaling is examined.
 % and, in some cases, finite element solutions.
 %the effect of several key parameters on the efficiency of the Jacobian-free Newton Krylov approach, including \hl{XXX}.
 
@@ -1110,7 +1111,7 @@ The corresponding manufactured body force term ($\bb{f}_b$  in Equation \ref{eqn
 	\label{fig:mms}
 \end{figure}
 
-The manufactured displacement solution is applied at the domain's boundaries, and inertial effects are neglected.
+The manufactured displacement solution is applied at the domain's boundaries (prescribed displacements), and inertial effects are neglected.
 Three mesh types are examined:
 %(i) \emph{regular} hexahedra, (ii) \emph{distorted} hexahedra, (iii) tetrahedra, and (iv) polyhedra (shown in Figure \ref{fig:mms_mesh}).
 (i) hexahedra, (ii) tetrahedra, and (iii) polyhedra (shown in Figure \ref{fig:mms_mesh}).
@@ -1266,7 +1267,7 @@ Six successively refined hexahedral meshes are used, with cell counts of 45, 472
    \label{fig:elliptic_plate}
 \end{figure}
 
-The predictions for the equivalent (von Mises) stress along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m is shown in Figure \ref{fig:elliptic_plate_sigmaEq}.
+The prediction for the equivalent (von Mises) stress in the domain are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(a), and the values along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(b).
 The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen;
 the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} are likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
 The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\nicefrac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
@@ -1355,7 +1356,7 @@ The initial geometry is defined as a truncated ellipsoid:
 where on the inner (endocardial) surface $r_s =7$ mm, $r_l = 17$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{17} \right) \right]$ and $v \in \left[-\pi, \pi \right]$, while on the outer (epicardial) surface $r_s =10$ mm, $r_l = 20$ mm, $u \in \left[-\pi, -\arccos \left( \frac{5}{20} \right) \right]$ and $v \in \left[-\pi, \pi \right]$.
 The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 %Constitutive parameters: isotropic, 
-The hyperelastic material behaviour is described by the transversely isotropic constitutive law proposed by \citet{Guccione1995} law, where the parameters are $C = 10$ kPa, $b_f = b_t = b_{fs} = 1$; the specified parameters produce isotropic behaviour.
+The hyperelastic material behaviour is described by the transversely isotropic constitutive law proposed by \citet{Guccione1995} law, where the parameters are $C = 10$ kPa, $c_f = c_t = c_{fs} = 1$; the specified parameters produce isotropic behaviour.
 The benchmark specifies an incompressible material; in the current work, incompressibility is enforced weakly using a penalty approach, where the bulk modulus parameter is chosen to be two orders of magnitude greater ($\kappa = 1000$ kPa) than the greatest shear modulus parameter.
 A pressure of 10 kPa is applied to the inner surface, applied here over 100 equal load increments, and the base plane is fixed.
 The geometry is meshed using a structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
@@ -1417,7 +1418,7 @@ The problem is solved quasi-statically, using 30 equally-sized loading increment
    		\includegraphics[scale=1]{figures/cooksMembrane-geometry} 
    	}
    	\qquad
-	\subfigure[Hexahedral mesh with 144 cells]
+	\subfigure[Quadrilateral mesh with 144 cells]
 	{
 		\label{fig:cooks_membrane_mesh}
    		\includegraphics[scale=0.14]{figures/cooksMembrane-mesh}  
@@ -1428,9 +1429,9 @@ The problem is solved quasi-statically, using 30 equally-sized loading increment
 
 The current work considers three forms of the problem:
 \begin{enumerate}[label=\roman*.]
-	\item Small strain linear elastic \cite{Zienkiewicz2000, Simplas}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6250$ Pa.
-	\item Finite strain neo-Hookean hyperelastic \cite{Pelteret2018}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 0.0625$ MPa.
-	\item Finite strain elastoplastic \citep{Simo1992, Simplas, Cesar2001}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
+	\item Small strain, linear elastic \cite{Zienkiewicz2000, Simplas}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6250$ Pa.
+	\item Finite strain, neo-Hookean hyperelastic \cite{Pelteret2018}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 0.0625$ MPa.
+	\item Finite strain, neo-Hookean hyperelastoplastic \citep{Simo1992, Simplas, Cesar2001}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
 \end{enumerate}
 where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is the yield strength, $\bar{\varepsilon}_p$ is the equivalent plastic strain, and $\tau$ is the prescribed shear traction.
 %The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
@@ -1505,7 +1506,7 @@ The reference point is taken as the top right point -- $(48,60)$ mm -- in the el
 %	{
 %		\includegraphics[height=0.35\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
 %	}
-   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}.}
+   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from the literature \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}.}
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
@@ -1534,7 +1535,7 @@ A sudden, constant traction $\bb{T} = \left(0.1, 0.1, 0 \right)$ MPa is applied 
 %In the current study, $\mathcal{F} = 1$.
 A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = 0.04$ m$^2$ and the second moment of area $I = \nicefrac{1}{7\,500}$ m$^4$. %0.0001333
 The geometric and material parameters were chosen for the first natural frequency to be 1 Hz in the small strain limit.
-The magnitude of the applied traction was chosen to ensure significant geometric nonlinearity, with the upper surface of the beam expected to drop below the plane of the lower surface.
+The magnitude of the applied traction was chosen here to ensure significant geometric nonlinearity, with the upper surface of the beam expected to drop below the plane of the lower surface.
 Four succesively refined hexahedral meshes are generated using the OpenFOAM \texttt{blockMesh} utility, with cell counts of 270, $2\,160$, $17\,280$ and $138\,240$.
 %A fixed time step size of 0.001617274174 s is chosen, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
 %A fixed time step size of 1 ms is chosen.
@@ -1645,7 +1646,7 @@ The fluid region meshes have $1\,252$, $5\,008$, and $20\,032$ cells, while the 
 The total simulation time is 20 s, and the time-step size is 0.5 ms. 
 \begin{figure}[htbp]
    \centering
-	\subfigure[Mesh containing $5\,336$ cells in the fluid region and 630 cells in the solid region, where a closeup of the plate is shown in the right]
+	\subfigure[Mesh containing $5\,336$ cells in the fluid region and 630 cells in the solid region]
 	{
    		\includegraphics[width=0.7\textwidth]{figures/hronTurek-mesh}
 	}
@@ -1709,13 +1710,13 @@ while the frequency is calculated as the inverse of the period.
 \label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
 This section compares resource requirements and the robustness of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
-Specifically, time and memory requirements are analysed, and whether the solution approach converged for all meshes and loading steps.
+Specifically, time and memory requirements are analysed, and whether the solution converged for all meshes and loading steps.
 %In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
-In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre \emph{BoomerAMG} multigrid preconditioner for 3-D, unless stated otherwise.
+In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre BoomerAMG multigrid preconditioner for 3-D, unless stated otherwise.
 A restart value of 30 is used for the GMRES solver, where the \emph{loose} variant of the GMRES solver is used, which retains a small number of extra solution vectors across restarts (2 in this case).
-In contrast, The segregated approach used the conjugate gradient linear solver and the Hypre \emph{BoomerAMG} multigrid preconditioner for all cases.
+In contrast, the segregated approach used the conjugate gradient linear solver and the Hypre BoomerAMG multigrid preconditioner for all cases.
 Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
-Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M1 Ultra CPU on one CPU core, where the code was built with the Clang compiler (version 16.0.0).
+Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M1 Ultra CPU on one core, where the code was built with the Clang compiler (version 16.0.0).
 %\hl{Present data for one hardware first, and give comparison after.}
 Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parallelisation}.
 % where several mesh densities are examined.
@@ -1848,20 +1849,20 @@ The maximum memory usage is primarily attributed to the linear solver and precon
 % FSI: m1 = 2.00182; m2 = 2.81157; m3 = 2.89065 
 
 Regarding robustness, the Jacobian-free Newton-Krylov approach converged in all cases bar one, requiring less than five outer Newton iterations on average in all converged cases.
-The only case where the Jacobian-free Newton-Krylov approach failed to converge was for the Membrane iii problem, the only elastoplastic case examined.
-For the failed meshes, they each reached approximately 80\% of the total load before the linear solver diverged.
-The cause of this divergence is likely related to the proposed compact preconditioner matrix, which is formulated based on small \emph{elastic} strains, being a poor approximation of the true Jacobian for large plastic strains.
-Interestingly, convergence problems were not encountered in the hyperelastic cases (Membrane ii, Ventricle, Cantilever, Fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable for such large strain, large rotation hyperelastic cases.
+The only case where the Jacobian-free Newton-Krylov approach failed to converge was for the membrane iii problem, the only elastoplastic case examined.
+For the failed meshes, approximately 80\% of the total load was reached before the linear solver diverged.
+The cause of this divergence is likely related to the proposed compact preconditioner matrix -- which is formulated based on small \emph{elastic} strains -- being a poor approximation of the true Jacobian for large plastic strains.
+Interestingly, convergence problems were not encountered in the hyperelastic cases (membrane ii, ventricle, cantilever, fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable for such large strain, large rotation hyperelastic cases.
 %Potentially, modifying the compact preconditioner matrix to account for plasticity would allow the method to work in the failed cases, but this will be left for future studies.
-In contrast, the segregated approach—which uses the same matrix—had no problems with the elastoplastic case (Membrane iii) but failed to converge on two of the hyperelastic cases (Ventricle, Cantilever).
+In contrast, the segregated approach -- which uses the same matrix -- had no problems with the elastoplastic case (membrane iii) but failed to converge on two of the hyperelastic cases (ventricle, cantilever).
 In both cases where the segregated approach failed, large elastic strains and large rotations were observed, and the segregated solver failed in the early time steps.
 It is interesting to note that the same linear elastic preconditioner matrix works well with the Jacobian-free Newton-Krylov approach for hyperelastic cases but not for the segregated approach, while the opposite is true for elastoplastic cases.
 
 Regarding geometric dimension, the same general trends are observed in 2-D and 3-D, with no major distinctions in behaviour.
 The same can be said for geometric nonlinearity (small strain vs. large strain) with similar speed-ups for both linear elastic and hyperelastic cases.
-One observation worth highlighting is the relatively lower speed for the method of manufactured solutions case (3-D, linear elastic): a possible explanation is that the segregated approach has previously been seen to be efficient on geometry with low aspect ratios (ratio of maximum to minimum dimensions);
+One observation worth highlighting is the lower speedup seen for the method of manufactured solutions case (3-D, linear elastic): a possible explanation is that the segregated approach has previously been seen to be efficient on geometry with low aspect ratios (ratio of maximum to minimum dimensions);
 in this case, the aspect ratio is at its minimum (unity).
-In contrast, in other 3-D, linear elastic cases (Elliptic plate, Narrow T-Member, Membrane i, Turbine), the aspect ratios are greater than unity, and the segregated approach performs worse relative to the Jacobian-free Newton-Krylov approach. 
+In contrast, in the other 3-D linear elastic cases (elliptic plate, membrane i), the aspect ratios are greater than unity, and the segregated approach performs worse relative to the Jacobian-free Newton-Krylov approach. 
 
 
 %\hl{Comment on the effect of items in list at the start of this section}
@@ -1905,19 +1906,18 @@ In contrast, in other 3-D, linear elastic cases (Elliptic plate, Narrow T-Member
 \subsection{Effect of the Preconditioner Choice}
 \label{sec:preconditioner}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section examines the effect of preconditioning procedure choice on the performance of the Jacobian-free Newton Krylov approach.
+This section examines the effect of preconditioning strategy on the performance of the Jacobian-free Newton Krylov approach.
 %In addition, the effect of the restart parameter for the GMRES linear solver is also examined.
 Three choices of preconditioning procedure are compared:
 \begin{itemize}
 	\item \textbf{LU} - The \emph{MUltifrontal Massively Parallel sparse direct Solver} (MUMPS) \citep{MUMPS:1, MUMPS:2} LU decomposition direct solver. A direct solver is expected to be the more robust but may suffer from excessive time and memory requirements for larger numbers of unknowns.
-	\item \textbf{ILU(N)} - Incomplete LU decomposition with $N$ fill-in. ILU(N) is expected to have lower memory requirements than the LU direct solver but at the expense of robustness.
-	As the system of unknowns becomes larger, the number of ILU(N) iterations is expected to increase. As the fill-in factor $N$ increases, ILU(N) approaches the robustness of a LU direct solver. In the current section, $N = 5$ for all cases examined.
+	\item \textbf{ILU($k$)} - Incomplete LU decomposition with $k$ fill-in. ILU($k$) is expected to have lower memory requirements than the LU direct solver but at the expense of robustness.
+	As the system of unknowns becomes larger, the number of ILU($k$) iterations is expected to increase. As the fill-in factor $k$ increases, ILU($k$) approaches the robustness of a LU direct solver. In the current section, $k = 5$ for all cases examined.
 	\item \textbf{Algebraic multigrid} - The Hypre Boomerang \citep{hypre} parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near linear scaling of time and memory requirements.
 \end{itemize}
 
 An additional consideration when selecting a preconditioner is its ability to scale in parallel as the number of CPU cores increases.
-From this perspective, the iterative approaches (ILU(N) and multigrid) are expected to show better parallel scaling than direct methods (LU).
-Analysis of this point is left to Section \ref{sec:parallelisation}.
+From this perspective, the iterative approaches (ILU($k$) and multigrid) are expected to show better parallel scaling than direct methods (LU), a point that is briefly examined in Section \ref{sec:parallelisation}.
 
 The preconditioning approaches are compared in three cases: membrane i (2-D, linear elastic), elliptic plate (3-D, linear elastic), and idealised ventricle (3-D, hyperelastic).
  Figure \ref{fig:times_memory} compares the clock times and maximum memory requirements for the three preconditioning approaches as a function of degrees of freedom.
@@ -1926,11 +1926,11 @@ The LU approach was found to be up to $5.4 \times$ faster in the membrane i case
 In contrast, the multigrid was up to $1.4 \times$ faster than the LU approach in the elliptic plate case.
 %A potential explanation for why LU approach was faster in the membrane i and idealised ventricle
 % for the elliptic plate case
-The ILU(5) approach is seen to be slowest in all cases, in addition, the ILU(5) approach diverged on the idealised ventricle finest mesh.
+The ILU(5) approach is seen to be slowest in all cases, in addition, the ILU(5) approach diverged on the idealised ventricle finest mesh; lower values of fill-in $k$ were found to cause divergence to occur earlier in the idealised ventricle case.
 
 Regarding memory usage, below approximately $50$ k degrees of freedom, the memory usage is the same for all three approaches (approximately $80$ MB), corresponding to the solver's minimum memory overhead.
 For greater numbers of degrees of freedom, the LU approach uses the greatest amount of memory for both 3-D cases (idealised ventricle, elliptic plate), while the ILU(5) uses the least.
-In contrast, the LU approach uses the smallest amount of memory for the 2-D case (membrane i) mesh densities examined.
+In contrast, the LU approach uses the smallest amount of memory for the 2-D cases (membrane i) examined.
 The rate of memory increase is seen to be much steeper for the LU approach on the 3-D cases than the multigrid and ILU(5) approaches, with the LU results for the finest meshes not shown as they required more than the maximum available memory (64 GB).
 %\begin{itemize}
 %	\item \hl{Ventricle finesh mesh: ILU5 diverges and LU requires too much memory}
@@ -1989,7 +1989,7 @@ The rate of memory increase is seen to be much steeper for the LU approach on th
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Effect of Rhie-Chow Stabilisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section highlights the effect of the choice of the global scaling factor $\alpha$ in the Rhie-Chow stabilisation (Equation \ref{eq:RhieChow}) on the performance of the proposed Jacobian-free Newton Krylov method.
+This section highlights the impact of the global scaling factor $\alpha$ in the Rhie-Chow stabilisation (Equation \ref{eq:RhieChow}) on the performance of the proposed Jacobian-free Newton Krylov method.
 As described in Section \ref{sec:discretisation}, the stabilisation term is introduced to quell zero-energy modes (oscillations) in the discrete solution, such as checkerboarding.
 As the amount of stabilisation increases (increasing $\alpha$), these numerical modes are quelled, and the solution stabilises; however, at some point, further increases in the amount of stabilisation reduce the accuracy of the discretisation due to over-smoothing.
 A less obvious consequence of changing the stabilisation magnitude is its effect on the convergence of the linear solver in the Jacobian-free Newton-Krylov solution procedure.
@@ -2108,11 +2108,10 @@ In all cases, the number of iterations are seen to increase as the number of deg
 In this final analysis, the multi-CPU-core parallel scaling performance of the proposed Jacobian-free Newton Krylov method is compared with the segregated approach.
 A \emph{strong} scaling study is performed, where the clock time to solve a fixed-size problem is measured as the number of CPU cores is increased.
 The elliptic plate (3-D, linear elastic) mesh with $2\,438\,242$ cells is chosen for the scaling analysis.
-Parallelisation adopts the domain decomposition approach, where the mesh is decompose into one sub-domain for each CPU core.
+Parallelisation adopts the standard OpenFOAM domain decomposition approach, where the mesh is decomposed into one sub-domain for each CPU core.
 In the current work, the Scotch decomposition approach \citep{Pellegrini2012} is employed.
 The Jacobian-free Newton Krylov approach uses the GMRES linear solver where the performance of the multigrid and LU preconditioners are compared.
-The segregated approach uses the conjugate gradient solver with the incomplete (zero in fill) Cholesky preconditioner.
-The performance of the LU preconditioner 
+The segregated approach uses the conjugate gradient solver with the incomplete (zero in-fill -- $k = 0$) Cholesky preconditioner.
 The cases are run on the Meluxina high-performance computing system, where each standard computing node contains $2\times$ AMD EPYC Rome 7H12 64c 2.6GHz CPUs with 512 GB of memory.
 In the current study, the number of CPU cores are varied from 1 to $1\,048$ ($\left[ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1\,048 \right]$).
 In the ideal case, the speedup should double when the number of cores is doubled; in reality, inter-CPU-core communication reduces the parallel scaling efficiency below the ideal.
@@ -2133,9 +2132,9 @@ Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup $S$, 
 The Jacobian-free Newton-Krylov approach with the multigrid preconditioner is found to be the fastest by almost an order of magnitude over the segregated approach and the Jacobian-free Newton-Krylov approach with LU preconditioner.
 The times for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches using 1, 2, and 4 cores were not recorded due to the excessive times.
 For all approaches the speedup is seen to increase at an approximately ideal rate up to 128 cores, after which the speedup continues to increase but at a lower rate.
-At 128 cores (corresponding to one node), the number of cells per core is approximately 19 thousand; increasing the number of cores beyond 128 likely shows a less than ideal scaling for two reasons: (i) the number of cells per core is becoming small relative to the amount of inter-core communication, and (ii) inter-node communication is likely slower than intra-node communication.
-The segregated and Jacobian-free Newton-Krylov LU preconditioner approaches produce their fastest predictions at 512 cores, while the Jacobian-free Newton-Krylov multigrid preconditioner approaches continues to speedup up to the maximum number of cores tested ($1\,048$), albeit $1\,048$ cores is just $2\times$ faster than 128 cores.
-At $1\,048$ cores, there is approximately almost $2.5$k cells per core and the inter-core communication is expected to be significant.
+At 128 cores (corresponding to one full computing node), the number of cells per core is approximately 19 k; increasing the number of cores beyond 128 likely shows a less than ideal scaling for two reasons: (i) the number of cells per core is becoming small relative to the amount of inter-core communication, and (ii) inter-node communication is likely slower than intra-node communication.
+The segregated and Jacobian-free Newton-Krylov LU preconditioner approaches produce their fastest predictions at 512 cores, while the Jacobian-free Newton-Krylov multigrid preconditioner approach continues to speedup up to the maximum number of cores tested ($1\,048$), albeit $1\,048$ cores is just $2\times$ faster than 128 cores.
+At $1\,048$ cores, there is approximately 2.5 k cells per core and the inter-core communication is expected to be significant.
 In Figure \ref{fig:parallelisation_strong}(b), the time required for 1 core has been estimated for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches as $8 \times$ the time required for 8 cores; consequently, the absolute values of speedup should be ignored (or carefully interpretted) and instead the trend is of greater value.
 \begin{figure}[htbp]
 	\centering
@@ -2183,7 +2182,7 @@ The difference in performance can be primarly attributed to two factors: (i) the
 %%		\includegraphics[width=0.2\textwidth]{./figures/parallel_weak_efficiency.pdf}
 %   		\includegraphics[width=0.2\textwidth]{figures/placeholder.pdf} 
 %   	}
-%	\caption{Weak parallel scaling study comparing the performance of three preconditioning strategies: a LU direct solver, and ILU(N) and multigrid iterative solvers}
+%	\caption{Weak parallel scaling study comparing the performance of three preconditioning strategies: a LU direct solver, and ILU($k$) and multigrid iterative solvers}
 %	\label{fig:parallelisation_weak}
 %\end{figure}
 
@@ -2204,15 +2203,15 @@ A Jacobian-free Newton-Krylov solution algorithm has been proposed for solid mec
 A compact-stencil discretisation of the diffusion term is proposed as the preconditioner matrix, allowing a straightforward extension of existing segregated solution frameworks.
 The key conclusions of the work are:
 \begin{itemize}
-	\item \textbf{Efficiency of Jacobian-free Newton-Krylov approach}: The proposed Jacobian-free Newton-Krylov solution algorithm has been shown to be faster than a conventional segregated solution algorithm for all linear and nonlinear test cases examined, if convergence was achieved. In particular, speedups of one order of magnitude were seen in many cases, with a maximum speedup of over 200 in the 2-D linear elastic Cook's membrane case.
+	\item \textbf{Efficiency of Jacobian-free Newton-Krylov approach}: The proposed Jacobian-free Newton-Krylov solution algorithm has been shown to be faster than a conventional segregated solution algorithm for all linear and nonlinear elastic test cases examined. In particular, speedups of one order of magnitude were seen in many cases, with a maximum speedup of over 200 in the 2-D linear elastic Cook's membrane case.
 
 	\item \textbf{No additional memory overhead}: The Jacobian-free Newton-Krylov approach has been shown to have approximately the same memory requirements as a segregated solution algorithm, assuming a similar preconditioning approach is adopted, e.g. multigrid.
 	
-	\item \textbf{Applicability to existing segregated frameworks}: By employing a compact-stencil diffusion approximation of the Jacobian as the preconditioner, the proposed Jacobian-free Newton-Krylov approach method can be integrated into existing segregated finite volume frameworks with minimal modifications to the existing code base, in particular if existing publicly available Jacobian-free Newton-Krylov solvers (e.g., PETSc) are used.
+	\item \textbf{Applicability to existing segregated frameworks}: By employing a compact-stencil diffusion approximation of the Jacobian as the preconditioner, the proposed Jacobian-free Newton-Krylov approach can be integrated into existing segregated finite volume frameworks with minimal modifications to the existing code base, in particular if existing publicly available Jacobian-free Newton-Krylov solvers (e.g., PETSc) are used.
 
 %	\item \textbf{Benchmark performance}: On a range of benchmark cases, the method maintained accuracy and robustness across different dimensions, geometries, and material behaviours, proving its versatility.
 
-	\item \textbf{Choice of preconditioning approach}: It has been shown that the LU direct solver preconditioning approach is faster than multigrid and ILU(N) approaches for 2-D cases and moderately-sized 3-D problems; however, for larger 3-D problems the multigrid approach is the fastest while also requiring less memory than the direct LU approach. In addition, the multigrid approach is seen to show approximate ideal scaling in a parallel strong scaling study.
+	\item \textbf{Choice of preconditioning approach}: It has been shown that the LU direct solver preconditioning approach is faster than multigrid and ILU($k$) approaches for 2-D cases and moderately-sized 3-D problems; however, for larger 3-D problems the multigrid approach is the fastest while also requiring less memory than the direct LU approach. In addition, the multigrid approach is seen to show approximate ideal scaling in a parallel strong scaling study.
 	
 	\item \textbf{Rhie-Chow stabilisation}: The magnitude of the Rhie-Chow stabilisation term is shown to affect the speed and robustness of the Jacobian-free Newton-Krylov approach, where $\alpha = 0.1$ and $1$ are seen to outperform $\alpha = 0.01$.
 
@@ -2229,13 +2228,13 @@ The key conclusions of the work are:
 
 The presented study highlights the potential of the Jacobian-free Newton-Krylov method in finite-volume solid mechanics simulations, yet several areas for future exploration remain:
 \begin{enumerate}
-	\item{Enhanced preconditioning for plasticity}: While the proposed \emph{elastic} compact-stencil preconditioning matrix has been shown to perform well in linear and nonlinear elastic scenarios, it fails in cases exhibiting plasticity, where a segregated approach suceeds. Future studies will explore modifications to the compact preconditioning matrix to extend the applicability of the proposed approach to small and large strain elastoplasticity.
+	\item{Enhanced preconditioning for plasticity}: While the proposed \emph{elastic} compact-stencil preconditioning matrix has been shown to perform well in linear and nonlinear elastic scenarios, it fails in cases exhibiting plasticity, where a segregated approach succeeds. Future studies will explore modifications to the compact preconditioning matrix to extend the applicability of the proposed approach to small and large strain elastoplasticity.
 
 	\item{Incorporation of non-orthogonality in the preconditioner}: The current preconditioning matrix does not account for non-orthogonal contributions in distorted meshes. Including these effects in future work could further enhance convergence behaviour and accuracy, particularly for complex geometries.
 
 	\item{Comparison with full Jacobian approaches}: A comparison with a fully coupled Jacobian-based method would provide greater insights into the trade-offs between computational cost, memory usage, and convergence performance. Such a study could highlight the specific advantages of the Jacobian-free Newton-Krylov approach for large-scale, nonlinear problems.
 
-	\item{Globalisation strategies}: The robustness and efficiency of the proposed Jacobian-free Newton-Krylov approach could be improved for nonlinear problems by using a segregated approach as an initialisation phase for each loading step. In its current form, the segregated approach would not be suitable as it is less robust on several nonlinear hyperelastic problems; however, modifications such as introducing pseudo-time-stepping, may enhance its robustness and suitability for these scenarios.
+	\item{Globalisation strategies}: The robustness and efficiency of the proposed Jacobian-free Newton-Krylov approach could be improved for nonlinear problems by using a segregated approach as an initialisation phase for each loading step. In its current form, the segregated approach would not be generally suitable as it is less robust on several nonlinear hyperelastic problems; however, modifications such as introducing pseudo-time-stepping, may enhance its robustness and suitability for these scenarios.
 
 	\item{Higher-order discretisations}: Future work will explore the application of the proposed linear elastic compact-stencil Jacobian-free Newton-Krylov approach to higher-order finite volume discretisations. Using the same compact-stencil preconditioning matrix for these discretisations could yield efficient and accurate solutions for problems requiring increased fidelity.
 
@@ -2466,11 +2465,11 @@ Substituting the expressions above (Equations \ref{eq:taylor_series_1d}) for the
 	&=& 	\frac{\alpha \bar{K}}{4 \Delta x}	\left[ 16\frac{\Delta x^3}{3!} \left( \bb{\nabla}^3 \bb{U} \right)_P  + O(\Delta x^4) \right] \notag \\
 	&=& 	\frac{2}{3} \alpha \bar{K}  \Delta x^2 \left( \bb{\nabla}^3 \bb{U} \right)_P  + O(\Delta x^3)
 \end{eqnarray}
-
-\hl{The leading truncation error is proportional to $\Delta x^2$!}
-It is stated to be third order in \emph{Demirdzic and Muzaferija (1995), Numerical method for coupled fluid flow, heat transfer and stress analysis using unstructured moving meshes with cells of arbitrary topology, Comput. Methods Appl. Mech. Engrg. 125 (1995) 235-255.}
-\hl{Did I make a mistake...?}
-\hl{2nd order is fine for a second order scheme, but it would be good to clarify this point}
+showing the leading truncation error term to reduce at a second order rate as $\Delta x$ is reduced.
+%\hl{The leading truncation error is proportional to $\Delta x^2$!}
+%It is stated to be third order in \emph{Demirdzic and Muzaferija (1995), Numerical method for coupled fluid flow, heat transfer and stress analysis using unstructured moving meshes with cells of arbitrary topology, Comput. Methods Appl. Mech. Engrg. 125 (1995) 235-255.}
+%\hl{Did I make a mistake...?}
+%\hl{2nd order is fine for a second order scheme, but it would be good to clarify this point}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
