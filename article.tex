@@ -91,21 +91,21 @@ textheight=24cm, % llncs has 19.3cm
 
 \author*[1,2,3]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
 \author[4]{\fnm{Ivan} \sur{Batisti\'{c}}}
-\author[5]{\fnm{Hiroaki} \sur{Nishikawa}}
+%\author[5]{\fnm{Hiroaki} \sur{Nishikawa}}
 \author[4]{\fnm{\v{Z}eljko} \sur{Tukovi\'{c}}}
 
 \affil*[1]{\orgdiv{School of Mechanical and Materials Engineering}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[3]{\orgdiv{SFI I-Form Centre}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[4]{\orgdiv{Faculty of Mechanical Engineering and Naval Architecture}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
-\affil[5]{\orgname{National Institute of Aerospace}, \orgaddress{\country{Hampton, VA 23666, USA}}}
+%\affil[5]{\orgname{National Institute of Aerospace}, \orgaddress{\country{Hampton, VA 23666, USA}}}
 
 
 
 \abstract
 {
 This study investigates the efficacy of Jacobian-free Newton-Krylov methods in finite-volume solid mechanics. Traditional Newton-based approaches require explicit Jacobian matrix formation and storage, which can be computationally expensive and memory-intensive.
-In contrast, Jacobian-free Newton-Krylov methods approximate the Jacobian’s action using finite differences, combined with Krylov subspace solvers such as GMRES, enabling seamless integration into existing segregated finite-volume frameworks without major code refactoring.
+In contrast, Jacobian-free Newton-Krylov methods approximate the Jacobian’s action using finite differences, combined with Krylov subspace solvers such as the generalised minimal residual method (GMRES), enabling seamless integration into existing segregated finite-volume frameworks without major code refactoring.
 This work benchmarks the performance of a compact-stencil Jacobian-free Newton-Krylov method against a conventional segregated approach on a suite of test cases, encompassing varying geometric dimensions, nonlinearities, dynamic responses, and material behaviours.
 Key metrics, including computational cost, memory efficiency, and robustness, are evaluated, along with the influence of preconditioning strategies and stabilisation scaling.
 Results show that the proposed Jacobian-free Newton-Krylov method outperforms the segregated approach in all linear and nonlinear elastic cases, achieving order-of-magnitude speedups in many instances; however, divergence is observed in elastoplastic cases, highlighting areas for further development.
@@ -143,7 +143,7 @@ Consequently, similar block-coupled solution finite volume methods are rare in t
 The motivation of the current work is to seek the robustness and efficiency of block-coupled Newton-Raphons approaches in a way that can be easily incorporated into existing segregated solution frameworks.
 To this end, the current article examines the efficacy of \emph{Jacobian-free} Newton-Krylov methods, where the quadratic convergence of Newton methods can potentially be achieved without deriving, assembling and storing the exact Jacobian.
 
-Jacobian-free Newton-Krylov methods circumvent the need for the Jacobian matrix by combining the Newton-Raphson method with Krylov subspace iterative linear solvers, such as GMRES, and noticing that such Krylov solvers do not explicitly require the Jacobian matrix.
+Jacobian-free Newton-Krylov methods circumvent the need for the Jacobian matrix by combining the Newton-Raphson method with Krylov subspace iterative linear solvers, such as the generalised minimal residual method (GMRES), and noticing that such Krylov solvers do not explicitly require the Jacobian matrix.
 Instead, only the action of the Jacobian matrix on a solution-type vector is required.
 The key step in Jacobian-free Newton-Krylov methods is the approximation of products between the Jacobian matrix and a vector using the finite difference method; that is
 \begin{eqnarray}
@@ -270,24 +270,24 @@ Two equivalent nonlinear geometry forms are common: the \emph{total} Lagrangian 
 \begin{eqnarray} \label{eqn:momentum_TL}
     \int_{\Omega_o} \rho_o \frac{\partial^2 \bb{u} }{\partial t^2} d\Omega_o
     =
-    \oint_{\Gamma_o} \left( J \bb{F}^{-T} \cdot \bb{n}_o \right) \cdot \bb{\sigma} \ d\Gamma_o
+    \oint_{\Gamma_o} \left( J \bb{F}^{-\text{T}} \cdot \bb{n}_o \right) \cdot \bb{\sigma} \ d\Gamma_o
     + \int_{\Omega_o}  \bb{f}_b \, d\Omega_o
 \end{eqnarray}
 and the \emph{updated} Lagrangian form:
 \begin{eqnarray} \label{eqn:momentum_UL}
     \int_{\Omega_u} \frac{\partial }{\partial t} \left( \rho_u \frac{\partial \bb{u} }{\partial t} \right) d\Omega_u
-    = \oint_{\Gamma_u}(j\bb{f}^{-T}\cdot{\bb{n}_u)\cdot \bb{\sigma}}\ d\Gamma_u
+    = \oint_{\Gamma_u}(j\bb{f}^{-\text{T}}\cdot{\bb{n}_u)\cdot \bb{\sigma}}\ d\Gamma_u
     + \int_{\Omega_u}  \bb{f}_b \, d\Omega_u
 \end{eqnarray}
 where subscript $o$ indicates quantities in the initial reference configuration, and subscript $u$ indicates quantities in the updated configuration.
 The true (Cauchy) stress tensor is indicated by $\bb{\sigma}$.
-The deformation gradient is defined as $\bb{F} = \textbf{I} + (\bb{\nabla} \bb{u})^T$ and its determinant as $J = \text{det}(\bb{F})$.
-Similarly, the \emph{relative} deformation gradient is given in terms of the displacement \emph{increment} as $\bb{f}=\textbf{I} + \left[\bb{\nabla}(\Delta \bb{u}) \right]^T$ and its determinant as $j = \text{det}(\bb{f})$.
+The deformation gradient is defined as $\bb{F} = \textbf{I} + (\bb{\nabla} \bb{u})^{\text{T}}$ and its determinant as $J = \text{det}(\bb{F})$.
+Similarly, the \emph{relative} deformation gradient is given in terms of the displacement \emph{increment} as $\bb{f}=\textbf{I} + \left[\bb{\nabla}(\Delta \bb{u}) \right]^{\text{T}}$ and its determinant as $j = \text{det}(\bb{f})$.
 The displacement increment is the change in displacement between the current time step and the previous time step when the time interval is discretised into a finite number of steps.
 
 %The two forms are connected through Nanson’s formula \cite{bathe_finite_1996}, which relate the deformed area vector $\bb{\Gamma}$ with the initial area vector $\bb{\Gamma}_{o}$:
 %\begin{equation}
-%    \bb{\Gamma} = J\bb{F}^{-T}\cdot\bb{\Gamma}_o
+%    \bb{\Gamma} = J\bb{F}^{-\text{T}}\cdot\bb{\Gamma}_o
 %\end{equation}
 %Although the total Lagrangian approach is a viable option for wire drawing, the current work adopts the updated Lagrangian approach as developing Eulerian-type upstream and downstream conditions (Section \ref{sec:euler_BCs}) is conceptually easier in an updated Lagrangian formulation.
 
@@ -324,7 +324,7 @@ In Newton-type methods, a Taylor expansion about a current point $\bb{u}_k$ can 
 \end{eqnarray}
 Neglecting the higher-order terms ($\text{H.O.T.}$) yields the strict Newton method in terms of an iteration over a sequence of linear systems: 
 \begin{eqnarray} \label{eq:NewtonRaphson}
-	\bb{J}(\bb{u}_k) \delta \bb{u} &=& -\bb{R}(\bb{u}_n), \notag \\
+	\bb{J}(\bb{u}_k) \delta \bb{u} &=& -\bb{R}(\bb{u}_k), \notag \\
 	\bb{u}_{k+1} &=& \bb{u}_k + s \, \delta \bb{u}, \notag \\
 	\quad
 	k &=& 0,1,...
@@ -344,7 +344,7 @@ Starting the Newton procedure requires the specification of $\bb{u}_0$.
 %\end{eqnarray}
 %where subscript $n$ indicates the outer (Newton) iteration index.
 The scalar $s > 0$ can be chosen to improve convergence, for example, using a line search or under-relaxation/damping procedure, and is equal to unity in the classic Newton-Raphson approach.
-Iterations are performed over this system until the residual $\bb{R}(\bb{u}_n)$ and solution correction $\delta \bb{u}$ are sufficiently small, with appropriate normalisation.
+Iterations are performed over this system until the residual $\bb{R}(\bb{u}_k)$ and solution correction $\delta \bb{u}$ are sufficiently small, with appropriate normalisation.
 
 %\hl{$\Delta u$: we are using in two ways: increment and correction. Fix this!}
 %\hl{KnollKeyes give a nice concise description of Newton: check}
@@ -415,7 +415,7 @@ For convenience, we will also define the set of all faces of cell $P$ excluding 
 %	\subfigure[Magnitude of the manufactured displacement solution]
 %	{
 %		\label{fig:mms_solution}
-   		\includegraphics[height=0.45\textwidth]{figures/cell} 
+   		\includegraphics[width=\textwidth]{figures/cell} 
 %   	}
 %	\subfigure[Polyhedral mesh with $1\,000$ cells]
 %	{
@@ -465,7 +465,7 @@ Similarly, the body force term (e.g. the second term on the right-hand side of E
 	\rho_P \, \bb{g}\,  \Omega_P
 \end{eqnarray}
 %where subscript $P$ indicates a quantity at the cell centre.
-The discretisation of the acceleration in Equation \ref{eq:inertia} can be achieved using one of many finite difference schemes, e.g. first-order Euler, second-order backwards, second-order Newmark-beta.
+The discretisation of the acceleration in Equation \ref{eq:inertia} can be achieved using one of many finite difference schemes, e.g. first-order Euler, second-order backwards, or second-order Newmark-beta.
 In the current work, the second-order backwards (BDF2) scheme is used:
 %\begin{eqnarray}
 %	 \left(\frac{\partial^2 \bb{u} }{\partial t^2}\right)_P
@@ -477,7 +477,7 @@ In the current work, the second-order backwards (BDF2) scheme is used:
 	&\approx& \frac{3\boldsymbol{v}_P^{[t+1]} - 4\boldsymbol{v}_P^{[t]} + \boldsymbol{v}_P^{[t-1]}}{2\Delta t} \notag \\
 	&\approx&
 	\frac{3\left( 
-		\frac{3\boldsymbol{u}_P^{[t+1]} - 4\boldsymbol{u}_P^{[t]} + \boldsymbol{u}_P^{[t-1]}}{2\Delta t} 
+		\dfrac{3\boldsymbol{u}_P^{[t+1]} - 4\boldsymbol{u}_P^{[t]} + \boldsymbol{u}_P^{[t-1]}}{2\Delta t} 
 		\right) 
 	- 4\boldsymbol{v}_P^{[t]} + \boldsymbol{v}_P^{[t-1]}}{2\Delta t}
 \end{eqnarray}
@@ -627,7 +627,7 @@ In addition, no stabilisation term is applied on a traction boundary face $t_i$.
 %The first term on the right-hand side is treated implicitly, while the second term - representing non-orthogonal corrections at the face - is treated in a deferred correction manner.
 %The Rhie-Chow stabilisation term, first used for finite volume solid mechanics by  \citet{Demirdzic1995}, consists of the numerical difference between a diffusion (Laplacian) term calculated using compact and larger computational stencils.
 
-Within the square braces on thr right-hand side of Equation \ref{eq:RhieChow}, the first terms represent a compact stencil (two-node) approximation of the face normal gradient, while the second terms represent a larger stencil approximation.
+Within the square braces on the right-hand side of Equation \ref{eq:RhieChow}, the first terms represent a compact stencil (two-node) approximation of the face normal gradient, while the second terms represent a larger stencil approximation.
 These two terms cancel out in the limit of mesh refinement (or if the solution varies linearly); otherwise, they produce a stabilisation effect that tends to smooth the solution fields.
 The magnitude of the stabilisation is shown in Appendix \ref{app:RhieChow} to reduce at a second-order rate (not a third-order rate as stated previously \citep{Demirdzic1995}), and hence does not affect the overall scheme's second-order accuracy.
 
@@ -649,7 +649,7 @@ The magnitude of the stabilisation is shown in Appendix \ref{app:RhieChow} to re
 %\end{eqnarray}
 %which comes from Equation \ref{eq:diffusion}, and 
 %\begin{eqnarray} \label{eq:BCtermsStress}
-%	\int_{\mathrm{\Gamma_b}}(j_b \bb{f}^{-T}_b \cdot \bb{n}_b) \cdot \boldsymbol{\sigma}_b \ d\mathrm{\Gamma_b}
+%	\int_{\mathrm{\Gamma_b}}(j_b \bb{f}^{-\text{T}}_b \cdot \bb{n}_b) \cdot \boldsymbol{\sigma}_b \ d\mathrm{\Gamma_b}
 %\end{eqnarray}
 %which comes from Equation \ref{eq:surfaceStress}, where subscript $b$ indicates a quantity at a boundary face in the updated configuration.
 %
@@ -777,7 +777,7 @@ Nonetheless, as a result, it is expected that the convergence behaviour of the s
 
 The linearised system (Equation \ref{eq:Seg}) is formed for each cell in the domain, resulting in a system of algebraic equations:
 \begin{eqnarray} \label{eq:SegSys}
-    \left[ \bb{\tilde{J}} \right]  \; \left[ \delta \bb{u} \right] = - \left[\bb{R}(\bb{u}_n)\right]
+    \left[ \bb{\tilde{J}} \right]  \; \left[ \delta \bb{u} \right] = - \left[\bb{R}(\bb{u}_k)\right]
 \end{eqnarray}
 where $\left[ \bb{\tilde{J}} \right]$ is a symmetric, $M \times M$ stiffness matrix, where $M = 3|\mathcal{P}|$ in 3-D and $M = 2|\mathcal{P}|$ in 2-D.
 If $\Delta t < \infty$ or $\mathcal{F}^{\text{disp}}_P \neq \emptyset$, matrix $\left[ \bb{\tilde{J}} \right]$ is strongly diagonally dominant; otherwise, it is weakly diagonally dominant.
@@ -834,9 +834,9 @@ By design, matrix $\left[ \bb{\tilde{J}} \right]$  contains no inter-component c
 %     \bb{\tilde{J}}_x(\bb{u}_n)  \;  \Delta \bb{u}_x = - \mathcal{R}_x(\bb{u}_n) \label{eq:segX} \\
 %     \bb{\tilde{J}}_y(\bb{u}_n)  \;  \Delta \bb{u}_y = - \mathcal{R}_y(\bb{u}_n) \label{eq:segY} \\
 %     \bb{\tilde{J}}_z(\bb{u}_n)  \;  \Delta \bb{u}_z = - \mathcal{R}_z(\bb{u}_n) \label{eq:segZ}
-     \left[ \bb{\tilde{J}}_x \right]  \;  \left[ \Delta \bb{u}_x \right] = - \left[ \mathcal{R}_x(\bb{u}_n) \right] \label{eq:segX} \\
-     \left[ \bb{\tilde{J}}_y \right]  \;  \left[ \Delta \bb{u}_y \right] = - \left[ \mathcal{R}_y(\bb{u}_n) \right] \label{eq:segY} \\
-     \left[ \bb{\tilde{J}}_z \right]  \;  \left[ \Delta \bb{u}_z \right] = - \left[ \mathcal{R}_z(\bb{u}_n) \right] \label{eq:segZ}
+     \left[ \bb{\tilde{J}}_x \right]  \;  \left[ \Delta \bb{u}_x \right] = - \left[ \mathcal{R}_x(\bb{u}_k) \right] \label{eq:segX} \\
+     \left[ \bb{\tilde{J}}_y \right]  \;  \left[ \Delta \bb{u}_y \right] = - \left[ \mathcal{R}_y(\bb{u}_k) \right] \label{eq:segY} \\
+     \left[ \bb{\tilde{J}}_z \right]  \;  \left[ \Delta \bb{u}_z \right] = - \left[ \mathcal{R}_z(\bb{u}_k) \right] \label{eq:segZ}
 \end{eqnarray}
 where $ \bullet_x$ represents the components in the $x$ direction, $ \bullet_y$ represents the components in the $y$ direction, and $ \bullet_z$ represents the components in the $z$ direction.
 Matrices $\left[ \bb{\tilde{J}}_x \right]$, $ \left[ \bb{\tilde{J}}_y\right]$ and $\left[ \bb{\tilde{J}}_z\right]$ have the size $|\mathcal{P}| \times |\mathcal{P}|$.
@@ -885,18 +885,18 @@ The derivation of this approximation can be shown for a $2 \times 2$ system as \
 	\frac{\mathbf{F}(\mathbf{x} + \epsilon \mathbf{v}) - \mathbf{F}(\mathbf{x})}{\epsilon}
 	&=&
 	\begin{pmatrix}
-	\frac{F_1 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_1 (x_1, x_2)}{\epsilon}\\
-	\frac{F_2 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_2 (x_1, x_2)}{\epsilon}
+	\dfrac{F_1 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_1 (x_1, x_2)}{\epsilon}\\
+	\dfrac{F_2 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_2 (x_1, x_2)}{\epsilon}
 	\end{pmatrix} \notag \\
 	&\approx&
 	\begin{pmatrix}
-	\frac{F_1 (x_1,x_2) + \epsilon v_1 \frac{\partial F_1}{\partial u_1} + \epsilon v_2 \frac{\partial F_1}{\partial u_2} - F_1 (x_1, x_2)}{\epsilon}\\
-	\frac{F_2 (x_1, x_2) + \epsilon v_1 \frac{\partial F_2}{\partial u_1} + \epsilon v_2 \frac{\partial F_2}{\partial u_2}  - F_2 (x_1, x_2)}{\epsilon}
+	\dfrac{F_1 (x_1,x_2) + \epsilon v_1 \dfrac{\partial F_1}{\partial u_1} + \epsilon v_2 \dfrac{\partial F_1}{\partial u_2} - F_1 (x_1, x_2)}{\epsilon}\\
+	\dfrac{F_2 (x_1, x_2) + \epsilon v_1 \dfrac{\partial F_2}{\partial u_1} + \epsilon v_2 \dfrac{\partial F_2}{\partial u_2}  - F_2 (x_1, x_2)}{\epsilon}
 	\end{pmatrix} \notag \\
 	&\approx&
 	\begin{pmatrix}
-	v_1 \frac{\partial F_1}{\partial u_1} +  v_2 \frac{\partial F_1}{\partial u_2} \\
-	v_1 \frac{\partial F_2}{\partial u_1} + v_2 \frac{\partial F_2}{\partial u_2}
+	v_1 \dfrac{\partial F_1}{\partial u_1} +  v_2 \dfrac{\partial F_1}{\partial u_2} \\
+	v_1 \dfrac{\partial F_2}{\partial u_1} + v_2 \dfrac{\partial F_2}{\partial u_2}
 	\end{pmatrix} \notag \\
 	&\approx&
 	\bb{J} \bb{v}
@@ -940,7 +940,7 @@ Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for
 Both routines are easily implemented -- and are likely already available -- in an existing segregated framework.
 The only additional required procedure is an interface to an existing Jacobian-free Newton-Krylov implementation.
 %"The motivation behind this approach is that there exist numerous, legacy algorithms to solve nonlinear systems, both IVPs and BVPs. These algorithms typically were developed with some insight into the time scales or physical behavior of the problem. As a benefit of this insight, a reduced implicit system, or a sequence of segregated explicit or implicit systems may be solved in place of the fully coupled system. "
-In the current work, the PETSc package \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018a} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
+In the current work, the PETSc package \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
 
 Several preconditioners are available in the literature, incomplete Cholesky or ILU($k$) being popular; however, multigrid methods offer the greatest potential for large-scale problems.
 As noted by \citet{Knoll2004}, algorithmic simplifications within a multigrid procedure, which may result in loss of convergence for multigrid as a solver, have a much weaker effect when multigrid is used as a preconditioner.
@@ -1628,13 +1628,13 @@ The \texttt{FSI3} variant of the case examined here (Figure \ref{fig:hronTurek-m
 A parabolic velocity is prescribed at the inlet velocity with a mean value of 2 m/s.
 A St.\,Venant-Kirchhoff hyperelastic plate ($E = 5.6$ MPa, $\nu = 0.4$) of 0.35 m in length and 0.02 m in height is attached to the right-hand side of the rigid cylinder.
 The fluid model is assumed to be isothermal, incompressible, and laminar and adopts the segregated PIMPLE solution algorithm.
-The fluid's kinematic viscosity is 0.001 m$^2$/s and density is 1000 kg/m$^3$, while the solid's density is $10\,000$ kg/m$^3$.
+The fluid's kinematic viscosity is 0.001 m$^2$/s and density is 1000 kg m$^{-3}$, while the solid's density is $10\,000$ kg m$^{-3}$.
 The interface quasi-Newton coupling approach with inverse Jacobian from a least-squares model \cite{Degroote2009} is employed for the fluid-solid interaction coupling.
 The fluid-solid interface residual is reduced by four orders of magnitude within each time step.
-Further details of the fluid-solid interaction procedure are found in \citet{Tukovic2018a}.
+Further details of the fluid-solid interaction procedure are found in \citet{Tukovic2018}.
 %\begin{figure}[htbp]
 %   \centering
-%%	\subfigure[Geometry (taken from \citet{Tukovic2018a})]
+%%	\subfigure[Geometry (taken from \citet{Tukovic2018})]
 %%	{
 %	   \includegraphics[width=0.7\textwidth]{figures/hronTurek-geometry} 
 %%   	}
@@ -2112,7 +2112,7 @@ Parallelisation adopts the standard OpenFOAM domain decomposition approach, wher
 In the current work, the Scotch decomposition approach \citep{Pellegrini2012} is employed.
 The Jacobian-free Newton Krylov approach uses the GMRES linear solver where the performance of the multigrid and LU preconditioners are compared.
 The segregated approach uses the conjugate gradient solver with the incomplete (zero in-fill -- $k = 0$) Cholesky preconditioner.
-The cases are run on the Meluxina high-performance computing system, where each standard computing node contains $2\times$ AMD EPYC Rome 7H12 64c 2.6GHz CPUs with 512 GB of memory.
+The cases are run on the MeluXina high-performance computing system, where each standard computing node contains $2\times$ AMD EPYC Rome 7H12 64c 2.6GHz CPUs with 512 GB of memory.
 In the current study, the number of CPU cores are varied from 1 to $1\,048$ ($\left[ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1\,048 \right]$).
 In the ideal case, the speedup should double when the number of cores is doubled; in reality, inter-CPU-core communication reduces the parallel scaling efficiency below the ideal.
 
@@ -2135,7 +2135,7 @@ For all approaches the speedup is seen to increase at an approximately ideal rat
 At 128 cores (corresponding to one full computing node), the number of cells per core is approximately 19 k; increasing the number of cores beyond 128 likely shows a less than ideal scaling for two reasons: (i) the number of cells per core is becoming small relative to the amount of inter-core communication, and (ii) inter-node communication is likely slower than intra-node communication.
 The segregated and Jacobian-free Newton-Krylov LU preconditioner approaches produce their fastest predictions at 512 cores, while the Jacobian-free Newton-Krylov multigrid preconditioner approach continues to speedup up to the maximum number of cores tested ($1\,048$), albeit $1\,048$ cores is just $2\times$ faster than 128 cores.
 At $1\,048$ cores, there is approximately 2.5 k cells per core and the inter-core communication is expected to be significant.
-In Figure \ref{fig:parallelisation_strong}(b), the time required for 1 core has been estimated for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches as $8 \times$ the time required for 8 cores; consequently, the absolute values of speedup should be ignored (or carefully interpretted) and instead the trend is of greater value.
+%In Figure \ref{fig:parallelisation_strong}(b), the time required for 1 core has been estimated for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches as $8 \times$ the time required for 8 cores; consequently, the absolute values of speedup should be ignored (or carefully interpreted) and instead the trend is of greater value.
 \begin{figure}[htbp]
 	\centering
 	\subfigure[Clock times vs number of CPU cores]
@@ -2152,8 +2152,11 @@ In Figure \ref{fig:parallelisation_strong}(b), the time required for 1 core has 
 	\label{fig:parallelisation_strong}
 \end{figure}
 
-As a final observation, the effect of hardware can be highlighted by comparing the time required for 1 core when using the multigrid preconditioner: the case required $2\,048$ s on the Meluxina system (EPYC Rome CPU), while it required only $988$ s on a Mac Studio (M1 Ultra CPU) system as presented in Section \ref{sec:resource_requirements} -- over twice as fast.
-The difference in performance can be primarly attributed to two factors: (i) the higher clock speed of the CPU (3.2 vs 2.4 GHz), and (ii) the unified memory architecture of the M1 Ultra CPU likely provides greater memory bandwidth.
+As a final observation, the effect of hardware can be highlighted by comparing the time required for 1 core when using the multigrid preconditioner: the case required $2\,048$ s on the MeluXina system (EPYC Rome CPU), while it required only $988$ s on a Mac Studio (M1 Ultra CPU) system as presented in Section \ref{sec:resource_requirements} -- over twice as fast.
+The difference in performance can be primarily attributed to the unified memory architecture of the M1 Ultra, which provides significantly greater memory bandwidth compared to the DDR4 memory used in the MeluXina compute nodes.
+%This high-bandwidth memory enables faster data access for memory-intensive tasks, such as those encountered in the serial OpenFOAM simulations.
+
+%The difference in performance can be primarly attributed to two factors: (i) the higher clock speed of the CPU (3.2 vs 2.4 GHz), and (ii) the unified memory architecture of the M1 Ultra CPU likely provides greater memory bandwidth.
 
 
 %\hl{To run:}
@@ -2249,6 +2252,7 @@ The presented study highlights the potential of the Jacobian-free Newton-Krylov 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bmhead{Acknowledgments}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Technical reviews and insightful comments from Hiroaki Nishikawa of the National Institute of Aerospace, Hampton, VA, USA, are greatly appreciated.
 This project has received funding from the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme (Grant Agreement No. 101088740).
 Financial support is gratefully acknowledged from the Irish Research Council through the Laureate programme, grant number IRCLA/2017/45, from Bekaert through the University Technology Centre (UTC phases I and II) at UCD (www.ucd.ie/bekaert), from I-Form, funded by Science Foundation Ireland (SFI) Grant Numbers 16/RC/3872 and {RC2302\_2}, co-funded under European Regional Development Fund and by I-Form industry partners, and from NexSys, funded by SFI Grant Number 21/SPP/3756.
 Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie), and part of this work has been carried out using the UCD ResearchIT Sonic cluster which was funded by UCD IT Services and the UCD Research Office.
@@ -2270,7 +2274,7 @@ The definition of engineering stress $\bb{\sigma}_s$ for linear elasticity can b
 \begin{eqnarray}  \label{eq:linearElastic}
 	\bb{\sigma}_s
 	&=& 2 \mu \bb{\varepsilon} + \lambda \, \text{tr} \left( \bb{\varepsilon} \right) \textbf{I} \notag \\
-	&=& \mu \bb{\nabla} \bb{u} + \mu \left( \bb{\nabla} \bb{u}\right)^T + \lambda \left(\bb{\nabla} \cdot \bb{u} \right) \textbf{I}
+	&=& \mu \bb{\nabla} \bb{u} + \mu \left( \bb{\nabla} \bb{u}\right)^{\text{T}} + \lambda \left(\bb{\nabla} \cdot \bb{u} \right) \textbf{I}
 \end{eqnarray}
 where $\lambda$ is the first Lam\'{e} parameter, and $\mu$ is the second Lam\'{e} parameter, synonymous with the shear modulus.
 The Lam\'{e} parameters can be expressed in term of the Young's modulus ($E$) and Poisson's ratio $\nu$ as
@@ -2286,12 +2290,12 @@ The St.\,Venant-Kirchoff model defines the second Piola–Kirchhoff stress $\tex
 where, as before, $\lambda$ is the first Lam\'{e} parameter, and $\mu$ is the second Lam\'{e} parameter.
 The Lagrangian Green strain $\textbf{E}$ is defined as
 \begin{eqnarray}
-	\bb{E} &=& \frac{1}{2} \left( \bb{\nabla} \bb{u} + \bb{\nabla} \bb{u}^T + \bb{\nabla} \bb{u} \cdot \bb{\nabla} \bb{u}^T  \right)
+	\bb{E} &=& \frac{1}{2} \left( \bb{\nabla} \bb{u} + \bb{\nabla} \bb{u}^{\text{T}} + \bb{\nabla} \bb{u} \cdot \bb{\nabla} \bb{u}^{\text{T}}  \right)
 \end{eqnarray}
 
 The true stress can be calculated from the second Piola–Kirchhoff stress as
 \begin{eqnarray}
-	\bb{\sigma} &=& \frac{1}{J} \bb{F} \cdot \bb{S} \cdot \bb{F}^T
+	\bb{\sigma} &=& \frac{1}{J} \bb{F} \cdot \bb{S} \cdot \bb{F}^{\text{T}}
 \end{eqnarray}
 
 
@@ -2309,7 +2313,7 @@ The bulk modulus can be expressed in term of the Young's modulus ($E$) and Poiss
 \end{eqnarray}
 The volume-preserving component of the elastic left Cauchy--Green deformation tensor is $\boldsymbol{b}$ is given as
 \begin{eqnarray}
-	\bar{\bb{b}} = J^{-2/3} \bb{b} = J^{-2/3} \bb{F} \cdot \bb{F}^T
+	\bar{\bb{b}} = J^{-2/3} \bb{b} = J^{-2/3} \bb{F} \cdot \bb{F}^{\text{T}}
 \end{eqnarray}
 In the limit of small deformations $\lVert \nabla \mathbf{u} \rVert  \ll 1$, neo-Hookean hyperelasticity (Equation \ref{eq:neoHook}) reduces to linear elasticity (Equation \ref{eq:linearElastic}).
 
@@ -2330,7 +2334,7 @@ where
 		&=&  2 c_t \boldsymbol{E} + 2(c_f - 2 c_{fs} + c_t)I_4 ( \boldsymbol{f_0} \otimes \boldsymbol{f_0} ) \notag \\
 		&&+ 2(c_{fs} - c_t)\left[\boldsymbol{E} \cdot  (\boldsymbol{f_0} \otimes \boldsymbol{f_0}) + ( \boldsymbol{f_0} \otimes \boldsymbol{f_0} ) \cdot \boldsymbol{E} \right]
 \end{eqnarray}
-The scalars $C$, $c_f$, $c_{fs}$, and $c_t$ are material parameters, and invariants of the Green strain, $\boldsymbol{E} = \boldsymbol{F}^T \cdot \boldsymbol{F}$, are defined as
+The scalars $C$, $c_f$, $c_{fs}$, and $c_t$ are material parameters, and invariants of the Green strain, $\boldsymbol{E} = \boldsymbol{F}^{\text{T}} \cdot \boldsymbol{F}$, are defined as
 \begin{eqnarray}
 	I_1 = \text{tr}(\boldsymbol{E}), \quad
 	I_2 =  \frac{1}{2} \left[ \text{tr}^2(\boldsymbol{E}) - \text{tr}(\boldsymbol{E} \cdot \boldsymbol{E}) \right], \notag \\
