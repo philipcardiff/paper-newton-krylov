@@ -1610,7 +1610,7 @@ A sudden, constant traction $\bb{T} = \left(80, 80, 0 \right)$ kPa is applied to
 %In the current study, $\mathcal{F} = 1$.
 A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = 0.04$ m$^2$ and the second moment of area $I = \nicefrac{1}{7\,500}$ m$^4$. %0.0001333
 The geometric and material parameters were chosen for the first natural frequency to be 1 Hz in the small strain limit.
-The magnitude of the applied traction was chosen to test the robustness of the solution procedures when large rotations and strains are present.
+The magnitude of the applied traction is chosen here to test the robustness of the solution procedures when large rotations and strains are present.
 Four succesively refined hexahedral meshes are generated using the OpenFOAM \texttt{blockMesh} utility, with cell counts of 270, $2\,160$, $17\,280$ and $138\,240$.
 %A fixed time step size of 0.001617274174 s is chosen, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
 %A fixed time step size of 1 ms is chosen.
@@ -1618,15 +1618,15 @@ The time step size is 1 ms, and the total period is 1 s.
 % corresponding to 10 expected oscillation periods.
 %, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
 
-The deformed configuration of the beam at six time steps is shown in Figure \ref{fig:dynamic_cantilever}(a) for the mesh with $2\,160$ cells, where the upper surface is seen to drop below the horizontal from approximately t = 0.2 s to 0.32 s \hl{update}.
-The corresponding displacement magnitude of the centre of the upper surface of the beam vs time is shown in Figure \ref{fig:dynamic_cantilever}(b), where the predictions are seen to converge to the results from finite element software Abaqus (element code C3D8).
+The deformed configuration of the beam at six time steps is shown in Figure \ref{fig:dynamic_cantilever}(a) for the mesh with $2\,160$ cells, where the upper surface is seen to drop below the horizontal from approximately t = 0.2 s to 0.32 s.
+The corresponding displacement magnitude of the centre of the upper surface of the beam vs time is shown in Figure \ref{fig:dynamic_cantilever}(b), where the predictions are seen to converge to the results from finite element software Abaqus (element code C3D8) using the $138\,240$ mesh.
 %Although the current case does not have a reference solution, it has been chosen to test the robustness of the solution procedures when large rotations and strains are present.
 \begin{figure}[htbp]
    \centering
 %   \includegraphics[width=0.5\textwidth]{figures/cantilever} 
 	\subfigure[\hl{update}Displacement magnitude for t = $\left\{0, \, 0.1, \, 0.2\right\}$ s (translucent) and t = $\left\{0.3, \, 0.4, \, 0.5 \right\}$ s (opaque) for the mesh with $138\,240$ cells]
 	{
-	   \includegraphics[width=0.5\textwidth]{figures/cantilever_deformed}
+	   \includegraphics[width=0.5\textwidth]{figures/cantilever_deformed_v2}
    	} \quad
 	\subfigure[Displacement magnitude of the centre of the upper surface of the beam vs time]
 	{
