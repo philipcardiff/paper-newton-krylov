@@ -1241,7 +1241,7 @@ The maximum ($L_\infty$) and average ($L_2$) displacement discretisation errors 
 	{
    		\includegraphics[width=0.45\textwidth]{figures/mms_disp_orderOfAccuracy_v2}  
    	}
-	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement magnitude on the \emph{regular} meshes}
+	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement magnitude}
 	\label{fig:mms_disp_accuracy}
 \end{figure}
 
@@ -1478,7 +1478,6 @@ The predictions are seen to become quickly mesh-independent and fall within the 
 Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
 The 2-D plane strain tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
 The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
-The problem is solved quasi-statically, using 30 equally-sized loading increments, and there are no body forces.
 %\begin{figure}[htbp]
 %   \centering
 %   \includegraphics[width=0.4\textwidth]{figures/cooksMembrane-geometry} 
@@ -1504,9 +1503,9 @@ The problem is solved quasi-statically, using 30 equally-sized loading increment
 
 The current work considers three forms of the problem:
 \begin{enumerate}[label=\roman*.]
-	\item Small strain, linear elastic \cite{Zienkiewicz2000, Simplas}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6250$ Pa.
-	\item Finite strain, neo-Hookean hyperelastic \cite{Pelteret2018}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 0.0625$ MPa.
-	\item Finite strain, neo-Hookean hyperelastoplastic \citep{Simo1992, Simplas, Cesar2001}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 0.3125$ MPa.
+	\item Small strain, linear elastic \cite{Zienkiewicz2000, Simplas}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6.25$ kPa.
+	\item Finite strain, neo-Hookean hyperelastic \cite{Pelteret2018}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 62.5$ kPa.
+	\item Finite strain, neo-Hookean hyperelastoplastic \citep{Simo1992, Simplas, Cesar2001}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 312.5$ kPa.
 \end{enumerate}
 where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is the yield strength, $\bar{\varepsilon}_p$ is the equivalent plastic strain, and $\tau$ is the prescribed shear traction.
 %The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
@@ -1531,6 +1530,9 @@ Eight successively refined quadrilateral meshes are considered, where the cell c
 %mesh.6 - 96x96 - 9216 CVs\\
 %mesh.7 - 192x192 - 36864 CVs
 %mesh.8 - 384x384 - 147456 CVs
+The problem is solved quasi-statically, and there are no body forces.
+The linear elastic and hyperelastic cases use one loading increment, whereas the hyperelastoplastic case uses 30 equally-sized loading increments.
+
 
 Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for linear elastic, hyperelastic and hyperelastoplastic cases.
 The stress distribution is consistent with bending, with regions of high stress near the upper and lower surfaces and a line of relatively unstressed material in the centre.
@@ -1538,9 +1540,9 @@ The greatest equivalent stresses occur at the top-left corner and the lower surf
 In the hyperelastoplastic case, almost the entire domain is plastically yielding with only a small thin region remaining elastic, indicated by the blue line in Figure \ref{fig:cooksMembrane_sigmaEq}(c).
 \begin{figure}[htbp]
    \centering
-	\subfigure[Linear elastic case \hl{kPa}]
+	\subfigure[Linear elastic case]
 	{
-		\includegraphics[width=0.3\textwidth]{figures/cooksMembrane-hookean-sigmaEq.pdf}  
+		\includegraphics[width=0.28\textwidth]{figures/cooksMembrane-hookean-sigmaEq.pdf}  
 	}
 	\subfigure[Hyperelastic case]
 	{
@@ -1624,7 +1626,7 @@ The corresponding displacement magnitude of the centre of the upper surface of t
 \begin{figure}[htbp]
    \centering
 %   \includegraphics[width=0.5\textwidth]{figures/cantilever} 
-	\subfigure[\hl{update}Displacement magnitude for t = $\left\{0, \, 0.1, \, 0.2\right\}$ s (translucent) and t = $\left\{0.3, \, 0.4, \, 0.5 \right\}$ s (opaque) for the mesh with $138\,240$ cells]
+	\subfigure[Displacement magnitude for t = $\left\{0, \, 0.1, \, 0.2\right\}$ s (translucent) and t = $\left\{0.3, \, 0.4, \, 0.5 \right\}$ s (opaque) for the mesh with $138\,240$ cells]
 	{
 	   \includegraphics[width=0.5\textwidth]{figures/cantilever_deformed_v2}
    	} \quad
