@@ -583,7 +583,10 @@ Note from Equation \ref{eq:divStressDiscret} that the stress on displacement bou
 %From Equation \ref{eq:symm}, it is clear that shear stresses are zero on a symmetry plane boundary face.
 %Note from Equation \ref{eq:divStressDiscret} that the stress on displacement boundary faces is assumed equal to the stress $\bb{\sigma}_P$ at the centroid of cell $P$.
 
-The cell-centred stress $\bb{\sigma}_P$ is calculated as a function of the displacement gradient according to the chosen mechanical law, where the cell-centred displacement gradients are determined using an inverse-distance-weighted first-neighbours least squares method \citep{Jasak1996},
+The cell-centred stress $\bb{\sigma}_P$ is calculated as a function of the displacement gradient according to the chosen mechanical law, for example, as shown in Appendix \ref{app:mechLaws}.
+\hl{magSf in OF}
+The presented discretisation is second-order accurate in space for displacement if the cell-centred displacement gradients (and the stress) are at least first-order accurate in space, even if the cell faces are not flat.
+To achieve this, the cell-centred displacement gradients are determined using an inverse-distance-weighted first-neighbours least squares method \citep{Jasak1996},
 \begin{eqnarray} \label{eq:leastSquaresGrad}
 	\left(\bb{\nabla}\bb{u}\right)_P
 %		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \omega_{f_i}^2 \bb{G}^{-1}_P \cdot \bb{d}_{f_i} \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
@@ -700,7 +703,7 @@ where
 \end{eqnarray}
 
 So, this Rhie-Chow stabilisation can be seen to take the form of a \emph{jump} term; that is, it is a function of the jump in solution between neighbouring cells.
-The two states, $\bb{u}_P^*$ and $\bb{u}_{N_{f_i}}^*$, are evaluated halfway between $P$ and $N_{f_i}$, and it may not be at a face centre; however, as noted by \citet{Nishikawa2010}, this will not affect the second-order accuracy of the method; consequently, the user is free to choose the value of $\alpha$ for stabilisation purposes.
+The two states, $\bb{u}_P^*$ and $\bb{u}_{N_{f_i}}^*$, are evaluated halfway between $P$ and $N_{f_i}$, and it may not be at a face centre; however, as noted by \citet{Nishikawa2010}, this will not affect the second-order accuracy of the method; consequently, the user is free to choose the value of $\alpha$ for stabilisation and accuracy purposes.
 % but it doesn't matter because this team is only stabilisation and it vanishes in the grid refinement.
 %As long as it vanishes for linear functions, second-order accuracy is preserved. It means that the parameter alpha can be chosen solely for the purpose of stabilization. 
 
@@ -1200,18 +1203,18 @@ The regular hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} 
 Starting from an initial mesh spacing of $0.04$ m, six meshes of each type are created by successively halving the spacing.
 The cell numbers for the hexahedral and polyhedral meshes are 125, $1\,000$, $8\,000$, $64\,000$, $512\,000$, and $4\,096\,000$, while the tetrahedral mesh cell counts are 384, $4\,374$, $41\,154$, $355\,914$, $2\,958\,234$, and $24\,118\,074$.
 For the same average cell width, the cell counts show that the tetrahedral meshes have more cells by a factor of 3 to 6.
-Table \ref{tab:mmsMesh} lists the average and maximum face non-orthogonality for the meshes of different cell types, where face non-orthogonality is defined as the angle made by the vector between the two adjacent cell centres across the common face and the face normal.
-\begin{table}[htb]
-    \centering
-    \begin{tabular}{lll}
-        \hline
-        Cell type & Average & Maximum \\
-        \hline
-        Hexahedra & 0 &0  \\
-        Tetrahedra & 32.71 & 35.26 \\
-        Polyhedra & 30.65 & 38.45 \\
-        \hline
-    \end{tabular}
+%Table \ref{tab:mmsMesh} lists the average and maximum face non-orthogonality for the meshes of different cell types, where face non-orthogonality is defined as the angle made by the vector between the two adjacent cell centres across the common face and the face normal.
+%\begin{table}[htb]
+%    \centering
+%    \begin{tabular}{lll}
+%        \hline
+%        Cell type & Average & Maximum \\
+%        \hline
+%        Hexahedra & 0 &0  \\
+%        Tetrahedra & 32.71 & 35.26 \\
+%        Polyhedra & 30.65 & 38.45 \\
+%        \hline
+%    \end{tabular}
 %    \begin{tabular}{l|cc|cc}
 %        \hline
 %        Cell type & \multicolumn{2}{c|}{Regular} & \multicolumn{2}{c}{Distorted} \\
@@ -1222,13 +1225,14 @@ Table \ref{tab:mmsMesh} lists the average and maximum face non-orthogonality for
 %        Polyhedra & 30.90 & 38.38 & 3 & 4 \\
 %        \hline
 %    \end{tabular}
-    \caption{Average and maximum face non-orthogonality (in $^\circ$) for the meshes of different cell types and sizes}
-    \label{tab:mmsMesh}
-\end{table}
+%    \caption{Average and maximum face non-orthogonality (in $^\circ$) for the meshes of different cell types and sizes}
+%    \label{tab:mmsMesh}
+%\end{table}
 
-Figure \ref{fig:mms_disp_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for the three mesh types (hexahedral, tetrahedral and polyhedral), while Figure \ref{fig:mms_disp_accuracy}(b) shows the corresponding order of accuracy plots.
-For ease of interpretation, the symbol shapes in the figures have been chosen to correspond to the cell shapes: a square for hexahedra, a triangle for tetrahedra and a pentagon for polyhedra.
+Figure \ref{fig:mms_disp_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for the four mesh types (tetrahedral, polyhedral, regular and distorted hexahedral), while Figure \ref{fig:mms_disp_accuracy}(b) shows the corresponding order of accuracy plots.
+For ease of interpretation, the symbol shapes in the figures have been chosen to correspond to the cell shapes: a triangle for tetrahedra, a pentagon for polyhedra, a square for regular hexahedra, and a diamond for distorted hexahedra.
 The maximum ($L_\infty$) and average ($L_2$) displacement discretisation errors are seen to reduce at an approximately second-order rate for all mesh types, except for the $L_2$ error on the hexahedral meshes, which is approximately 2.3 on the finest grid.
+The distorted hexahedral meshes show the largest average and maximum errors but still approach second-order accuracy as the element spacing decreases.
 %where, interestingly, the errors are, on average, smaller on the polyhedral meshes.
 %The reason for this is unclear but may be due to the stencil of the structured polyhedra being more isotropic and containing close neighbours.
 \begin{figure}[htbp]
@@ -1265,8 +1269,9 @@ The errors of greatest magnitude ($43$ kPa) occur at the boundaries, correspondi
 \end{figure}
 The discretisation errors in the stress magnitude as a function of cell size are shown in Figure \ref{fig:mms_stress_accuracy}(a), and the order of accuracy in Figure \ref{fig:mms_stress_accuracy}(b).
 The order of accuracy for the average ($L_2$) stress error is seen to be approximately 1.5 for the hexahedral and polyhedral meshes.
-In contrast, the average stress error order for the tetrahedral meshes is 1.
-Similarly, the maximum ($L_\infty$) stress order of accuracy is seen to approach 1 for all three mesh types.
+In contrast, the average stress error order for the tetrahedral and distorted hexahedral meshes is 1.
+Similarly, the maximum ($L_\infty$) stress order of accuracy is seen to approach 1 for all mesh types.
+Unlike for the displacements, the greatest stress errors are seen in the tetrahedral rather than the distorted hexahedral meshes; however, the greatest stress maximum errors occur in the distorted hexahedral meshes.
 \begin{figure}[htbp]
 	\centering
 	\subfigure[Stress magnitude discretisation errors]
@@ -1281,87 +1286,129 @@ Similarly, the maximum ($L_\infty$) stress order of accuracy is seen to approach
 	\label{fig:mms_stress_accuracy}
 \end{figure}
 
-%\hl{Distorted grids}
+The presented results agree with the theory: the least squares gradient scheme should be at least first-order accurate for random grids, with greater than first-order accuracy on regular grids due to local truncation error cancellations.
+In addition, the displacement predictions should be at least second-order accurate on all grid types as long as the gradient scheme achieves at least first-order accuracy.
 
 
 
 
-%%%%%%%%%%%%
-\begin{comment}
-%%%%%%%%%%%%
-
-
-\paragraph{Case 1b: Spherical Cavity in an Infinite Solid Subjected to Remote Stress}
-This 3-D problem consists of a spherical cavity with radius $a = 0.2$ m (Figure \ref{fig:spherical_cavity}) in an infinite, isotropic linear elastic solid ($E = 200$ GPa, $\nu = 0.3$).
+\paragraph{Case 2: Spherical Cavity in an Infinite Solid Subjected to Remote Stress}
+This classic 3-D problem consists of a spherical cavity with radius $a = 0.2$ m (Figure \ref{fig:spherical_cavity}) in an infinite, isotropic linear elastic solid ($E = 200$ GPa, $\nu = 0.3$).
 Far from the cavity, the solid is subjected to a tensile stress $\sigma_{zz} = T = 1$ MPa, with all other stress components zero.
 \begin{figure}[htbp]
    \centering
-   \includegraphics[width=0.4\textwidth]{figures/spherical_cavity.pdf} 
-   \caption{Spherical cavity case geometry, showing the polyhedral mesh with $4\,539$}
+%   \includegraphics[width=0.4\textwidth]{figures/spherical_cavity} 
+	\subfigure[Polyhedral mesh with $4\,539$]
+	{
+	   \includegraphics[height=0.4\textwidth]{figures/spherical_cavity} 
+   	}
+	\subfigure[Axial ($zz$) stress distribution on the mesh with $1\,614\,261$ cells]
+	{
+	   \includegraphics[height=0.4\textwidth]{figures/spherical_cavity_axial_stress} 
+	   \label{fig:spherical_cavity_stress}
+   	}
+   \caption{Spherical cavity case}
    \label{fig:spherical_cavity}
 \end{figure}
-The analytical expressions for the stress and displacement distributions are given in Appendix \ref{app:sphericalCavity}.
-
+The analytical expressions for the stress, derived by \citet{Southwell1926},  and displacement, derived by \citet{Goodier1933}, are given in Appendix \ref{app:sphericalCavity}.
+The problem is characterised by localised by a stress concentration near the cavity on the plane perpendicular to the loading, which drops off rapidly away from the cavity.
 
 The computational solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube aligned with the Cartesian axes, with one corner at the centre of the sphere.
+The problem is axisymmetric but is analysed here using a 3-D domain to allow a graded unstructured polyhedral mesh to be assessed.
 The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
-Unstructured polyhedral meshes are employed with grading towards the cavity.
-The cell sizes at the cavity surfaces are 100, 50, 25, 12.5, 6.25, and 3.125 mm, and the corresponding cell counts are 976, $4\,552$ (Figure \ref{fig:spherical_cavity}), $29\,611$, $213\,100$, $\,614\,261$.
+%Unstructured polyhedral meshes are employed with grading towards the cavity.
+The cell sizes at the cavity surfaces are 100, 50, 25, 12.5, 6.25, and 3.125 mm, and the corresponding cell counts are 976, $4\,552$ (Figure \ref{fig:spherical_cavity}), $29\,611$, $213\,100$, $1\,614\,261$.
 Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{geuzaine2009gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
 
-\hl{The spherical cavity case errors seem to approach zero order accuracy}
-\hl{Maybe we have hit the precision limit...?}
-\hl{We may leave this case out}
-
-%%%%%%%%%%%%
-\end{comment}
-%%%%%%%%%%%%
-
-
-
-
-\paragraph{Case 2: Out-of-plane bending of an elliptic plate}
-This 3-D, static, linear elastic test case (Figure \ref{fig:elliptic_plate}) consists of a thick elliptic plate (0.6 m thick) with a centred elliptic hole, with the inner and outer ellipses given as
-\begin{eqnarray}
-	\left(\frac{x}{2}\right)^2 + \left(\frac{y}{1}\right)^2 = 1 & \text{inner ellipse} \\
-	\left(\frac{x}{3.25}\right)^2 + \left(\frac{y}{2.75}\right)^2 = 1 & \text{outer ellipse}
-\end{eqnarray}
-The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{Hitchings1987}, and analysed using finite volume procedures by \citet{Demirdzic1997a} and \citet{Cardiff2016a}.
-Symmetry allows one-quarter of the geometry to be simulated.
-A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
-The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
-Six successively refined hexahedral meshes are used, with cell counts of 45, 472 (Figure \ref{fig:elliptic_plate}), $4\,140$, $34\,968$, $287\,280$ and $2\,438\,242$.
+Figure \ref{fig:spherical_cavity_stress} shows the predicted axial ($zz$) stress field on the mesh with $1\,614\,261$ cells.
+The predicted mean ($L_2$) and maximum ($L_\infty$) displacement and axial stress discretisation errors as a function of the average cell width are presented in Figure \ref{fig:spherical_cavity_accuracy}.
+The mean and maximum displacement errors are seen to reduce at an approximately second-order rate, while the stress errors are seen to reduce at a first-order rate.
+As seen in the previous case, the results agree with the theoretical expectations for unstructured (irregular) meshes.
 \begin{figure}[htbp]
-   \centering
-%\includegraphics[width=0.5\textwidth]{figures/elliptic_plate.pdf} ellipticPlate-geometry
-%	\subfigure[Mesh containing 472 hexahedral cells]
+	\centering
+	\subfigure[Displacement magnitude discretisation errors]
+	{
+	   \includegraphics[width=0.45\textwidth]{figures/sphericalCavityDispError.pdf} 
+   	}
+	\subfigure[Displacement discretisation error order of accuracy]
+	{
+	   \includegraphics[width=0.45\textwidth]{figures/sphericalCavityDispOrder.pdf} 
+   	}
+	\subfigure[Axial ($zz$) stress discretisation errors]
+	{
+	   \includegraphics[width=0.45\textwidth]{figures/sphericalCavityStressError.pdf} 
+   	}
+	\subfigure[Axial ($zz$) stress discretisation error order of accuracy]
+	{
+	   \includegraphics[width=0.45\textwidth]{figures/sphericalCavityStressOrder.pdf} 
+   	}
+	\caption{Spherical cavity discretisation errors as a function of the average cell spacing}
+	\label{fig:spherical_cavity_accuracy}
+\end{figure}
+
+%The predicted $\sigma_{xx}$ stress distribution for a hexahedral mesh with $512\,000$ cells is shown in Figure \ref{fig:mms_stress}(a).
+%The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure \ref{fig:mms_stress}(b).
+%The errors of greatest magnitude ($43$ kPa) occur at the boundaries, corresponding to where the local truncation error is higher. % due to the use of one-sided differencing.
+%\begin{figure}[htbp]
+%	\centering
+%	\subfigure[Predicted $\sigma_{xx}$ stress distribution]
 %	{
-		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate.pdf} 
+%		\label{fig:mms_sxx}
+%   		\includegraphics[height=0.35\textwidth]{figures/mms_sxx} 
+%   	}
+%	\subfigure[Cell-wise $\sigma_{xx}$ error distribution]
+%	{
+%		\label{fig:mms_sxx_diff}
+%   		\includegraphics[height=0.35\textwidth]{figures/mms_sxx_diff}  
+%   	}
+%	\caption{Manufactured solution cube case: the predicted $\sigma_{xx}$ stress distribution on a cut-plane for the regular hexahedral mesh with $512\,000$ cells (left).}
+%	\label{fig:mms_stress}
+%\end{figure}
+
+
+
+%\paragraph{Case 2: Out-of-plane bending of an elliptic plate}
+%This 3-D, static, linear elastic test case (Figure \ref{fig:elliptic_plate}) consists of a thick elliptic plate (0.6 m thick) with a centred elliptic hole, with the inner and outer ellipses given as
+%\begin{eqnarray}
+%	\left(\frac{x}{2}\right)^2 + \left(\frac{y}{1}\right)^2 = 1 & \text{inner ellipse} \\
+%	\left(\frac{x}{3.25}\right)^2 + \left(\frac{y}{2.75}\right)^2 = 1 & \text{outer ellipse}
+%\end{eqnarray}
+%The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{Hitchings1987}, and analysed using finite volume procedures by \citet{Demirdzic1997a} and \citet{Cardiff2016a}.
+%Symmetry allows one-quarter of the geometry to be simulated.
+%A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
+%The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
+%Six successively refined hexahedral meshes are used, with cell counts of 45, 472 (Figure \ref{fig:elliptic_plate}), $4\,140$, $34\,968$, $287\,280$ and $2\,438\,242$.
+%\begin{figure}[htbp]
+%   \centering
+%%\includegraphics[width=0.5\textwidth]{figures/elliptic_plate.pdf} ellipticPlate-geometry
+%%	\subfigure[Mesh containing 472 hexahedral cells]
+%%	{
+%		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate.pdf} 
+%%	}
+%   \caption{Elliptic Plate geometry and mesh containing 472 hexahedral cells}
+%   \label{fig:elliptic_plate}
+%\end{figure}
+%
+%The prediction for the equivalent (von Mises) stress in the domain are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(a), and the values along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(b).
+%The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen;
+%the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} are likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
+%The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\nicefrac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
+%\begin{figure}[htbp]
+%   \centering
+%   %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
+%	\subfigure[Equivalent stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry]
+%	{
+%		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq}  
 %	}
-   \caption{Elliptic Plate geometry and mesh containing 472 hexahedral cells}
-   \label{fig:elliptic_plate}
-\end{figure}
-
-The prediction for the equivalent (von Mises) stress in the domain are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(a), and the values along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(b).
-The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen;
-the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} are likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
-The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\nicefrac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
-\begin{figure}[htbp]
-   \centering
-   %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
-	\subfigure[Equivalent stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry]
-	{
-		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq}  
-	}
-	\subfigure[Equivalent stress along the line $r = 2.1$, $z = 0.3$ m]
-	{
-		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
-	}
-   \caption{Equivalent (von Mises) stress distribution in the elliptic plate}
-   \label{fig:elliptic_plate_sigmaEq}
-\end{figure}
-
-
+%	\subfigure[Equivalent stress along the line $r = 2.1$, $z = 0.3$ m]
+%	{
+%		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
+%	}
+%   \caption{Equivalent (von Mises) stress distribution in the elliptic plate}
+%   \label{fig:elliptic_plate_sigmaEq}
+%\end{figure}
+%
+%
 
 
 %\paragraph{Case 2: Narrow T-section component under tension}
@@ -1817,12 +1864,12 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 			     &            & \textbf{Time} & \textbf{Memory} & \textbf{Time} & \textbf{Memory} \\
 			     &            & (in s) & (in MB) & (in s) & (in MB) \\
 			\hline 
-			\textbf{MMS - regular} & 384 & 0 & $78$ 				& 0 & 79 \\
-			\emph{3-D, static,}	& $4\,374$ & 0 & $86$ 			& 0 & 94 \\
-			\emph{linear elastic} & $41\,154$ & 1 & $195$  		& 2 & 181 \\
-			\hl{cell type}	&  $355\,914$ & 4 & $1\,063$ 		& 9 & $1\,289$ \\
-				& $2\,958\,234$ & 41 & $6\,724$ 	& 92 & $6\,174$ \\
-				& $24\,118\,074$ & 486 & $30\,606$ & $1\,732$ & $30\,601$ \\
+			\textbf{MMS}			& 125 		& 0 & $79$ 				& 0 & 79 \\
+			\emph{regular hex}		& $1\,000$ 	& 0 & $92$ 			& 0 & 94 \\
+			\emph{3-D, static,} 		& $8\,00$ 		& 1 & $197$  		& 2 & 181 \\
+			\emph{linear elastic}		&  $64\,000$ 	& 4 & $1\,211$ 		& 9 & $1\,289$ \\
+								& $512\,000$ 	& 44 & $5\,961$ 	& 92 & $6\,174$ \\
+								& $4\,096\,000$ & 517 & $23\,264$ & $1\,732$ & $30\,601$ \\
 			\hline
 %			\textbf{MMS - distorted} 	& 384 		&  & $78$ 				& 0 & 79 \\
 %			\emph{3-D, static,}		& $4\,374$ 	&  & $86$ 			& 0 & 94 \\
@@ -1831,13 +1878,19 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 %								& $2\,958\,234$ &  & $6\,724$ 	& 92 & $6\,174$ \\
 %								& $24\,118\,074$ &  & $30\,606$ & $1\,732$ & $30\,601$ \\
 %			\hline
-			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
-			\textbf{Plate} & 472 & 0 & $78$ & 0 & 81 \\
-			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
-			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
-				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
-				& $2\,438\,242$ & 988 & $21\,884$ & $45\,692$ & $20\,348$ \\
+			\textbf{Spherical}	& 976			& 0 & $92$			& 0 & 93 \\
+			\textbf{Cavity}		&  $4\,552$		& 0 & $179$			& 4 & 167 \\
+			\emph{3-D, static,} 	&  $29\,611$		& 5 & $926$			& 49 & $1\,098$ \\
+			\emph{linear elastic} 	& $213\,100$		& 71 & $5\,794$		& x & x \\
+							& $1\,614\,261$ 	& $1\,060$ & $23\,455$ 	& $x\,xxx$ & $x\,x$ \\
 			\hline
+%			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
+%			\textbf{Plate} & 472 & 0 & $78$ & 0 & 81 \\
+%			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
+%			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
+%				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
+%				& $2\,438\,242$ & 988 & $21\,884$ & $45\,692$ & $20\,348$ \\
+%			\hline
 %			\textbf{T-member} & 624& 0 & 84 					&  1 & 85 \\
 %			\emph{3-D, static,} & $4\,992$ & 1 & 127 				&  7 &  141 \\
 %			\emph{linear elastic} & $39\,936$ & 10 & 557			& 133 & 723  \\
@@ -1858,14 +1911,14 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 				& $36\,864$ & 2& 497 		& 444 & 392 \\
 				& $147\,456$ & 10& $1\,461$ 	& $2\,371$ & $1\,950$ \\
 			\hline
-			\textbf{Membrane ii} & 9 	& 1 & 81 		& 1 & 78 \\
-			\emph{2-D, static,} & 36 	& 1& 81 		& 2 & 78 \\
-			\emph{hyperelastic} & 144 & 3 & 84 		& 5 & 80 \\
-				& 576 			& 9 & 97 		& 26 & 91 \\
-				& $2\,304$ 		& 34 & 144 	& 166 & 132  \\
-				& $9\,216$ 		& 161 & 256  	& $1\,374$ & 357 \\
-				& $36\,864$ 		& 860 & 554  	& $15\,991$ & $1\,053$ \\
-				& $147\,456$ 		& $1\,585$ & $2\,847$ & $135\,851$ & $2\,341$ \\
+			\textbf{Membrane ii} 	& 9 				& 0 & 77 		& 1 & 78 \\
+			\emph{2-D, static,} 	& 36 				& 0 & 77 		& 2 & 78 \\
+			\emph{hyperelastic} 	& 144 			& 0 & 78 		& 5 & 80 \\
+							& 576 			& 0 & 85 		& 26 & 91 \\
+							& $2\,304$ 		& 1 & 108 		& 166 & 132  \\
+							& $9\,216$ 		& 2 & 186  	& $1\,374$ & 357 \\
+							& $36\,864$ 		& 10 & 517  	& $15\,991$ & $1\,053$ \\
+							& $147\,456$ 		& 44 & $1\,911$ & $135\,851$ & $2\,341$ \\
 			\hline
 			\textbf{Membrane iii} & 9 & $0$ & $78$	& 3 & 78 \\
 			\emph{2-D, static,} & 36 & $1$ & $79$	& 6 & 79 \\
@@ -1893,6 +1946,7 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
+\hl{Seg vs snes-seg}
 
 Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
 The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
@@ -2696,9 +2750,7 @@ The body force for the manufactured solution case is \citep{Mazzanti2024}:
 	\label{fig:mms_all}
 \end{figure}
 
-%%%%%%%%%%%%
-\begin{comment}
-%%%%%%%%%%%%
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2736,10 +2788,6 @@ where the constants $A$, $B$ and $C$ are defined as follows:
 \frac{C}{a^3} = -\frac{T}{8\mu}\frac{5(1-2\nu)}{7-5\nu}.
 \end{equation}
 and $\mu$ is the shear modulus.
-
-%%%%%%%%%%%%
-\end{comment}
-%%%%%%%%%%%%
 
 
 \end{appendices}
