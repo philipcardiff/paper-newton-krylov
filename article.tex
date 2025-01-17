@@ -1188,11 +1188,11 @@ The corresponding manufactured body force term ($\bb{f}_b$  in Equation \ref{eqn
 
 The manufactured displacement solution is applied at the domain's boundaries (prescribed displacements), and inertial effects are neglected.
 Three mesh types are examined:
-%(i) \emph{regular} hexahedra, (ii) \emph{distorted} hexahedra, (iii) tetrahedra, and (iv) polyhedra (shown in Figure \ref{fig:mms_mesh}).
-(i) hexahedra, (ii) tetrahedra, and (iii) polyhedra (shown in Figure \ref{fig:mms_mesh}).
-The hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} utility, while the tetrahedral meshes are created using Gmsh \citep{geuzaine2009gmsh}.
-To create the polyhedral meshes, the tetrahedra meshes are converted to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
-%The distorted hexahedral meshes are created by perturbing the points of the regular hexahedra by a random vector of magnitude less than 0.3 times the local minimum edge length.
+%(i) hexahedra, (ii) tetrahedra, and (iii) polyhedra (shown in Figure \ref{fig:mms_mesh}).
+(i) \emph{regular} tetrahedra, (ii) \emph{regular} polyhedra (shown in Figure \ref{fig:mms_mesh}), (iii) \emph{regular} hexahedra, and (iv) \emph{distorted} hexahedra.
+The second coarsest meshes are shown in Appendix \ref{app:meshes}.
+The tetrahedral meshes are created using Gmsh \citep{geuzaine2009gmsh}, while the polyhedral meshes are created by converting the tetrahedral meshes to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
+The regular hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} utility, and the distorted hexahedral meshes are created by perturbing the points of the regular hexahedra by a random vector of magnitude less than 0.3 times the local minimum edge length.
 %Points on the corners and edges of the cube domain are not moved, while the remaining boundary points are limited to slide along the boundary.
 %During perturbation, if needed, the local point perturbation is iteratively reduced to ensure the local distorted cell volumes are not less than 10\% of their original volume and the maximum face non-orthogonality is less than $70^\circ$.
 %Consequently, the meshes can be considered moderately distorted.
@@ -1235,11 +1235,11 @@ The maximum ($L_\infty$) and average ($L_2$) displacement discretisation errors 
 	\centering
 	\subfigure[Displacement magnitude discretisation errors]
 	{
-   		\includegraphics[width=0.45\textwidth]{figures/mms_dispErrors} 
+   		\includegraphics[width=0.45\textwidth]{figures/mms_dispErrors_v2} 
    	}
 	\subfigure[Displacement discretisation error order of accuracy]
 	{
-   		\includegraphics[width=0.45\textwidth]{figures/mms_disp_orderOfAccuracy}  
+   		\includegraphics[width=0.45\textwidth]{figures/mms_disp_orderOfAccuracy_v2}  
    	}
 	\caption{Manufactured solution cube case: the accuracy and order of accuracy for displacement magnitude on the \emph{regular} meshes}
 	\label{fig:mms_disp_accuracy}
@@ -1271,11 +1271,11 @@ Similarly, the maximum ($L_\infty$) stress order of accuracy is seen to approach
 	\centering
 	\subfigure[Stress magnitude discretisation errors]
 	{
-   		\includegraphics[width=0.45\textwidth]{figures/mms_stressErrors} 
+   		\includegraphics[width=0.45\textwidth]{figures/mms_stressErrors_v2} 
    	}
 	\subfigure[Stress discretisation error order of accuracy]
 	{
-   		\includegraphics[width=0.45\textwidth]{figures/mms_stress_orderOfAccuracy}  
+   		\includegraphics[width=0.45\textwidth]{figures/mms_stress_orderOfAccuracy_v2}  
    	}
 	\caption{Manufactured solution cube case: the accuracy and order of accuracy for stress magnitude}
 	\label{fig:mms_stress_accuracy}
@@ -2369,7 +2369,7 @@ The Lagrangian Green strain $\textbf{E}$ is defined as
 \end{eqnarray}
 
 The true stress can be calculated from the second Piola–Kirchhoff stress as
-\begin{eqnarray}
+\begin{eqnarray} \label{eq:S2sigma}
 	\bb{\sigma} &=& \frac{1}{J} \bb{F} \cdot \bb{S} \cdot \bb{F}^{\text{T}}
 \end{eqnarray}
 
@@ -2382,7 +2382,7 @@ The definition of true (Cauchy) stress $\bb{\sigma}$ for neo-Hookean hyperelasti
 	&=& \frac{\mu}{J} \, \text{dev} \left( \bar{\bb{b}} \right) + \frac{\kappa}{2} \frac{J^2 - 1}{J} \textbf{I}
 \end{eqnarray}
 where, once again, $\mu$ is the shear modulus, and $\kappa$ is the bulk modulus.
-The bulk modulus can be expressed in term of the Young's modulus ($E$) and Poisson's ratio $\nu$ as
+The bulk modulus can be expressed in terms of the Young's modulus ($E$) and Poisson's ratio $\nu$ as
 \begin{eqnarray}
 	\kappa = \frac{E}{3(1 - 2\nu)}
 \end{eqnarray}
@@ -2409,7 +2409,7 @@ where
 		&=&  2 c_t \boldsymbol{E} + 2(c_f - 2 c_{fs} + c_t)I_4 ( \boldsymbol{f_0} \otimes \boldsymbol{f_0} ) \notag \\
 		&&+ 2(c_{fs} - c_t)\left[\boldsymbol{E} \cdot  (\boldsymbol{f_0} \otimes \boldsymbol{f_0}) + ( \boldsymbol{f_0} \otimes \boldsymbol{f_0} ) \cdot \boldsymbol{E} \right]
 \end{eqnarray}
-The scalars $C$, $c_f$, $c_{fs}$, and $c_t$ are material parameters, and invariants of the Green strain, $\boldsymbol{E} = \boldsymbol{F}^{\text{T}} \cdot \boldsymbol{F}$, are defined as
+The scalars $C$, $c_f$, $c_{fs}$, and $c_t$ are material parameters and invariants of the Green strain, $\boldsymbol{E} = \boldsymbol{F}^{\text{T}} \cdot \boldsymbol{F}$, are defined as
 \begin{eqnarray}
 	I_1 = \text{tr}(\boldsymbol{E}), \quad
 	I_2 =  \frac{1}{2} \left[ \text{tr}^2(\boldsymbol{E}) - \text{tr}(\boldsymbol{E} \cdot \boldsymbol{E}) \right], \notag \\
@@ -2418,6 +2418,7 @@ The scalars $C$, $c_f$, $c_{fs}$, and $c_t$ are material parameters, and invaria
 \end{eqnarray}
 with $\boldsymbol{f_0}$ representing the unit fibre directions in the initial configuration.
 
+Equation \ref{eq:S2sigma} is used to convert the second Piola-Kirchhoff stress to the true stress.
 
 \subsection{Neo-Hookean $J_2$ Hyperelastoplasticity}
 For neo-Hookean $J_2$ Hyperelastoplasticity, the expression for the true (Cauchy) stress $\bb{\sigma}$ takes the same form as Equation \ref{eq:neoHook}, except $\boldsymbol{b}$ is replaced by its elastic component $\boldsymbol{b}_e$.
@@ -2667,6 +2668,31 @@ The body force for the manufactured solution case is \citep{Mazzanti2024}:
 %	\label{fig:mmsMeshes}
 %\end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Meshes Used with the Method of Manufactured Solutions}
+\label{app:meshes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htbp]
+	\centering
+	\subfigure[Regular tetrahedral mesh with $4\,374$ cells]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_mesh_tet}  
+   	}
+	\subfigure[Regular polyhedral mesh with $1\,000$ cells]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_mesh_poly}  
+   	}
+	\subfigure[Regular hexahedral mesh with $1\,000$ cells]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_mesh_hex}  
+   	}
+	\subfigure[Distorted hexahedral mesh with $1\,000$ cells]
+	{
+   		\includegraphics[width=0.45\textwidth]{figures/mms_mesh_hex_distorted}  
+   	}
+	\caption{Meshes used in the method of manufactured solutions case}
+	\label{fig:mms_all}
+\end{figure}
 
 %%%%%%%%%%%%
 \begin{comment}
