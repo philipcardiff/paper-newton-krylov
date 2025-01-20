@@ -522,7 +522,8 @@ In the current work, a unique definition of stress $\bb{\sigma}_{f_i}$ at each c
 \end{eqnarray}
 %where $\bb{\sigma}_{f_i}$ is the stress at an interface face $f_i$, 
 where the interpolation weight is defined as $w_{f_i} = (\bb{n}_{f_i} \cdot [\bb{x}_{N_{f_i}} - \bb{x}_{f_i}])/(\bb{n}_{f_i} \cdot [\bb{x}_{N_{f_i}} - \bb{x}_{P} ])$; however, achieving second-order accuracy of the displacement field is independent of the value of the weights, and, for example, $w_{f_i} = \nicefrac{1}{2}$ would also be sufficient.
-Similarly, the stress $\bb{\sigma}_{s_i}$ at a symmetry boundary face is calculated as
+
+The stress $\bb{\sigma}_{s_i}$ at a symmetry boundary face is calculated as
 \begin{eqnarray} \label{eq:symm}
 	\bb{\sigma}_{s_i}
 		&=& \frac{1}{2} \left (\bb{\sigma}_P + \bb{R}_{s_i} \cdot \bb{\sigma}_{P} \right) \notag \\
@@ -584,7 +585,7 @@ Note from Equation \ref{eq:divStressDiscret} that the stress on displacement bou
 %Note from Equation \ref{eq:divStressDiscret} that the stress on displacement boundary faces is assumed equal to the stress $\bb{\sigma}_P$ at the centroid of cell $P$.
 
 The cell-centred stress $\bb{\sigma}_P$ is calculated as a function of the displacement gradient according to the chosen mechanical law, for example, as shown in Appendix \ref{app:mechLaws}.
-\hl{magSf in OF}
+\hl{magSf in OF/ d3 weights}
 The presented discretisation is second-order accurate in space for displacement if the cell-centred displacement gradients (and the stress) are at least first-order accurate in space, even if the cell faces are not flat.
 To achieve this, the cell-centred displacement gradients are determined using an inverse-distance-weighted first-neighbours least squares method \citep{Jasak1996},
 \begin{eqnarray} \label{eq:leastSquaresGrad}
@@ -618,7 +619,7 @@ The $\bb{G}_P$ tensor for cell $P$ is calculated as
 \end{eqnarray}
 where the $\bb{G}^{-1}_P \cdot \bb{d}/(\bb{d}\cdot \bb{d})$ vectors are purely a function of the mesh and can be computed once and stored.
 Equation \ref{eq:leastSquaresGrad} approximates the cell-centre gradients to at least a first-order accuracy, increasing to second-order accuracy on certain smooth grids \citep{Syrakos2023};
-first-order accurate gradients are sufficient to preserve second-order accuracy of the cell-centre displacements.
+first-order accurate gradients are sufficient to preserve second-order accuracy of the cell-centre displacements. \hl{OF uses magSf}
 
 As noted, boundary conditions are enforced through the discretised surface integral terms at the boundary faces. % (Equations \ref{eq:divStressDiscret} and \ref{eq:RhieChow}).
 If required, the displacement $\bb{u}_{t_i}$ on a traction boundary face $t_i$ can be calculated by extrapolation from the centre of cell $P$ as
@@ -1346,72 +1347,54 @@ As seen in the previous case, the results agree with the theoretical expectation
 	\label{fig:spherical_cavity_accuracy}
 \end{figure}
 
-%The predicted $\sigma_{xx}$ stress distribution for a hexahedral mesh with $512\,000$ cells is shown in Figure \ref{fig:mms_stress}(a).
-%The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure \ref{fig:mms_stress}(b).
-%The errors of greatest magnitude ($43$ kPa) occur at the boundaries, corresponding to where the local truncation error is higher. % due to the use of one-sided differencing.
-%\begin{figure}[htbp]
-%	\centering
-%	\subfigure[Predicted $\sigma_{xx}$ stress distribution]
-%	{
-%		\label{fig:mms_sxx}
-%   		\includegraphics[height=0.35\textwidth]{figures/mms_sxx} 
-%   	}
-%	\subfigure[Cell-wise $\sigma_{xx}$ error distribution]
-%	{
-%		\label{fig:mms_sxx_diff}
-%   		\includegraphics[height=0.35\textwidth]{figures/mms_sxx_diff}  
-%   	}
-%	\caption{Manufactured solution cube case: the predicted $\sigma_{xx}$ stress distribution on a cut-plane for the regular hexahedral mesh with $512\,000$ cells (left).}
-%	\label{fig:mms_stress}
-%\end{figure}
 
 
 
-%\paragraph{Case 2: Out-of-plane bending of an elliptic plate}
-%This 3-D, static, linear elastic test case (Figure \ref{fig:elliptic_plate}) consists of a thick elliptic plate (0.6 m thick) with a centred elliptic hole, with the inner and outer ellipses given as
-%\begin{eqnarray}
-%	\left(\frac{x}{2}\right)^2 + \left(\frac{y}{1}\right)^2 = 1 & \text{inner ellipse} \\
-%	\left(\frac{x}{3.25}\right)^2 + \left(\frac{y}{2.75}\right)^2 = 1 & \text{outer ellipse}
-%\end{eqnarray}
-%The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{Hitchings1987}, and analysed using finite volume procedures by \citet{Demirdzic1997a} and \citet{Cardiff2016a}.
-%Symmetry allows one-quarter of the geometry to be simulated.
-%A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
-%The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
-%Six successively refined hexahedral meshes are used, with cell counts of 45, 472 (Figure \ref{fig:elliptic_plate}), $4\,140$, $34\,968$, $287\,280$ and $2\,438\,242$.
-%\begin{figure}[htbp]
-%   \centering
-%%\includegraphics[width=0.5\textwidth]{figures/elliptic_plate.pdf} ellipticPlate-geometry
-%%	\subfigure[Mesh containing 472 hexahedral cells]
-%%	{
-%		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate.pdf} 
-%%	}
-%   \caption{Elliptic Plate geometry and mesh containing 472 hexahedral cells}
-%   \label{fig:elliptic_plate}
-%\end{figure}
-%
-%The prediction for the equivalent (von Mises) stress in the domain are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(a), and the values along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(b).
-%The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen;
-%the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} are likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
-%The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\nicefrac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
-%\begin{figure}[htbp]
-%   \centering
-%   %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
-%	\subfigure[Equivalent stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry]
+\paragraph{Case 3: Out-of-plane bending of an elliptic plate}
+This 3-D, static, linear elastic test case (Figure \ref{fig:elliptic_plate}) consists of a thick elliptic plate (0.6 m thick) with a centred elliptic hole, with the inner and outer ellipses given as
+\begin{eqnarray}
+	\left(\frac{x}{2}\right)^2 + \left(\frac{y}{1}\right)^2 = 1 & \text{inner ellipse} \\
+	\left(\frac{x}{3.25}\right)^2 + \left(\frac{y}{2.75}\right)^2 = 1 & \text{outer ellipse}
+\end{eqnarray}
+The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{Hitchings1987}, and analysed using finite volume procedures by \citet{Demirdzic1997a} and \citet{Cardiff2016a}.
+Symmetry allows one-quarter of the geometry to be simulated.
+A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
+The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
+Six successively refined hexahedral meshes are used, with cell counts of 45, 472 (Figure \ref{fig:elliptic_plate}), $4\,140$, $34\,968$, $287\,280$ and $2\,438\,242$.
+\begin{figure}[htbp]
+   \centering
+%\includegraphics[width=0.5\textwidth]{figures/elliptic_plate.pdf} ellipticPlate-geometry
+%	\subfigure[Mesh containing 472 hexahedral cells]
 %	{
-%		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq}  
+		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate.pdf} 
 %	}
-%	\subfigure[Equivalent stress along the line $r = 2.1$, $z = 0.3$ m]
-%	{
-%		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
-%	}
-%   \caption{Equivalent (von Mises) stress distribution in the elliptic plate}
-%   \label{fig:elliptic_plate_sigmaEq}
-%\end{figure}
-%
-%
+   \caption{Elliptic Plate geometry and mesh containing 472 hexahedral cells}
+   \label{fig:elliptic_plate}
+\end{figure}
+
+The prediction for the equivalent (von Mises) stress in the domain are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(a), and the values along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(b).
+The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen;
+the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} are likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
+The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\nicefrac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
+\begin{figure}[htbp]
+   \centering
+   %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
+	\subfigure[Equivalent stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry]
+	{
+		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq}  
+	}
+	\subfigure[Equivalent stress along the line $r = 2.1$, $z = 0.3$ m]
+	{
+		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
+	}
+   \caption{Equivalent (von Mises) stress distribution in the elliptic plate}
+   \label{fig:elliptic_plate_sigmaEq}
+\end{figure}
 
 
-%\paragraph{Case 2: Narrow T-section component under tension}
+
+
+%\paragraph{Case X: Narrow T-section component under tension}
 %This case, proposed by \citet{Demirdzic1997a}, consists of a narrow engineering component with a T cross-section (Figure \ref{fig:narrowTmember}).
 %The case is 3-D, static, with linear elastic material behaviour.
 %Symmetry allows one-quarter of the geometry to be simulated.
@@ -1466,7 +1449,7 @@ As seen in the previous case, the results agree with the theoretical expectation
 
 
 
-\paragraph{Case 3: Inflation of an idealised ventricle}
+\paragraph{Case 4: Inflation of an idealised ventricle}
 Inflation of an idealised ventricle (Figure \ref{fig:ventricle}) was proposed by \citet{Land2015} as a benchmark problem for cardiac mechanics software.
 The case is 3-D, static, with finite hyperelastic strains.
 The initial geometry is defined as a truncated ellipsoid:
@@ -1521,7 +1504,7 @@ The predictions are seen to become quickly mesh-independent and fall within the 
 \end{figure}
 
 
-\paragraph{Case 4: Cook's membrane}
+\paragraph{Case 5: Cook's membrane}
 Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
 The 2-D plane strain tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
 The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
@@ -1647,7 +1630,7 @@ The results shown for the hyperelastoplastic case were generated using the segre
 
 
 
-\paragraph{Case 5: Vibration of a 3-D Cantilevered Beam}
+\paragraph{Case 6: Vibration of a 3-D Cantilevered Beam}
 This 3-D, dynamic, finite strain case geometry consists of a $2 \times 0.2 \times 0.2$ m cuboid column and was proposed in its initial form by \citet{Tukovic2007}.
 %(Figure \ref{fig:dynamic_cantilever})
 %A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
@@ -1746,7 +1729,7 @@ The equivalent (von Mises) stress distribution (right image in Figure \ref{fig:t
 %%%%%%%%%%%%
 
 
-\paragraph{Case 6: Elastic plate behind a rigid cylinder}
+\paragraph{Case 7: Elastic plate behind a rigid cylinder}
 The final test case, introduced by \citet{Turek2006}, extends the classic flow around a cylinder in a channel problem \citep{Ferziger2002} into a well-established fluid-solid interaction benchmark.
 The \texttt{FSI3} variant of the case examined here (Figure \ref{fig:hronTurek-mesh}) consists of a horizontal channel (0.41 m in height, 2.5 m in length) with a rigid cylinder of radius 0.05 m, where the cylinder centre is 0.2 m from the bottom and inlet (left) boundaries.
 A parabolic velocity is prescribed at the inlet velocity with a mean value of 2 m/s.
@@ -1863,90 +1846,24 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 			\textbf{Case} & \textbf{Cell Count} & \multicolumn{2}{c|}{\textbf{JFNK}} & \multicolumn{2}{c}{\textbf{Segregated}} \\
 			     &            & \textbf{Time} & \textbf{Memory} & \textbf{Time} & \textbf{Memory} \\
 			     &            & (in s) & (in MB) & (in s) & (in MB) \\
-			\hline 
-			\textbf{MMS}			& 125 		& 0 & $79$ 				& 0 & 79 \\
-			\emph{regular hex}		& $1\,000$ 	& 0 & $92$ 			& 0 & 94 \\
-			\emph{3-D, static,} 		& $8\,00$ 		& 1 & $197$  		& 2 & 181 \\
-			\emph{linear elastic}		&  $64\,000$ 	& 4 & $1\,211$ 		& 9 & $1\,289$ \\
-								& $512\,000$ 	& 44 & $5\,961$ 	& 92 & $6\,174$ \\
-								& $4\,096\,000$ & 517 & $23\,264$ & $1\,732$ & $30\,601$ \\
 			\hline
-%			\textbf{MMS - distorted} 	& 384 		&  & $78$ 				& 0 & 79 \\
-%			\emph{3-D, static,}		& $4\,374$ 	&  & $86$ 			& 0 & 94 \\
-%			\emph{linear elastic} 		& $41\,154$ 	&  & $195$  		& 2 & 181 \\
-%								&  $355\,914$ 	&  & $1\,063$ 		& 9 & $1\,289$ \\
-%								& $2\,958\,234$ &  & $6\,724$ 	& 92 & $6\,174$ \\
-%								& $24\,118\,074$ &  & $30\,606$ & $1\,732$ & $30\,601$ \\
-%			\hline
-			\textbf{Spherical}	& 976			& 0 & $92$			& 0 & 93 \\
-			\textbf{Cavity}		&  $4\,552$		& 0 & $179$			& 4 & 167 \\
-			\emph{3-D, static,} 	&  $29\,611$		& 5 & $926$			& 49 & $1\,098$ \\
-			\emph{linear elastic} 	& $213\,100$		& 71 & $5\,794$		& x & x \\
-							& $1\,614\,261$ 	& $1\,060$ & $23\,455$ 	& $x\,xxx$ & $x\,x$ \\
-			\hline
-%			\textbf{Elliptic} & 45 & 0 & $72$ & 0 & 76 \\
-%			\textbf{Plate} & 472 & 0 & $78$ & 0 & 81 \\
-%			\emph{3-D, static,} & $4\,140$ & 1 & $153$ & 8 & 124 \\
-%			\emph{linear elastic} & $34\,968$ & 7 & $754$ & 149 & 660 \\
-%				& $287\,280$ & 95 & $3\,943$ & $2\,694$ & $3\,661$ \\
-%				& $2\,438\,242$ & 988 & $21\,884$ & $45\,692$ & $20\,348$ \\
-%			\hline
-%			\textbf{T-member} & 624& 0 & 84 					&  1 & 85 \\
-%			\emph{3-D, static,} & $4\,992$ & 1 & 127 				&  7 &  141 \\
-%			\emph{linear elastic} & $39\,936$ & 10 & 557			& 133 & 723  \\
-%				& $319\,488$ & 154 & $4\,024$ 				& $2\,916$ & $3\,547$  \\
-%				& $2\,555\,904$ & $1\,751$ & $22\,814$ 			& $47\,344$ &  $21\,827$ \\
-%			\hline
-			\textbf{Ventricle} & $1\,620$ & 54 & 133 				& $\dag$ & $\dag$  \\ % & crashed at 0.23 s &  \\
-			\emph{3-D, static,}& $12\,960$ & 576 & 553 			& $\dag$  & $\dag$ \\ % & crashed at 0.25 s & \\
-			\emph{hyperelastic} & $103\,680$ & $8\,362$ & $3\,435$ 	& $\dag$  & $\dag$ \\ % & crashed at 0.18 s & \\
-				& $829\,440$ & $150\,023$ & $11\,746$ 			& $\dag$  & $\dag$ \\ % & crashed at 0.16 s & \\
-			\hline
-			\textbf{Membrane i} & 9 & 0 & 77 	& 0 & 76 \\
-			\emph{2-D, static,}& 36 & 0 & 77  	& 0 & 76 \\
-			\emph{linear elastic}& 144 & 0 & 78  & 0 & 78 \\
-				& 576 & 0 & 82 				& 1 & 84 \\
-				& $2\,304$ & 0 & 94 			& 4 & 102 \\
-				& $9\,216$ & 1 & 152 		& 33 & 186 \\
-				& $36\,864$ & 2& 497 		& 444 & 392 \\
-				& $147\,456$ & 10& $1\,461$ 	& $2\,371$ & $1\,950$ \\
-			\hline
-			\textbf{Membrane ii} 	& 9 				& 0 & 77 		& 1 & 78 \\
-			\emph{2-D, static,} 	& 36 				& 0 & 77 		& 2 & 78 \\
-			\emph{hyperelastic} 	& 144 			& 0 & 78 		& 5 & 80 \\
-							& 576 			& 0 & 85 		& 26 & 91 \\
-							& $2\,304$ 		& 1 & 108 		& 166 & 132  \\
-							& $9\,216$ 		& 2 & 186  	& $1\,374$ & 357 \\
-							& $36\,864$ 		& 10 & 517  	& $15\,991$ & $1\,053$ \\
-							& $147\,456$ 		& 44 & $1\,911$ & $135\,851$ & $2\,341$ \\
-			\hline
-			\textbf{Membrane iii} & 9 & $0$ & $78$	& 3 & 78 \\
-			\emph{2-D, static,} & 36 & $1$ & $79$	& 6 & 79 \\
-			\emph{hyperelastoplastic}& 144 & $\dag$ & $\dag$	& 27 & 82 \\
-				& 576 & 			$8$ & $90$ 			& 231 & 104 \\
-				& $2\,304$ & 		$\dag$ & $\dag$		& $1\,379$ & 180 \\
-				& $9\,216$ & 		$\dag$ & $\dag$			& $8\,321$ & 451 \\
-				& $36\,864$ & 		$\dag$ & $\dag$ 		& $60\,698$ & $1\,396$ \\
-				& $147\,456$ & 	$\dag$ & $\dag$ 		& $341\,212$ & $3\,466$ \\
-			\hline
-			\textbf{Cantilever} & $270$ & 11 & 85 		& $\dag$ & $\dag$ \\
-			\emph{3-D, dynamic,} & $2\,160$ & 71 & 181 	& $\dag$ & $\dag$ \\
-			\emph{hyperelastic}& $17\,280$ & 854 & 752 	& $\dag$ & $\dag$ \\
-				& $138\,240$ & $11\,800$ & $5\,790$ 	& $\dag$ & $\dag$ \\
-			\hline
-%			\textbf{Turbine} & $322\,161$ & $22\,782$ & $11\,102$ & & \hl{rnng} \\
-%			\emph{3-D, static,} & $2\,493\,299$  & \hl{to-rn}& & & \hl{to-rn} \\
-%			\emph{linear elastic} & & & & & \\
-%			\hline
-			\textbf{FSI} & $1\,252$ + 156 & $3\,830$ & 748 				& $5\,360$ & 738 \\
-			\emph{2-D, dynamic,}	& $5\,008$ + 624 & $32\,074$ & 834 	& $52\,372$ & 775 \\
-			\emph{hyperelastic} & $20\,032$ + $2\,496$ & $170\,919$ & 785 	& $218\,797$ & 748 \\
-			\hline
+			\input{tableJFNKvsSeg_mms.tex}
+			\input{tableJFNKvsSeg_sphericalCavity.tex}
+			\input{tableJFNKvsSeg_ellipticPlate.tex}
+%			\input{tableJFNKvsSeg_Tmember.tex}
+			\input{tableJFNKvsSeg_ventricle.tex}
+			\input{tableJFNKvsSeg_membranei.tex}
+			\input{tableJFNKvsSeg_membraneii.tex}
+			\input{tableJFNKvsSeg_membraneiii.tex}
+			\input{tableJFNKvsSeg_cantilever.tex}
+%			\input{tableJFNKvsSeg_turbine.tex}
+			\input{tableJFNKvsSeg_HronTurek.tex}
 		\end{tabular}
 	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
-\hl{Seg vs snes-seg}
+\hl{Update results (replace snes.seg with of.seg results}
+\hl{Replace ellipticPlate results with sphericalCavity or re-add it}
 
 Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
 The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
