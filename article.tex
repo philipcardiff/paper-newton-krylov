@@ -90,9 +90,10 @@ textheight=24cm, % llncs has 19.3cm
 \title[Article Title]{Assessing the potential of Jacobian-free Newton-Krylov methods for cell-centred finite volume solid mechanics}
 
 \author*[1,2,3]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
-\author[4]{\fnm{Ivan} \sur{Batisti\'{c}}}
+\author[1,2,3]{\fnm{Dylan} \sur{Armfield}}
 %\author[5]{\fnm{Hiroaki} \sur{Nishikawa}}
 \author[4]{\fnm{\v{Z}eljko} \sur{Tukovi\'{c}}}
+\author[4]{\fnm{Ivan} \sur{Batisti\'{c}}}
 
 \affil*[1]{\orgdiv{School of Mechanical and Materials Engineering}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
 \affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
@@ -1794,11 +1795,6 @@ while the frequency is calculated as the inverse of the period.
 			\hline
 			Mesh (number of fluid and solid cells) & $u_x$ (in mm) & $u_y$ (in mm) \\
 			\hline
-			%  \hl{This data is taken as the average from 4-6 seconds: I am now running the case up to 20 seconds as per the benchmark}
-%			1 ($1\,252$ + 156)  & $-0.1 \pm 0.01 \,[ 18.5 ]$ & $1.60 \pm 0.20 \,[ 5.5 ]$ \\
-%			2 ($5\,008$ + 624)  & $-2.13 \pm 2.07 \,[ 11 ]$ & $2.00 \pm 28.84 \,[ 5.5 ]$ \\
-%			3 ($20\,032$ + $2\,496$)  & $-2.62 \pm 2.46 \,[11]$ & $1.80 \pm 32.01 \,[ 5.5 ]$ \\
-			% Data below is from the last cycle in the case run up to 20 s
 			1 ($1\,252$ + 156)  & $ -0.1 \pm 0.001 \,[ 47.6 ]$ & $1.58 \pm 0.002 \,[ 5.88 ]$ \\
 			2 ($5\,008$ + 624)  & $-2.16 \pm 2.00 \,[ 10.2 ]$ & $1.54 \pm 29.56 \,[ 5.6 ]$ \\
 			3 ($20\,032$ + $2\,496$)  & $-2.51 \pm 2.37 \,[12.1]$ & $0.87 \pm 33.08 \,[ 5.6 ]$ \\
@@ -1862,15 +1858,14 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
-\hl{Update results (replace snes.seg with of.seg results}
-\hl{Replace ellipticPlate results with sphericalCavity or re-add it}
+\hl{Update results (replace snes.seg with of.seg results); OK scripts ready}
+\hl{Ensure convergence criteria is same as PETSc}
 
 Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
 The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
 In addition, unlike for the speedup, there is no general trend in the relative memory usage as the number of degrees of freedom increases.
 The maximum value for relative memory was 1.9 and occurred in the second-finest mesh for the membrane ii (2-D, hyperelastic) case, although for all other meshes in this case, the value was less than one (between 0.82 and 0.95).
 The maximum memory usage is primarily attributed to the linear solver and preconditioner; the choice of preconditioner and linear solver settings are examined further in Section \ref{sec:preconditioner}.
-%\hl{Note: we use segregated in PETSc, so it is a vector system}
 \begin{figure}[htbp]
    \centering
 	\subfigure[Speedup]
