@@ -1060,6 +1060,7 @@ In addition, some authors %\cite{See164_and_176_in_Knoll2004}
 The concept of oversolving also applies to segregated solution procedures and has been well-known since the early work of Demird\v{z}i\'{c} and co-workers \cite{Demirdzic1995}, where the residuals are typically reduced by one order of magnitude in the inner linear system.
 %The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}. \hl{Check: do we examine this?}
 In the current work, the residual is reduced by one order of magnitude in the segregated approach and three orders in the Jacobian-free Newton-Krylov approach.
+\hl{Try for EW plastic: $-snes_ksp_ew -snes_ksp_ew_version 2 -snes_ksp_ew_rtol0 1e-4$}
 
 %Knoll2004:
 %The forcing term and the issue of ‘‘oversolving’’ a Newton step has recently gained interest [164,176]. The concept of ‘‘oversolving’’ implies that at early Newton iterations c is too small. Then one may obtain an accurate linear solution to an inaccurate Newton correction. This may result in a poor Newton update and degradation in the Newton convergence. In [164,176] it has been demonstrated that in some situations the Newton convergence may actually suffer if c is too small in early Newton iterations.
@@ -1779,7 +1780,7 @@ The fluid is seen to accelerate as it passes the cylinder, with regular vortices
 %	{
 %   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
 %   	}
-   \caption{Elastic plate behind a rigid cylinder case results at $t = 20$ s for the mesh with $20\,032$ cells in the fluid region and $2\,496$ in the solid region. The velocity magnitude is shown in the fluid region while the displacement magnitude is shown in the solid region.}
+   \caption{Elastic plate behind a rigid cylinder case results at $t = 20$ s for the mesh with $20\,032$ cells in the fluid region and $2\,496$ in the solid region. The velocity magnitude is shown in the fluid region while the displacement magnitude is shown in the solid region. \hl{update: harmonic top/bot}}
    \label{fig:hronTurek-results}
 \end{figure}
 The predicted mean, amplitude and frequency of the vertical and horizontal displacement of the end of the plate are compared with the results from \citet{Turek2006} in Table \ref{tab:hronTurekDisp}.
@@ -1858,8 +1859,7 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
-\hl{Update results (replace snes.seg with of.seg results); OK scripts ready}
-\hl{Ensure convergence criteria is same as PETSc}
+\hl{Update results (replace snes.seg with of.seg results); running!}
 
 Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
 The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
