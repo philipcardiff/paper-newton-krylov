@@ -1066,6 +1066,11 @@ In the current work, the residual is reduced by one order of magnitude in the se
 %The forcing term and the issue of ‘‘oversolving’’ a Newton step has recently gained interest [164,176]. The concept of ‘‘oversolving’’ implies that at early Newton iterations c is too small. Then one may obtain an accurate linear solution to an inaccurate Newton correction. This may result in a poor Newton update and degradation in the Newton convergence. In [164,176] it has been demonstrated that in some situations the Newton convergence may actually suffer if c is too small in early Newton iterations.
 
 
+%%--------------------------------------------------------------------------------------------------------------------%%
+\subsection{Checking Convergence}
+%%--------------------------------------------------------------------------------------------------------------------%%
+\hl{sTol vs fTol vs aTol}
+\hl{sTol: not equivalent in JFNK and Picard}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1563,7 +1568,7 @@ Eight successively refined quadrilateral meshes are considered, where the cell c
 %mesh.7 - 192x192 - 36864 CVs
 %mesh.8 - 384x384 - 147456 CVs
 The problem is solved quasi-statically, and there are no body forces.
-The linear elastic and hyperelastic cases use one loading increment, whereas the hyperelastoplastic case uses 30 equally-sized loading increments.
+The linear elastic uses one loading increment, whereas the hyperelastic and hyperelastoplastic cases use 30 equally-sized loading increments.
 
 
 Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for linear elastic, hyperelastic and hyperelastoplastic cases.
@@ -1597,15 +1602,15 @@ The reference point is taken as the top right point -- $(48,60)$ mm -- in the el
    \centering
    	\subfigure[Linear elastic case]
 	{
-		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-hookeanTipDispConvergence}  
+		\includegraphics[height=0.3\textwidth]{figures/cooksMembrane-hookeanTipDispConvergence}  
 	}
 	\subfigure[Hyperelastic case]
 	{
-		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-neoHookeanTipDispConvergence}  
+		\includegraphics[height=0.3\textwidth]{figures/cooksMembrane-neoHookeanTipDispConvergence}  
 	}
 	\subfigure[Hyperelastoplastic case]
 	{
-		\includegraphics[width=0.45\textwidth]{figures/cooksMembrane-neoHookeanPlasticTipDispConvergence}  
+		\includegraphics[height=0.3\textwidth]{figures/cooksMembrane-neoHookeanPlasticTipDispConvergence}  
 	}
 %	\subfigure[Equivalent stress distribution for the hyperelastic case (case ii) using the mesh with $36\,842$ cells]
 %	{
@@ -1615,7 +1620,7 @@ The reference point is taken as the top right point -- $(48,60)$ mm -- in the el
 %	{
 %		\includegraphics[height=0.35\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
 %	}
-   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from the literature \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}. \hl{Ref NOT tip}}
+   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from the literature \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}}
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
@@ -1796,14 +1801,15 @@ while the frequency is calculated as the inverse of the period.
 			\hline
 			Mesh (number of fluid and solid cells) & $u_x$ (in mm) & $u_y$ (in mm) \\
 			\hline
-			1 ($1\,252$ + 156)  & $ -0.1 \pm 0.001 \,[ 47.6 ]$ & $1.58 \pm 0.002 \,[ 5.88 ]$ \\
-			2 ($5\,008$ + 624)  & $-2.16 \pm 2.00 \,[ 10.2 ]$ & $1.54 \pm 29.56 \,[ 5.6 ]$ \\
-			3 ($20\,032$ + $2\,496$)  & $-2.51 \pm 2.37 \,[12.1]$ & $0.87 \pm 33.08 \,[ 5.6 ]$ \\
-			\hline
+			\input{tableHronTurekDisp.tex}
+%			1 ($1\,252$ + 156)  & $ -0.1 \pm 0.001 \,[ 47.6 ]$ & $1.58 \pm 0.002 \,[ 5.88 ]$ \\
+%			2 ($5\,008$ + 624)  & $-2.16 \pm 2.00 \,[ 10.2 ]$ & $1.54 \pm 29.56 \,[ 5.6 ]$ \\
+%			3 ($20\,032$ + $2\,496$)  & $-2.51 \pm 2.37 \,[12.1]$ & $0.87 \pm 33.08 \,[ 5.6 ]$ \\
+%			\hline
 			\citet{Turek2006} & $-2.69 \pm 2.53\,[10.9]$ & $1.48 \pm 34.38\,[5.3]$ \\
 			\hline
 		\end{tabular}
-	\caption{Average predicted displacements (mean $\pm$ amplitude $[$frequency$]$) of the free end of the plate. Note that large-scale plate oscillations in mesh 1 (coarsest mesh) die out within the first 10 s.}
+	\caption{Predicted oscillations (mean $\pm$ amplitude $[$frequency$]$) of the free end of the plate. Note that large-scale plate oscillations in mesh 1 (coarsest mesh) die out within the first 10 s.}
 %	 \hl{Hron-Turek say to use the last cycle, but surely taking the average of cycles would be better for benchmarking...} \hl{e.g. the average of the mesh 3 cycle is slightly lower than the rest} \hl{we could also report the average}
 		\label{tab:hronTurekDisp}
 \end{table}
