@@ -357,7 +357,7 @@ The components of the $N \times N$ Jacobian are
 	{J}_{ij} = \frac{\partial {R}_i (\bb{u})}{\partial u_j}
 \end{eqnarray}
 
-The current work focusses on vector problems, where the governing momentum equation is formulated in terms of the unknown displacement solution vector.
+The current work focuses on vector problems, where the governing momentum equation is formulated in terms of the unknown displacement solution vector.
 In this case, Equation \ref{eq:J} refers to the individual scalar components of the residual, solution, and Jacobian.
 That is, for 3-D analyses, the residual takes the form
 \begin{eqnarray}
@@ -586,9 +586,8 @@ Note from Equation \ref{eq:divStressDiscret} that the stress on displacement bou
 %Note from Equation \ref{eq:divStressDiscret} that the stress on displacement boundary faces is assumed equal to the stress $\bb{\sigma}_P$ at the centroid of cell $P$.
 
 The cell-centred stress $\bb{\sigma}_P$ is calculated as a function of the displacement gradient according to the chosen mechanical law, for example, as shown in Appendix \ref{app:mechLaws}.
-\hl{magSf in OF/ d3 weights}
 The presented discretisation is second-order accurate in space for displacement if the cell-centred displacement gradients (and the stress) are at least first-order accurate in space, even if the cell faces are not flat.
-To achieve this, the cell-centred displacement gradients are determined using an inverse-distance-weighted first-neighbours least squares method \citep{Jasak1996},
+To achieve this, the cell-centred displacement gradients are determined using a weighted first-neighbours least squares method \citep{Jasak1996},
 \begin{eqnarray} \label{eq:leastSquaresGrad}
 	\left(\bb{\nabla}\bb{u}\right)_P
 %		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \omega_{f_i}^2 \bb{G}^{-1}_P \cdot \bb{d}_{f_i} \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
@@ -597,9 +596,12 @@ To achieve this, the cell-centred displacement gradients are determined using an
 %		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \left( \nicefrac{1}{|\bb{d}_{f_i}|^2} \right) \bb{G}^{-1}_P \cdot \bb{d}_{f_i} \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
 %		&&+ \sum_{b_i \in \mathcal{F}^{\text{disp}}_P} \left( \nicefrac{1}{|\bb{d}_{b_i}|^2} \right) \bb{G}^{-1}_P \cdot \bb{d}_{b_i} \left(\bb{u}_{b_i} - \bb{u}_P \right) \notag \\
 %		&&+ \sum_{b_i \in \mathcal{F}^{\text{symm}}_P} \left( \nicefrac{1}{|\bb{d}_{b_i}^{\text{symm}}|^2} \right) \bb{G}^{-1}_P \cdot \bb{d}_{b_i}^{\text{symm}} \left(\bb{R}_{b_i} \cdot \bb{u}_P - \bb{u}_P \right) \\
-		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \frac{\bb{G}^{-1}_P \cdot \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}}  \otimes \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
-		&&+ \sum_{d_i \in \mathcal{F}^{\text{disp}}_P} \frac{ \bb{G}^{-1}_P \cdot \bb{d}_{d_i} }{\bb{d}_{d_i} \cdot \bb{d}_{d_i}} \otimes \left(\bb{u}_{d_i} - \bb{u}_P \right) \notag \\
-		&&+ \sum_{s_i \in \mathcal{F}^{\text{symm}}_P} \frac{\bb{G}^{-1}_P \cdot \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}} \otimes \left(\bb{R}_{s_i} \cdot \bb{u}_P - \bb{u}_P \right)
+%		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} \frac{\bb{G}^{-1}_P \cdot \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}}  \otimes \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
+%		&&+ \sum_{d_i \in \mathcal{F}^{\text{disp}}_P} \frac{ \bb{G}^{-1}_P \cdot \bb{d}_{d_i} }{\bb{d}_{d_i} \cdot \bb{d}_{d_i}} \otimes \left(\bb{u}_{d_i} - \bb{u}_P \right) \notag \\
+%		&&+ \sum_{s_i \in \mathcal{F}^{\text{symm}}_P} \frac{\bb{G}^{-1}_P \cdot \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}} \otimes \left(\bb{R}_{s_i} \cdot \bb{u}_P - \bb{u}_P \right)
+		&=&\sum_{f_i \in \mathcal{F}^{\text{int}}_P} w_{f_i} |\bb{\Gamma}_{f_i}| \frac{\bb{G}^{-1}_P \cdot \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}}  \otimes \left(\bb{u}_{N_{f_i}} - \bb{u}_P \right) \notag \\
+		&&+ \sum_{d_i \in \mathcal{F}^{\text{disp}}_P} w_{f_i} |\bb{\Gamma}_{d_i}| \frac{ \bb{G}^{-1}_P \cdot \bb{d}_{d_i} }{\bb{d}_{d_i} \cdot \bb{d}_{d_i}} \otimes \left(\bb{u}_{d_i} - \bb{u}_P \right) \notag \\
+		&&+ \sum_{s_i \in \mathcal{F}^{\text{symm}}_P} w_{f_i} |\bb{\Gamma}_{s_i}| \frac{\bb{G}^{-1}_P \cdot \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}} \otimes \left(\bb{R}_{s_i} \cdot \bb{u}_P - \bb{u}_P \right)
 \end{eqnarray}
 which is exact for linear functions.
 %where the least squares weights are $\omega_{f_i} = 1/|\bb{d}_{f_i}|$ and  $\omega_{b_i} = 1/|\bb{d}_{b_i}|$.
@@ -614,13 +616,16 @@ The $\bb{G}_P$ tensor for cell $P$ is calculated as
 %	 \sum_{{f_i} \in \mathcal{F}^{\text{int}}_P} \omega_{f_i}^2 \bb{d}_{f_i} \bb{d}_{f_i}
 %	 +  \sum_{{b_i} \in \mathcal{F}^{\text{disp}}_P} \omega_{b_i}^2 \bb{d}_{b_i} \bb{d}_{b_i}
 %	 +  \sum_{{b_i} \in \mathcal{F}^{\text{symm}}_P} \omega_{b_i}^2 \bb{d}_{b_i}^{\text{symm}} \bb{d}_{b_i}^{\text{symm}}
-	 \sum_{{f_i} \in \mathcal{F}^{\text{int}}_P} \frac{\bb{d}_{f_i} \otimes \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}}
-	 +  \sum_{{d_i} \in \mathcal{F}^{\text{disp}}_P} \frac{\bb{d}_{d_i} \otimes \bb{d}_{d_i}}{\bb{d}_{d_i} \cdot \bb{d}_{d_i}}
-	 +  \sum_{{s_i} \in \mathcal{F}^{\text{symm}}_P} \frac{\bb{d}_{s_i} \otimes \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}}
+%	 \sum_{{f_i} \in \mathcal{F}^{\text{int}}_P} \frac{\bb{d}_{f_i} \otimes \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}}
+%	 +  \sum_{{d_i} \in \mathcal{F}^{\text{disp}}_P} \frac{\bb{d}_{d_i} \otimes \bb{d}_{d_i}}{\bb{d}_{d_i} \cdot \bb{d}_{d_i}}
+%	 +  \sum_{{s_i} \in \mathcal{F}^{\text{symm}}_P} \frac{\bb{d}_{s_i} \otimes \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}}
+	 \sum_{{f_i} \in \mathcal{F}^{\text{int}}_P} (1 - w_{f_i}) |\bb{\Gamma}_{f_i}|  \frac{\bb{d}_{f_i} \otimes \bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{d}_{f_i}} \notag \\
+	 &&+  \sum_{{d_i} \in \mathcal{F}^{\text{disp}}_P} (1 - w_{d_i}) |\bb{\Gamma}_{d_i}|  \frac{\bb{d}_{d_i} \otimes \bb{d}_{d_i}}{\bb{d}_{d_i} \cdot \bb{d}_{d_i}} \notag \\
+	 && +  \sum_{{s_i} \in \mathcal{F}^{\text{symm}}_P} (1 - w_{s_i}) |\bb{\Gamma}_{s_i}|  \frac{\bb{d}_{s_i} \otimes \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}}
 \end{eqnarray}
-where the $\bb{G}^{-1}_P \cdot \bb{d}/(\bb{d}\cdot \bb{d})$ vectors are purely a function of the mesh and can be computed once and stored.
+As the $w |\bb{\Gamma}| \ \bb{G}^{-1}_P \cdot \bb{d}/(\bb{d}\cdot \bb{d})$ vectors in Equation \ref{eq:leastSquaresGrad} are purely a function of the mesh, they can be computed once and stored.
 Equation \ref{eq:leastSquaresGrad} approximates the cell-centre gradients to at least a first-order accuracy, increasing to second-order accuracy on certain smooth grids \citep{Syrakos2023};
-first-order accurate gradients are sufficient to preserve second-order accuracy of the cell-centre displacements. \hl{OF uses magSf}
+first-order accurate gradients are sufficient to preserve second-order accuracy of the cell-centre displacements.
 
 As noted, boundary conditions are enforced through the discretised surface integral terms at the boundary faces. % (Equations \ref{eq:divStressDiscret} and \ref{eq:RhieChow}).
 If required, the displacement $\bb{u}_{t_i}$ on a traction boundary face $t_i$ can be calculated by extrapolation from the centre of cell $P$ as
@@ -704,7 +709,7 @@ where
 	\bb{u}_{N_{f_i}}^* &=& \bb{u}_{N_{f_i}} - (\bb{d}_{f_i}/2) \cdot \left(\bb{\nabla} \bb{u} \right)_{N_{f_i}}
 \end{eqnarray}
 
-So, this Rhie-Chow stabilisation can be seen to take the form of a \emph{jump} term; that is, it is a function of the jump in solution between neighbouring cells.
+So, this Rhie-Chow stabilisation can take the form of a \emph{jump} term; that is, it is a function of the jump in solution between neighbouring cells.
 The two states, $\bb{u}_P^*$ and $\bb{u}_{N_{f_i}}^*$, are evaluated halfway between $P$ and $N_{f_i}$, and it may not be at a face centre; however, as noted by \citet{Nishikawa2010}, this will not affect the second-order accuracy of the method; consequently, the user is free to choose the value of $\alpha$ for stabilisation and accuracy purposes.
 % but it doesn't matter because this team is only stabilisation and it vanishes in the grid refinement.
 %As long as it vanishes for linear functions, second-order accuracy is preserved. It means that the parameter alpha can be chosen solely for the purpose of stabilization. 
@@ -829,23 +834,22 @@ The two states, $\bb{u}_P^*$ and $\bb{u}_{N_{f_i}}^*$, are evaluated halfway bet
 \subsection{Segregated Solution Algorithm} 
 \label{sec:seg_alg}
 %%--------------------------------------------------------------------------------------------------------------------%%
-\hl{include alpha and check its effect}
-The classic segregated solution algorithm can be viewed as a quasi-Newton method, where an approximate Jacobian is derived from the inertia term and a compact-stencil discretisation of a diffusion term:
+The classic segregated solution algorithm can be viewed as a quasi-Newton method, where an approximate Jacobian is derived from the inertia term and a compact-stencil discretisation of a diffusion term (from the stabilisation term):
 %The surface forces Laplacian term (first term on the right-hand side of Equation \ref{eqn:MomentumImplicitExplicit}) is discretised using central differencing with over-relaxed non-orthogonal correction \cite{demirdzic_finite_1993, jasak_application_2000, cardiff_development_2014, cardiff_large_2014, cardiff_lagrangian_2017}:
 \begin{eqnarray} \label{eq:diffusion}
-	\tilde{\bb{J}} &=& \frac{\partial}{\partial \bb{u}} \left[ \oint_{\Gamma_P} \bar{K} \, \bb{n} \cdot \bb{\nabla} \bb{u} \; d\Gamma_P
+	\tilde{\bb{J}} &=& \frac{\partial}{\partial \bb{u}} \left[ \oint_{\Gamma_P} \alpha \bar{K} \, \bb{n} \cdot \bb{\nabla} \bb{u} \; d\Gamma_P
 	 \; -\;  \int_{\Omega_P} \rho \frac{\partial^2 \bb{u} }{\partial t^2} \, d\Omega_P \right]
 \end{eqnarray}
 The inertia term is discretised as described in Equations \ref{eq:inertia} and \ref{eq:inertia2}, while the diffusion term is discretised in the same manner as the compact-stencil component of the Rhie-Chow stabilisation term:
 \begin{eqnarray}
-	\oint_{\Gamma_P} \bar{K} \, \bb{n} \cdot \bb{\nabla} \bb{u} \; d\Gamma_P &\approx&
-		\sum_{f_i \in \mathcal{F}^{\text{int}}_P}  \bar{K}
+	\oint_{\Gamma_P} \alpha \bar{K} \, \bb{n} \cdot \bb{\nabla} \bb{u} \; d\Gamma_P &\approx&
+		\sum_{f_i \in \mathcal{F}^{\text{int}}_P}  \alpha \bar{K}
 		\left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}    \left|\bb{\Gamma}_{f_i}\right| \notag \\
-	&&+  \sum_{d_i \in \mathcal{F}^{\text{disp}}_P}  \bar{K}
+	&&+  \sum_{d_i \in \mathcal{F}^{\text{disp}}_P}  \alpha \bar{K}
 %		\left|\bb{\Delta}_{d_i} \right| \left( \ \frac{ \bar{\bb{u}}_{d_i} - \bb{u}_P}{\left|\bb{d}_{d_i}\right|}  \right) 
 		\left|\bb{\Delta}_{d_i} \right| \frac{ \bar{\bb{u}}_{d_i}  - \bb{u}_P}{\left|\bb{d}_{d_i}\right|} 
 		\left|\bb{\Gamma}_{d_i}\right| \notag \\
-	&&+ \sum_{s_i \in \mathcal{F}^{\text{symm}}_P}  \bar{K}
+	&&+ \sum_{s_i \in \mathcal{F}^{\text{symm}}_P}  \alpha \bar{K}
 		\left|\bb{\Delta}_{s_i} \right| \frac{ \bb{R}_{s_i} \cdot \bb{u}_{P} - \bb{u}_P}{\left|\bb{d}_{s_i}\right|}
 		\left|\bb{\Gamma}_{s_i}\right|
 \end{eqnarray}
@@ -864,13 +868,13 @@ If $\Delta t < \infty$ or $\mathcal{F}^{\text{disp}}_P \neq \emptyset$, matrix $
 The block ($3\times3$ for 3-D, $2\times2$ for 2-D) diagonal coefficient for cell $P$ (row $P$, column $P$) can be expressed as
 \begin{eqnarray}
 	 \left[ \tilde{\bb{J}}\right]_{PP} &=&
-		- \sum_{f_i \in \mathcal{F}^{\text{int}}_P}  \bar{K}
+		- \sum_{f_i \in \mathcal{F}^{\text{int}}_P}  \alpha \bar{K}
 		\frac{ \left|\bb{\Delta}_{f_i} \right| }{\left|\bb{d}_{f_i}\right|}    \left|\bb{\Gamma}_{f_i}\right| \textbf{I} 
-	    \quad-  \sum_{d_i \in \mathcal{F}^{\text{disp}}_P}  \bar{K}
+	    \quad-  \sum_{d_i \in \mathcal{F}^{\text{disp}}_P}  \alpha \bar{K}
 %		\left|\bb{\Delta}_{d_i} \right| \left( \ \frac{ \bar{\bb{u}}_{d_i} - \bb{u}_P}{\left|\bb{d}_{d_i}\right|}  \right) 
 		 \frac{ \left|\bb{\Delta}_{d_i} \right| }{\left|\bb{d}_{d_i}\right|} 
 		\left|\bb{\Gamma}_{d_i}\right| \textbf{I} \notag \\
-	 &&\quad - \sum_{s_i \in \mathcal{F}^{\text{symm}}_P}  \bar{K}
+	 &&\quad - \sum_{s_i \in \mathcal{F}^{\text{symm}}_P} \alpha \bar{K}
 		 \frac{ \left|\bb{\Delta}_{s_i} \right|}{\left|\bb{d}_{s_i}\right|}
 		\left|\bb{\Gamma}_{s_i}\right|  \bb{n}_{s_i} \otimes \bb{n}_{s_i} 
 	\quad - \quad \frac{9}{4}  \frac{\rho_P \Omega_P}{\Delta t^2} \textbf{I}
@@ -878,7 +882,7 @@ The block ($3\times3$ for 3-D, $2\times2$ for 2-D) diagonal coefficient for cell
 while the off-diagonal coefficients (row $P$, column $Q$) can be expressed as
 \begin{eqnarray}
 	\left[\tilde{\bb{J}}\right] _{PQ} &=&
-		\bar{K} \frac{ \left|\bb{\Delta}_{f_{PQ}} \right| }{\left|\bb{d}_{f_{PQ}}\right|}    \left|\bb{\Gamma}_{f_{PQ}}\right| \textbf{I} 
+		\alpha \bar{K} \frac{ \left|\bb{\Delta}_{f_{PQ}} \right| }{\left|\bb{d}_{f_{PQ}}\right|} \left|\bb{\Gamma}_{f_{PQ}}\right| \textbf{I} 
 \end{eqnarray}
 where subscript $PQ$ indicates a quantity associated with the internal face $f$ shared between cells $P$ and $Q$.
 %where $N_f$ represents the set of faces $f$ in cell $P$, and neighbouring cell centre $N_f$ shares face $f$ with the cell $P$.
@@ -934,7 +938,19 @@ Algebraic multigrid can also be used to accelerate convergence.
 %The procedures have been implemented and publicly shared within the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} of the open-source OpenFOAM software.
 
 In literature, the segregated solution algorithm is typically formulated in terms of the total displacement vector (or its difference between time steps) as the primary unknown; in contrast, in the quasi-Newton interpretation presented here, the primary unknown is the correction to the displacement vector, which goes to zero at convergence.
-Nonetheless, both approaches are equivalent and neither formulation might be expected to display superior performance.
+In the total displacement approach, the matrix is the same, and the only difference is the formulation of the right-hand side, which is calculated as the difference between the residual and the matrix times the previous solution.
+Equivalence of both approaches can be seen by adding $\left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k$ to both sides of Equation \ref{eq:SegSys}:
+\begin{eqnarray} \label{eq:SegSys}
+    \left[ \bb{\tilde{J}} \right]  \; \left[ \delta \bb{u} \right] + \left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k  = - \left[\bb{R}(\bb{u}_k)\right] + \left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k \notag \\
+    \left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_{k+1} = \left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k - \left[\bb{R}(\bb{u}_k)\right] \
+\end{eqnarray}
+where $\left[ \bb{u} \right]_k$ is the solution field at the previous iteration, and noting that $\left[ \bb{u} \right]_{k+1} = \left[ \bb{u} \right]_k + \left[ \delta \bb{u} \right]$.
+In practice, the $\left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k$ term on the right-hand side can be evaluated directly in terms of the discretised temporal and diffusion terms, without the need for matrix multiplication.
+In the current work, the standard total displacement segregated formulation is employed.
+%It is not expected that either formulation displays performance advantages.
+
+As a final comment, the $\alpha$ scaling factor in the stabilisation term (Equation \ref{eq:RhieChow}) need not take the same value as in the approximate Jacobian (Equation \ref{eq:diffusion}).
+In the current work, $\alpha$ is taken as unity in the approximate Jacobian, while the variation of its value in the residual calculation is examined in Section \ref{sec:RhieChowResults}.
 
 %\hl{Comment: we can solve 31 or 34-36; we are using 31 in PETSc, while the native OF code uses 34-36}
 %\hl{We should comment on this}
@@ -1020,7 +1036,7 @@ Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for
 Both routines are easily implemented -- and are likely already available -- in an existing segregated framework.
 The only additional required procedure is an interface to an existing Jacobian-free Newton-Krylov implementation.
 %"The motivation behind this approach is that there exist numerous, legacy algorithms to solve nonlinear systems, both IVPs and BVPs. These algorithms typically were developed with some insight into the time scales or physical behavior of the problem. As a benefit of this insight, a reduced implicit system, or a sequence of segregated explicit or implicit systems may be solved in place of the fully coupled system. "
-In the current work, the PETSc package \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
+In the current work, the PETSc package (version 3.22.2) \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
 
 Several preconditioners are available in the literature, incomplete Cholesky or ILU($k$) being popular; however, multigrid methods offer the greatest potential for large-scale problems.
 As noted by \citet{Knoll2004}, algorithmic simplifications within a multigrid procedure, which may result in loss of convergence for multigrid as a solver, have a much weaker effect when multigrid is used as a preconditioner.
@@ -1054,13 +1070,13 @@ The predictor step in Equation \ref{eq:predictor} has been chosen to be consiste
 %Comment on over-solving => also applies to the segregated system.
 %This could be a parameter we look at.
 A final comment on the Jacobian-free Newton-Krylov solution algorithm is the potential importance of \emph{oversolving}.
-Here, oversolving refers to solving the linear system to too tight a tolerance during the early Newton iterations, essentially wasting time when the solution is far from the true solution.
+Here, oversolving refers to solving the linear system to a tolerance that is too tight during the early Newton iterations, essentially wasting time when the solution is far from the true solution.
 In addition, some authors %\cite{See164_and_176_in_Knoll2004}
 \cite{Knoll2004} have shown Newton convergence to be worse when the earlier iterations are solved to too tight a tolerance.
 The concept of oversolving also applies to segregated solution procedures and has been well-known since the early work of Demird\v{z}i\'{c} and co-workers \cite{Demirdzic1995}, where the residuals are typically reduced by one order of magnitude in the inner linear system.
 %The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}. \hl{Check: do we examine this?}
 In the current work, the residual is reduced by one order of magnitude in the segregated approach and three orders in the Jacobian-free Newton-Krylov approach.
-\hl{Try for EW plastic: $-snes_ksp_ew -snes_ksp_ew_version 2 -snes_ksp_ew_rtol0 1e-4$}
+%\hl{Try for EW plastic: $-snes_ksp_ew -snes_ksp_ew_version 2 -snes_ksp_ew_rtol0 1e-4$}
 
 %Knoll2004:
 %The forcing term and the issue of ‘‘oversolving’’ a Newton step has recently gained interest [164,176]. The concept of ‘‘oversolving’’ implies that at early Newton iterations c is too small. Then one may obtain an accurate linear solution to an inaccurate Newton correction. This may result in a poor Newton update and degradation in the Newton convergence. In [164,176] it has been demonstrated that in some situations the Newton convergence may actually suffer if c is too small in early Newton iterations.
@@ -1069,8 +1085,17 @@ In the current work, the residual is reduced by one order of magnitude in the se
 %%--------------------------------------------------------------------------------------------------------------------%%
 \subsection{Checking Convergence}
 %%--------------------------------------------------------------------------------------------------------------------%%
-\hl{sTol vs fTol vs aTol}
-\hl{sTol: not equivalent in JFNK and Picard}
+The current work adopts three checks for determining whether convergence has been achieved within each time (or loading) step, closely following the default strategy in the PETSc toolbox:
+\begin{itemize}
+    \item Norm of the residual $|\bb{R}(\bb{u})|$:
+    \begin{itemize}
+        \item \emph{Absolute}: Convergence is declared when $|\bb{R}(\bb{u})|$ falls below an absolute tolerance $a_{\text{tol}}$, taken here as $1\times 10^{-50}$. This acts as a failsafe in situations where the \emph{relative} criterion (below) is ineffective because the initial solution already nearly satisfies the governing equation.
+        \item \emph{Relative}: Convergence is declared when $|\bb{R}(\bb{u})|$ falls below $r_{\text{tol}} \times |\bb{R}(\bb{u}_0)|$, with $|\bb{R}(\bb{u}_0)|$ denoting the residual norm at the start of the time (or loading) step. In this work, $r_{\text{tol}} = 10^{-6}$.
+    \end{itemize}
+    \item Norm of the solution correction $|\delta \bb{u}|$: Convergence is declared when the norm of the change in the solution between successive iterations is less than a prescribed tolerance, $s_{\text{tol}}$.
+\end{itemize}
+
+Although it may seem reasonable to apply the same tolerances for both the segregated and Jacobian-free Newton-Krylov solution procedures, care must be taken with $s_{\text{tol}}$. The Jacobian-free Newton-Krylov method typically makes a small number of large corrections to the solution, whereas the segregated procedure often makes a large number of small corrections. Consequently, if the same $s_{\text{tol}}$ value were used, the segregated procedure might be declared convergent prematurely. To avoid this, $s_{\text{tol}}$ is set to zero in the present work, meaning convergence is based solely on residual reduction. Nonetheless, setting $s_{\text{tol}} > 0$ could yield a more robust procedure capable of handling potential stalling.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1198,7 +1223,7 @@ The corresponding manufactured body force term ($\bb{f}_b$  in Equation \ref{eqn
 \end{figure}
 
 The manufactured displacement solution is applied at the domain's boundaries (prescribed displacements), and inertial effects are neglected.
-Three mesh types are examined:
+Four mesh types are examined:
 %(i) hexahedra, (ii) tetrahedra, and (iii) polyhedra (shown in Figure \ref{fig:mms_mesh}).
 (i) \emph{regular} tetrahedra, (ii) \emph{regular} polyhedra (shown in Figure \ref{fig:mms_mesh}), (iii) \emph{regular} hexahedra, and (iv) \emph{distorted} hexahedra.
 The second coarsest meshes are shown in Appendix \ref{app:meshes}.
@@ -1319,13 +1344,13 @@ Far from the cavity, the solid is subjected to a tensile stress $\sigma_{zz} = T
    \label{fig:spherical_cavity}
 \end{figure}
 The analytical expressions for the stress, derived by \citet{Southwell1926},  and displacement, derived by \citet{Goodier1933}, are given in Appendix \ref{app:sphericalCavity}.
-The problem is characterised by localised by a stress concentration near the cavity on the plane perpendicular to the loading, which drops off rapidly away from the cavity.
+The problem is characterised by a localised stress concentration near the cavity on the plane perpendicular to the loading, which drops off rapidly away from the cavity.
 
 The computational solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube aligned with the Cartesian axes, with one corner at the centre of the sphere.
 The problem is axisymmetric but is analysed here using a 3-D domain to allow a graded unstructured polyhedral mesh to be assessed.
 The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
 %Unstructured polyhedral meshes are employed with grading towards the cavity.
-The cell sizes at the cavity surfaces are 100, 50, 25, 12.5, 6.25, and 3.125 mm, and the corresponding cell counts are 976, $4\,552$ (Figure \ref{fig:spherical_cavity}), $29\,611$, $213\,100$, $1\,614\,261$.
+The average cell sizes at the cavity surfaces are 100, 50, 25, 12.5, 6.25, and 3.125 mm, and the corresponding cell counts are 976, $4\,552$ (Figure \ref{fig:spherical_cavity}), $29\,611$, $213\,100$, $1\,614\,261$.
 Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{geuzaine2009gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
 
 Figure \ref{fig:spherical_cavity_stress} shows the predicted axial ($zz$) stress field on the mesh with $1\,614\,261$ cells.
@@ -1363,7 +1388,8 @@ This 3-D, static, linear elastic test case (Figure \ref{fig:elliptic_plate}) con
 	\left(\frac{x}{2}\right)^2 + \left(\frac{y}{1}\right)^2 = 1 & \text{inner ellipse} \\
 	\left(\frac{x}{3.25}\right)^2 + \left(\frac{y}{2.75}\right)^2 = 1 & \text{outer ellipse}
 \end{eqnarray}
-The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{Hitchings1987}, and analysed using finite volume procedures by \citet{Demirdzic1997a} and \citet{Cardiff2016a}.
+The case has been described by the National Agency for Finite Element Methods and Standards (NAFEMS) \cite{Hitchings1987} and analysed using finite volume procedures by \citet{Demirdzic1997a} and \citet{Cardiff2016a}.
+Unlike the previous cases, this case features significant bending, which is known to slow the convergence of segregated solution procedures \citep{Cardiff2016a}.
 Symmetry allows one-quarter of the geometry to be simulated.
 A constant pressure of 1 MPa is applied to the upper surface, and the outer surface is fully clamped.
 The mechanical properties are: $E = 210$ GPa, $\nu = 0.3$.
@@ -1470,8 +1496,8 @@ The base plane $z = 5$ mm is implicitly defined by the ranges for $u$.
 %Constitutive parameters: isotropic, 
 The hyperelastic material behaviour is described by the transversely isotropic constitutive law proposed by \citet{Guccione1995} law, where the parameters are $C = 10$ kPa, $c_f = c_t = c_{fs} = 1$; the specified parameters produce isotropic behaviour.
 The benchmark specifies an incompressible material; in the current work, incompressibility is enforced weakly using a penalty approach, where the bulk modulus parameter is chosen to be two orders of magnitude greater ($\kappa = 1000$ kPa) than the greatest shear modulus parameter.
-A pressure of 10 kPa is applied to the inner surface, applied here over 100 equal load increments, and the base plane is fixed.
-The geometry is meshed using a structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
+A pressure of 10 kPa is applied to the inner surface over 100 equal load increments, and the base plane is fixed.
+The geometry is meshed using a revolved, structured approach and is predominantly composed of hexahedra, with prism cells forming the apex.
 The OpenFOAM utilities \texttt{blockMesh} and \texttt{extrudeMesh} are used to create the meshes.
 Four successively refined meshes are examined: $1\,620$ (shown in Figure \ref{fig:ventricle}(a)), $12\,960$, $103\,680$, and $829\,440$ cells.
 The case can be simulated as 2-D axisymmetric but is simulated here using the full 3-D geometry.
@@ -1542,9 +1568,9 @@ The current work considers three forms of the problem:
 \begin{enumerate}[label=\roman*.]
 	\item Small strain, linear elastic \cite{Zienkiewicz2000, Simplas}: $E=70$ MPa, $\nu=1/3$, and $\tau = 6.25$ kPa.
 	\item Finite strain, neo-Hookean hyperelastic \cite{Pelteret2018}: $E=1.0985$ MPa, $\nu=0.3$, and $\tau = 62.5$ kPa.
-	\item Finite strain, neo-Hookean hyperelastoplastic \citep{Simo1992, Simplas, Cesar2001}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 312.5$ kPa.
+	\item Finite strain, neo-Hookean hyperelastoplastic \citep{Simo1992, Simplas, Cesar2001}: $E=206.9$ MPa, $\nu=0.29$, $\sigma_y(\bar{\varepsilon}_p) = 0.45 + 0.12924\bar{\varepsilon}_p + (0.715 - 0.45)(1- e^{-16.93\bar{\varepsilon}_p})$ MPa, and $\tau = 312.5$ kPa.
 \end{enumerate}
-where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\sigma_y$ is the yield strength, $\bar{\varepsilon}_p$ is the equivalent plastic strain, and $\tau$ is the prescribed shear traction.
+where $E$ is the Young's modulus, $\nu$ is the Poisson's ratio, $\tau$ is the prescribed shear traction, and $\sigma_y(\bar{\varepsilon}_p)$ is the yield strength, which is a function of the equivalent plastic strain $\bar{\varepsilon}_p$.
 %The Young's modulus $E = 206.9$ MPa and Poisson's ratio $\nu=0.29$, with the yield stress $\sigma_y$ given as \citep{Simo1992}
 %\begin{eqnarray}
 %	\sigma_y = \sigma_Y + H\bar{\varepsilon}_p + (\sigma_{\infty} - \sigma_Y)(1- e^{-\delta\bar{\varepsilon}_p})
@@ -1568,7 +1594,7 @@ Eight successively refined quadrilateral meshes are considered, where the cell c
 %mesh.7 - 192x192 - 36864 CVs
 %mesh.8 - 384x384 - 147456 CVs
 The problem is solved quasi-statically, and there are no body forces.
-The linear elastic uses one loading increment, whereas the hyperelastic and hyperelastoplastic cases use 30 equally-sized loading increments.
+The linear elastic case is solved in one loading increment, whereas the hyperelastic and hyperelastoplastic cases use 30 equally sized loading increments.
 
 
 Figure \ref{fig:cooksMembrane_sigmaEq} shows the predicted equivalent stress distribution on the mesh with $36\,842$ cells for linear elastic, hyperelastic and hyperelastoplastic cases.
@@ -1593,7 +1619,7 @@ In the hyperelastoplastic case, almost the entire domain is plastically yielding
    \label{fig:cooksMembrane_sigmaEq}
 \end{figure}
 
-Figure \ref{fig:cooksMembrane_disp} compares the predicted vertical displacement at the reference point as a function of the average cell widths with results from the literature.
+Figure \ref{fig:cooksMembrane_disp} compares the predicted vertical displacement at the reference point as a function of the average cell widths with results from the literature and finite element software Abaqus (element code C3D8).
 The reference point is taken as the top right point -- $(48,60)$ mm -- in the elastic and hyperelastoplastic cases, while it is taken as the midway point of the loading surface -- $(48,52)$ mm -- in the hyperelastic case.
 %\hl{Comment on results -> good/bad/etc}
 %\hl{Comment on JFNK not working for plasticty}\\
@@ -1620,11 +1646,11 @@ The reference point is taken as the top right point -- $(48,60)$ mm -- in the el
 %	{
 %		\includegraphics[height=0.35\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
 %	}
-   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from the literature \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}}
+   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from the literature \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas} \hl{Update plastic with mesh8}}
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
-The results shown for the hyperelastoplastic case were generated using the segregated solution procedure as the Jacobian-free Newton-Krylov approach diverged for five of the eight mesh densitities, as discussed further in Section \ref{sec:resource_requirements}.
+The results shown for the hyperelastoplastic case were generated using the segregated solution procedure as the Jacobian-free Newton-Krylov approach diverged for six of the eight mesh densities, as discussed further in Section \ref{sec:resource_requirements}.
 %Discussion of the relative convergence and robustness of the Jacobian-free Newton-Krylov and segregated methods is left to Section \ref{sec:resource_requirements}.
 
 %No difference is seen in the predictions whether using the Jacobian-free Newton-Krylov or segregated approach, assuming convergence is achieved.
@@ -1785,10 +1811,10 @@ The fluid is seen to accelerate as it passes the cylinder, with regular vortices
 %	{
 %   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
 %   	}
-   \caption{Elastic plate behind a rigid cylinder case results at $t = 20$ s for the mesh with $20\,032$ cells in the fluid region and $2\,496$ in the solid region. The velocity magnitude is shown in the fluid region while the displacement magnitude is shown in the solid region. \hl{update: harmonic top/bot}}
+   \caption{Elastic plate behind a rigid cylinder case results at $t = 20$ s for the mesh with $20\,032$ cells in the fluid region and $2\,496$ in the solid region. The velocity magnitude is shown in the fluid region, while the displacement magnitude is shown in the solid region. \hl{update: harmonic top/bot}}
    \label{fig:hronTurek-results}
 \end{figure}
-The predicted mean, amplitude and frequency of the vertical and horizontal displacement of the end of the plate are compared with the results from \citet{Turek2006} in Table \ref{tab:hronTurekDisp}.
+The predicted mean, amplitude and frequency of the vertical and horizontal displacement of the end of the plate are seen to approach the results from \citet{Turek2006} in Table \ref{tab:hronTurekDisp}.
 As directed in \citet{Turek2006}, the maximum and minimum values for the last period are used to calculate the mean and amplitude:
 \begin{eqnarray}
 	\text{mean} = \frac{1}{2}(\text{max} + \text{min}), \quad\quad
@@ -1824,7 +1850,8 @@ Specifically, time and memory requirements are analysed, and whether the solutio
 %In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
 In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre BoomerAMG multigrid preconditioner for 3-D, unless stated otherwise.
 A restart value of 30 is used for the GMRES solver, where the \emph{loose} variant of the GMRES solver is used, which retains a small number of extra solution vectors across restarts (2 in this case).
-In contrast, the segregated approach used the conjugate gradient linear solver and the Hypre BoomerAMG multigrid preconditioner for all cases.
+In contrast, the segregated approach used the conjugate gradient linear solver and the incomplete Cholesky preconditioner with no infill -- equivalent to ILU(0).
+%Hypre BoomerAMG multigrid preconditioner for all cases.
 Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
 Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M1 Ultra CPU on one core, where the code was built with the Clang compiler (version 16.0.0).
 %\hl{Present data for one hardware first, and give comparison after.}
@@ -1865,7 +1892,7 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
-\hl{Update results (replace snes.seg with of.seg results); running!}
+\hl{Update results; running!}
 
 Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
 The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
@@ -1876,11 +1903,11 @@ The maximum memory usage is primarily attributed to the linear solver and precon
    \centering
 	\subfigure[Speedup]
 	{
-   		\includegraphics[width=0.48\textwidth]{figures/speedup}
+   		\includegraphics[width=0.48\textwidth]{figures/speedup/speedup}
 	}
 	\subfigure[Relative memory]
 	{
-   		\includegraphics[width=0.48\textwidth]{figures/relative_memory}  
+   		\includegraphics[width=0.48\textwidth]{figures/speedup/relative_memory}  
    	}
    \caption{The speedup (segregated clock time divided by the Jacobian-free Newton-Krylov clock time) and relative memory usage (segregated maximum memory usage divided by the Jacobian-free Newton-Krylov maximum memory usage) as a function of degrees of freedom}
    \label{fig:speedup_rel_mem}
@@ -2036,7 +2063,7 @@ The rate of memory increase is seen to be much steeper for the LU approach on th
 
 
 %%--------------------------------------------------------------------------------------------------------------------%%
-\subsection{Effect of Rhie-Chow Stabilisation}
+\subsection{Effect of Rhie-Chow Stabilisation} \label{sec:RhieChowResults}
 %%--------------------------------------------------------------------------------------------------------------------%%
 This section highlights the impact of the global scaling factor $\alpha$ in the Rhie-Chow stabilisation (Equation \ref{eq:RhieChow}) on the performance of the proposed Jacobian-free Newton Krylov method.
 As described in Section \ref{sec:discretisation}, the stabilisation term is introduced to quell zero-energy modes (oscillations) in the discrete solution, such as checkerboarding.
