@@ -1646,7 +1646,7 @@ The reference point is taken as the top right point -- $(48,60)$ mm -- in the el
 %	{
 %		\includegraphics[height=0.35\textwidth]{figures/cooksMembrane-tipDispConvergence.pdf} 
 %	}
-   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from the literature \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas} \hl{Update plastic with mesh8}}
+   \caption{Cook's membrane vertical displacement predictions at the reference point as a function of the average cell width. Comparisons are given with the results from the literature \cite{Zienkiewicz2000, Pelteret2018, Simo1992, Simplas}}
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
@@ -1811,7 +1811,7 @@ The fluid is seen to accelerate as it passes the cylinder, with regular vortices
 %	{
 %   		\includegraphics[width=0.3\textwidth]{figures/placeholder}  
 %   	}
-   \caption{Elastic plate behind a rigid cylinder case results at $t = 20$ s for the mesh with $20\,032$ cells in the fluid region and $2\,496$ in the solid region. The velocity magnitude is shown in the fluid region, while the displacement magnitude is shown in the solid region. \hl{update: harmonic top/bot}}
+   \caption{Elastic plate behind a rigid cylinder case results at $t = 20$ s for the mesh with $20\,032$ cells in the fluid region and $2\,496$ in the solid region. The velocity magnitude is shown in the fluid region, while the displacement magnitude is shown in the solid region.}
    \label{fig:hronTurek-results}
 \end{figure}
 The predicted mean, amplitude and frequency of the vertical and horizontal displacement of the end of the plate are seen to approach the results from \citet{Turek2006} in Table \ref{tab:hronTurekDisp}.
@@ -1867,8 +1867,8 @@ The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $
 Speedup is only calculated for clock times greater than 2 seconds to avoid the comparison of small numbers.
 In all cases where convergence was achieved, the Jacobian-free Newton-Krylov approach was faster (speedup $> 1$), with speedups of one or two orders of magnitude in many cases.
 Additionally, it can be observed from Figure \ref{fig:times_memory}(a) that the speedup increases as the number of degrees of freedom increases.
-The largest speedup was 237 on the finest mesh of the membrane i (2-D, linear elastic) case, while the lowest speed was 1.09 and occurred on the coarsest mesh in the fluid-solid interaction case.
-Excluding the fluid-solid interaction, where the majority of degrees of freedom are placed in the fluid region, the next lowest speed-up was 1.66 and occurred on a coarse mesh in the membrane ii (2-D, hyperelastic) case.
+The largest speedup was 341 on the sixth mesh ($9\,216$ cells) of the membrane i (2-D, linear elastic) case, while the lowest speed was 1 and occurred in the manufacctured solution coarser meshes.
+%Excluding the fluid-solid interaction, where the majority of degrees of freedom are placed in the fluid region, the next lowest speed-up was 1.66 and occurred on a coarse mesh in the membrane ii (2-D, hyperelastic) case.
 \begin{table}[!htbp]
 	\centering
 		\begin{tabular}{ll|ll|ll}
@@ -1892,13 +1892,16 @@ Excluding the fluid-solid interaction, where the majority of degrees of freedom 
 	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
-\hl{Update results; running!}
 
-Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the segregated approach divided by that of the Jacobian-free Newton-Krylov approach.
-The relative memory usage is close to unity in most cases, indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
-In addition, unlike for the speedup, there is no general trend in the relative memory usage as the number of degrees of freedom increases.
-The maximum value for relative memory was 1.9 and occurred in the second-finest mesh for the membrane ii (2-D, hyperelastic) case, although for all other meshes in this case, the value was less than one (between 0.82 and 0.95).
-The maximum memory usage is primarily attributed to the linear solver and preconditioner; the choice of preconditioner and linear solver settings are examined further in Section \ref{sec:preconditioner}.
+Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the Jacobian-free Newton-Krylov approach divided by that of the segregated approach.
+The relative memory usage is close to unity for coarse meshes (less than $10^4$ degrees of freedom), but shows a general increasing trend beyond this.
+% indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
+%In addition, unlike for the speedup, there is no general trend in the relative memory usage as the number of degrees of freedom increases.
+The maximum value for relative memory was 3.6 and occurred in the second-finest mesh for the spherical cavity case.
+%, although for all other meshes in this case, the value was less than one (between 0.82 and 0.95).
+The variations in the relative memory trends between cases can likely be attributed to the variable memory usage of the GMRES linear solver in the Jacobian-free Newton-Krylov, where the number of stored directions can vary depending on the ease of convergence.
+In addition, the memory usage of the multigrid preconditioner can vary depending on the geometry and cell types.
+The effect of the preconditioner and linear solver settings are examined further in Section \ref{sec:preconditioner}.
 \begin{figure}[htbp]
    \centering
 	\subfigure[Speedup]
@@ -1936,9 +1939,9 @@ It is interesting to note that the same linear elastic preconditioner matrix wor
 
 Regarding geometric dimension, the same general trends are observed in 2-D and 3-D, with no major distinctions in behaviour.
 The same can be said for geometric nonlinearity (small strain vs. large strain) with similar speed-ups for both linear elastic and hyperelastic cases.
-One observation worth highlighting is the lower speedup seen for the method of manufactured solutions case (3-D, linear elastic): a possible explanation is that the segregated approach has previously been seen to be efficient on geometry with low aspect ratios (ratio of maximum to minimum dimensions);
-in this case, the aspect ratio is at its minimum (unity).
-In contrast, in the other 3-D linear elastic cases (elliptic plate, membrane i), the aspect ratios are greater than unity, and the segregated approach performs worse relative to the Jacobian-free Newton-Krylov approach. 
+One observation worth highlighting is the lower speedup seen for the method of manufactured solutions case (3-D, linear elastic): a possible explanation is that the segregated approach has previously been seen to be efficient on geometry with low aspect ratios (ratio of maximum to minimum dimensions) and minimal bending deformation;
+in this case, the aspect ratio is at its minimum (unity) and bending deformation is localised.
+In contrast, in the other 3-D linear elastic cases (elliptic plate, membrane i), the aspect ratios are greater than unity and more widespread bending is present, and the segregated approach performs worse relative to the Jacobian-free Newton-Krylov approach. 
 
 
 %\hl{Comment on the effect of items in list at the start of this section}
@@ -2204,7 +2207,8 @@ In the ideal case, the speedup should double when the number of cores is doubled
 %\end{itemize}
 
 The clock times from the strong scaling study are shown in Figure \ref{fig:parallelisation_strong}(a), where the \emph{ideal} scaling is shown for comparison as a dashed line.
-Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup $S$, defined as $S = \sfrac{t_1}{t_p}$, where $t_1$ is the clock time on one CPU core and $t_p$ is the clock time on $P$ CPU cores.
+Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup, defined as the clock time on one CPU core divided by the clock time on a given number of CPU cores.
+%Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup $S$, defined as $S = \sfrac{t_1}{t_p}$, where $t_1$ is the clock time on one CPU core and $t_p$ is the clock time on $P$ CPU cores.
 The Jacobian-free Newton-Krylov approach with the multigrid preconditioner is found to be the fastest by almost an order of magnitude over the segregated approach and the Jacobian-free Newton-Krylov approach with LU preconditioner.
 The times for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches using 1, 2, and 4 cores were not recorded due to the excessive times.
 For all approaches the speedup is seen to increase at an approximately ideal rate up to 128 cores, after which the speedup continues to increase but at a lower rate.
@@ -2228,7 +2232,7 @@ At $1\,048$ cores, there is approximately 2.5 k cells per core and the inter-cor
 	\label{fig:parallelisation_strong}
 \end{figure}
 
-As a final observation, the effect of hardware can be highlighted by comparing the time required for 1 core when using the multigrid preconditioner: the case required $2\,048$ s on the MeluXina system (EPYC Rome CPU), while it required only $988$ s on a Mac Studio (M1 Ultra CPU) system as presented in Section \ref{sec:resource_requirements} -- over twice as fast.
+As a final observation, the effect of hardware can be highlighted by comparing the time required for 1 core when using the multigrid preconditioner: the case required $2\,048$ s on the MeluXina system (EPYC Rome CPU), while it required $988$ s on a Mac Studio (M1 Ultra CPU) system as presented in Section \ref{sec:resource_requirements} -- over twice as fast.
 The difference in performance can be primarily attributed to the unified memory architecture of the M1 Ultra, which provides significantly greater memory bandwidth compared to the DDR4 memory used in the MeluXina compute nodes.
 %This high-bandwidth memory enables faster data access for memory-intensive tasks, such as those encountered in the serial OpenFOAM simulations.
 
@@ -2282,9 +2286,10 @@ A Jacobian-free Newton-Krylov solution algorithm has been proposed for solid mec
 A compact-stencil discretisation of the diffusion term is proposed as the preconditioner matrix, allowing a straightforward extension of existing segregated solution frameworks.
 The key conclusions of the work are:
 \begin{itemize}
-	\item \textbf{Efficiency of Jacobian-free Newton-Krylov approach}: The proposed Jacobian-free Newton-Krylov solution algorithm has been shown to be faster than a conventional segregated solution algorithm for all linear and nonlinear elastic test cases examined. In particular, speedups of one order of magnitude were seen in many cases, with a maximum speedup of over 200 in the 2-D linear elastic Cook's membrane case.
+	\item \textbf{Efficiency of Jacobian-free Newton-Krylov approach}: The proposed Jacobian-free Newton-Krylov solution algorithm has been shown to be faster than a conventional segregated solution algorithm for all linear and nonlinear elastic test cases examined. In particular, speedups of one order of magnitude were seen in many cases, with a maximum speedup of 341 in the 2-D linear elastic Cook's membrane case.
 
-	\item \textbf{No additional memory overhead}: The Jacobian-free Newton-Krylov approach has been shown to have approximately the same memory requirements as a segregated solution algorithm, assuming a similar preconditioning approach is adopted, e.g. multigrid.
+	\item \textbf{Additional memory overhead}: The Jacobian-free Newton-Krylov approach has been shown to have approximately the same memory requirements as a segregated solution algorithm for less than $10^4$ degrees of freedom, but generally increases beyond this.
+	The greatest memory increase was found to be 3.6 and occured in the spherical cavity case. Nonetheless, these differences are likely attributed to the different linear solver and preconditioner used in the Jacobian-free Newton-Krylov approach (GMRESS with multigrid or LU decomposition) compared to the segregated approach (conjugate gradient with zero in-fill Cholesky decomposition).
 	
 	\item \textbf{Applicability to existing segregated frameworks}: By employing a compact-stencil diffusion approximation of the Jacobian as the preconditioner, the proposed Jacobian-free Newton-Krylov approach can be integrated into existing segregated finite volume frameworks with minimal modifications to the existing code base, in particular if existing publicly available Jacobian-free Newton-Krylov solvers (e.g., PETSc) are used.
 
@@ -2309,11 +2314,11 @@ The presented study highlights the potential of the Jacobian-free Newton-Krylov 
 \begin{enumerate}
 	\item{Enhanced preconditioning for plasticity}: While the proposed \emph{elastic} compact-stencil preconditioning matrix has been shown to perform well in linear and nonlinear elastic scenarios, it fails in cases exhibiting plasticity, where a segregated approach succeeds. Future studies will explore modifications to the compact preconditioning matrix to extend the applicability of the proposed approach to small and large strain elastoplasticity.
 
-	\item{Incorporation of non-orthogonality in the preconditioner}: The current preconditioning matrix does not account for non-orthogonal contributions in distorted meshes. Including these effects in future work could further enhance convergence behaviour and accuracy, particularly for complex geometries.
+	\item{Incorporation of non-orthogonality in the preconditioner}: The current preconditioning matrix does not account for non-orthogonal contributions in distorted meshes. Including these effects in future work could further enhance robustness, particularly for complex geometries.
 
 	\item{Comparison with full Jacobian approaches}: A comparison with a fully coupled Jacobian-based method would provide greater insights into the trade-offs between computational cost, memory usage, and convergence performance. Such a study could highlight the specific advantages of the Jacobian-free Newton-Krylov approach for large-scale, nonlinear problems.
 
-	\item{Globalisation strategies}: The robustness and efficiency of the proposed Jacobian-free Newton-Krylov approach could be improved for nonlinear problems by using a segregated approach as an initialisation phase for each loading step. In its current form, the segregated approach would not be generally suitable as it is less robust on several nonlinear hyperelastic problems; however, modifications such as introducing pseudo-time-stepping, may enhance its robustness and suitability for these scenarios.
+	\item{Globalisation strategies}: The robustness and efficiency of the proposed Jacobian-free Newton-Krylov approach could be improved for nonlinear problems by using a segregated approach as an initialisation phase for each loading step. In its current form, the segregated approach would not be generally suitable as it is less robust on several nonlinear hyperelastic problems; however, modifications such as introducing pseudo-time-stepping (introducing a pseudo-time damping term), may enhance its robustness and suitability for these scenarios.
 
 	\item{Higher-order discretisations}: Future work will explore the application of the proposed linear elastic compact-stencil Jacobian-free Newton-Krylov approach to higher-order finite volume discretisations. Using the same compact-stencil preconditioning matrix for these discretisations could yield efficient and accurate solutions for problems requiring increased fidelity.
 
@@ -2422,7 +2427,7 @@ with $\boldsymbol{f_0}$ representing the unit fibre directions in the initial co
 Equation \ref{eq:S2sigma} is used to convert the second Piola-Kirchhoff stress to the true stress.
 
 \subsection{Neo-Hookean $J_2$ Hyperelastoplasticity}
-For neo-Hookean $J_2$ Hyperelastoplasticity, the expression for the true (Cauchy) stress $\bb{\sigma}$ takes the same form as Equation \ref{eq:neoHook}, except $\boldsymbol{b}$ is replaced by its elastic component $\boldsymbol{b}_e$.
+For neo-Hookean $J_2$ hyperelastoplasticity, the expression for the true (Cauchy) stress $\bb{\sigma}$ takes the same form as Equation \ref{eq:neoHook}, except $\boldsymbol{b}$ is replaced by its elastic component $\boldsymbol{b}_e$.
 Determination of $\boldsymbol{b}_e$ employs the definition of $J_2$ (Mises) plasticity in terms of a yield function, flow rule, Kuhn–Tucker loading/unloading conditions, and the consistency condition.
 The stress calculation procedure (radial return algorithm) is described by \citet{Simo1998} (Box 9.1, page 319).
 
