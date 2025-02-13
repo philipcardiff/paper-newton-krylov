@@ -87,7 +87,7 @@ textheight=24cm, % llncs has 19.3cm
 
 \begin{document}
 
-\title[Article Title]{Assessing the potential of Jacobian-free Newton-Krylov methods for cell-centred finite volume solid mechanics}
+\title[Article Title]{A Jacobian-free Newton-Krylov method for cell-centred finite volume solid mechanics}
 
 \author*[1,2,3]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
 \author[1,2,3]{\fnm{Dylan} \sur{Armfield}}
@@ -107,10 +107,10 @@ textheight=24cm, % llncs has 19.3cm
 {
 This study investigates the efficacy of Jacobian-free Newton-Krylov methods in finite-volume solid mechanics. Traditional Newton-based approaches require explicit Jacobian matrix formation and storage, which can be computationally expensive and memory-intensive.
 In contrast, Jacobian-free Newton-Krylov methods approximate the Jacobian’s action using finite differences, combined with Krylov subspace solvers such as the generalised minimal residual method (GMRES), enabling seamless integration into existing segregated finite-volume frameworks without major code refactoring.
-This work benchmarks the performance of a compact-stencil Jacobian-free Newton-Krylov method against a conventional segregated approach on a suite of test cases, encompassing varying geometric dimensions, nonlinearities, dynamic responses, and material behaviours.
+This work proposes and benchmarks the performance of a compact-stencil Jacobian-free Newton-Krylov method against a conventional segregated approach on a suite of test cases, encompassing varying geometric dimensions, nonlinearities, dynamic responses, and material behaviours.
 Key metrics, including computational cost, memory efficiency, and robustness, are evaluated, along with the influence of preconditioning strategies and stabilisation scaling.
 Results show that the proposed Jacobian-free Newton-Krylov method outperforms the segregated approach in all linear and nonlinear elastic cases, achieving order-of-magnitude speedups in many instances; however, divergence is observed in elastoplastic cases, highlighting areas for further development.
-It is found that preconditioning choice significantly impacts performance: a LU direct solver is fastest in small to moderately-sized cases, while a multigrid method is more effective for larger problems.
+It is found that preconditioning choice impacts performance: a LU direct solver is fastest in small to moderately-sized cases, while a multigrid method is more effective for larger problems.
 The findings demonstrate that Jacobian-free Newton-Krylov methods are promising for advancing finite-volume solid mechanics simulations, particularly for existing segregated frameworks where minimal modifications enable their adoption.
 The described implementations are available in the solids4foam toolbox for OpenFOAM, inviting the community to explore, extend, and compare these procedures.
 }
@@ -142,15 +142,15 @@ A further disadvantage from a finite volume perspective is that extending existi
 In addition, the derivation of the true Jacobian matrix is non-trivial.
 Consequently, similar block-coupled solution finite volume methods are rare in the literature \citep{Das2011, Cardiff2016, Castrillo2024}.
 The motivation of the current work is to seek the robustness and efficiency of block-coupled Newton-Raphons approaches in a way that can be easily incorporated into existing segregated solution frameworks.
-To this end, the current article examines the efficacy of \emph{Jacobian-free} Newton-Krylov methods, where the quadratic convergence of Newton methods can potentially be achieved without deriving, assembling and storing the exact Jacobian.
+To this end, the current article proposes and examines the efficacy of \emph{Jacobian-free} Newton-Krylov methods, where the quadratic convergence of Newton methods can potentially be achieved without deriving, assembling and storing the exact Jacobian.
 
 Jacobian-free Newton-Krylov methods circumvent the need for the Jacobian matrix by combining the Newton-Raphson method with Krylov subspace iterative linear solvers, such as the generalised minimal residual method (GMRES), and noticing that such Krylov solvers do not explicitly require the Jacobian matrix.
 Instead, only the action of the Jacobian matrix on a solution-type vector is required.
 The key step in Jacobian-free Newton-Krylov methods is the approximation of products between the Jacobian matrix and a vector using the finite difference method; that is
 \begin{eqnarray}
-	\bb{J} \bb{v} \approx \frac{\bb{F}(\bb{x} + \epsilon \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
+	\bb{J} \bb{v} \approx \frac{\bb{R}(\bb{u} + \epsilon \bb{v}) - \bb{R}(\bb{u})}{\epsilon}
 \end{eqnarray}
-where $\bb{J}$ is the Jacobian matrix, $\mathbf{x}$ is the current solution vector (e.g. nodal displacements), $\mathbf{v}$ is a vector (e.g., from a Krylov subspace), and $\epsilon$ is a small scalar perturbation.
+where $\bb{J}$ is the Jacobian matrix, $\bb{R}$ is the residual function of the governing equation, $\mathbf{u}$ is the current solution vector (e.g. nodal displacements), $\mathbf{v}$ is a vector (e.g., from a Krylov subspace), and $\epsilon$ is a small scalar perturbation.
 %Determining the appropriate value for $\epsilon$ requires balancing the truncation error of the finite difference approximation and round-off (numerical precision) error.
 With an appropriate choice of $\epsilon$ (balancing truncation and round-off errors), the characteristic quadratic convergence of Newton methods can be achieved without the Jacobian, hence the modifier \emph{Jacobian-free}.
 This approach promises significant memory savings over Jacobian-based methods, especially for large-scale problems, but also potentially for execution time, with appropriate choice of solution components.
@@ -166,7 +166,7 @@ Similarly, if such an approach is efficient, it would naturally fit into existin
 %Knoll: "The difference in predominating approach (Newton versus Picard) seems stronger for implicit IVPs. Again, the applied mathematics community has focused on Newton-based methods and on converging the nonlinear residual within a time step. In the computational physics community, operator splitting (time splitting, fractional step methods) [20,136] has been the ‘‘bread and butter’’ approach, with little attention to monitoring or converging the nonlinear residual within a time step, often allowing a splitting error to remain in time"
 % can be traced back to publications motivated by the solution of ODEs \citep{Brown1986} \citep{Gear1983} and publications motivated by the solution of PDEs \citep{Brown1990} ,\citep{Chen1984}. The primary motivation in all cases appears to be the ability to perform a Newton iteration without forming the Ja- cobian. Within the ODE community these methods helped to promote the use of higher-order implicit integration. The studies on PDE problems focused on the use of nonlinear preconditioning, preconditioners constructed from linear parts of the PDEs, and the addition of globalization methods.
 
-As noted by \citet{Knoll2004}, Jacobian-Free Newton–Krylov methods first appeared in the 1980s and early 1990s for the solution of ordinary and partial differential equations \citep{Gear1983, Chan1984, Brown1986, Brown1990}.
+As noted by \citet{Knoll2004}, Jacobian-free Newton–Krylov methods first appeared in the 1980s and early 1990s for the solution of ordinary and partial differential equations \citep{Gear1983, Chan1984, Brown1986, Brown1990}.
 \citet{Mchugh1994} and co-workers demonstrated the potential of Jacobian-free Newton-Krylov approaches for the solution of steady, incompressible, Navier-Stokes problems using a staggered finite volume formulation.
 They found the GMRES linear solver to be faster than a conjugate solver, however, the true Jacobian matrix was still evalauted by finite differencing in the construction of the preconditioning matrix.
 %%on a uniform but staggered mesh.
@@ -175,7 +175,7 @@ They found the GMRES linear solver to be faster than a conjugate solver, however
 %ILU(0) only.
 %"they still evaluate the Jacobian matrix for generating the preconditioning matrix and store the matrix in the form of an incomplete lower–upper (ILU) decomposition" from Qin2000.
 %Later work, such as the approach by 
-\citet{Qin2000} later extended Jacobian-Free Newton–Krylov methods to unsteady compressible Reynolds-averaged Navier–Stokes equations.
+\citet{Qin2000} later extended Jacobian-free Newton–Krylov methods to unsteady compressible Reynolds-averaged Navier–Stokes equations.
 % with the Baldwin–Lomax algebraic turbulence model.
 Once again it was found that GMRES was more robust than a conjugate gradient linear solver.
 For preconditioning, a fully matrix-free approach was proposed, based on the approximate factorization procedure of \citet{Badcock1996}.
@@ -378,10 +378,10 @@ From this perspective, the segregated solution algorithm commonly employed in fi
 \begin{eqnarray} \label{eq:Seg}
     \bb{\tilde{J}}(\bb{u}_k) \;\delta \bb{u} = -\bb{R}(\bb{u}_k)
 \end{eqnarray}
-In this case, the approximate Jacobian $\bb{\tilde{J}}$ comes from the compact stencil discretisation of a simple diffusion (Laplacian) term.
+In this case, the approximate Jacobian $\bb{\tilde{J}}$ comes from the compact stencil discretisation of a simple diffusion (Laplacian) term inertia terms.
 A benefit of this approach is that the inter-component coupling is removed from the Jacobian, allowing the solution of three smaller scalar systems rather than one larger vector system in 3-D (or two smaller systems in 2-D).
 
-A fully explicit procedure can also be viewed from this perspective by selecting a \emph{diagonal} approximate Jacobian $\bb{\tilde{D}}$, making the solution of the linear system trivial:
+A fully explicit procedure can also be viewed from this perspective by selecting a \emph{diagonal} approximate Jacobian $\bb{\tilde{D}}$ (only the inertia term), making the solution of the linear system trivial:
 \begin{eqnarray} \label{eq:exp}
     \bb{\tilde{D}}(\bb{u}_k) \;\delta \bb{u} = -\bb{R}(\bb{u}_k)
 \end{eqnarray}
@@ -429,19 +429,19 @@ For convenience, we will also define the set of all faces of cell $P$ excluding 
 
 
 %The conservation equation (Equations \ref{eqn:momentum_lingeom}, \ref{eqn:momentum_TL}, or \ref{eqn:momentum_UL}) is applied to each cell $\mathcal{P}$ and discretised in terms of the displacement at the centroid of the cell $\bb{u}_P$ and the displacements at the centroids of the neighbouring cells $\bb{u}_{N_{f_i}} \in N_i$.
-The conservation equation (Equations \ref{eqn:momentum_lingeom}, \ref{eqn:momentum_TL}, or \ref{eqn:momentum_UL}) is applied to each cell $\mathcal{P}$ and discretised in terms of the displacement at the centroid of the cell $\boldsymbol{u}_P$ and the displacements $\boldsymbol{u}_{N_{f_i}}$ at the centroids of the neighbouring cells.
+The conservation equation (Equations \ref{eqn:momentum_lingeom}, \ref{eqn:momentum_TL}, or \ref{eqn:momentum_UL}) is applied to each cell $P$ and discretised in terms of the displacement at the centroid of the cell $\boldsymbol{u}_P$ and the displacements $\boldsymbol{u}_{N_{f_i}}$ at the centroids of the neighbouring cells.
 % $\boldsymbol{u}_{N_{f_i}} \in \mathcal{U}_{\mathcal{N}_P}$, where $\mathcal{U}_{\mathcal{N}_P}$ represents the set of such displacements.
-Proceeding with the discretisation, the volume integrals and surface integrals in the governing equation are approximated by algebraic equations as described below.
+Proceeding with the discretisation, the volume and surface integrals in the governing equation are approximated by algebraic equations as described below.
 
 
 \subsubsection{Volume Integrals}
-To discretise the volume integrals, the integrand $\bb{\phi}$ is assumed to locally vary accoding to a truncated Taylor series expansion about the centroid of cell $P$:
+To discretise the volume integrals, the integrand $\bb{\phi}$ is assumed to locally vary according to a truncated Taylor series expansion about the centroid of cell $P$:
 \begin{eqnarray}
 	\bb{\phi}(\bb{x})  \approx \bb{\phi}_P + (\bb{x} - \bb{x}_P) \cdot \nabla \bb{\phi}_P
 \end{eqnarray}
 where subscript $P$ indicates a value at the centroid of the cell $P$.
 %assuming a linear variation of the integrand across the cell, the mid-point rule approximates the integral in terms of the cell centre value.
-Consequently, volume integrals over a cell $P$ can approximated to second order accuracy as
+Consequently, volume integrals over a cell $P$ can be approximated to second-order accuracy as
 \begin{eqnarray} \label{eq:volume_integral}
 	\int_{\Omega_P} \bb{\phi} \, d \Omega_P
 		&\approx& \int_{\Omega_P}  \left[ \bb{\phi}_P + (\bb{x} - \bb{x}_P) \cdot \nabla \bb{\phi}_P \right] d \Omega_P \notag \\
@@ -489,11 +489,11 @@ Superscript $[t]$ indicates the time level, with $\bb{u}_P^{[t+1]}$ correspondin
 	\boldsymbol{v}_P^{[t+1]}	&\approx&
 		\dfrac{3\boldsymbol{u}_P^{[t+1]} - 4\boldsymbol{u}_P^{[t]} + \boldsymbol{u}_P^{[t-1]}}{2\Delta t} 
 \end{eqnarray}
-Consequently, the displacement and velocity at the two previous time steps must be stored, or alternatively the displacement at the previous four time steps.
+Consequently, the displacement and velocity at the two previous time steps must be stored, or alternatively, the displacement at the previous four time steps.
 
 
 \subsubsection{Surface Integrals}
-The surface integral term can be discretised as using one-point quadrature at each face $f_i$ as
+The surface integral term can be discretised using one-point quadrature at each face $f_i$ as
 %\begin{eqnarray} \label{eq:surface_integral}
 %	\oint_{\Gamma_P} \bb{\phi} \, d \Gamma_P
 %		&=& \sum_{f_i \in \mathcal{F}_P} \int_{\Gamma_{f_i}} \bb{\phi} \,  d \Gamma_{f_i} \notag \\
@@ -512,7 +512,7 @@ The surface integral term can be discretised as using one-point quadrature at ea
 	+ \sum_{s_i \in \mathcal{F}_P^{\text{symm}}} \bb{\Gamma}_{s_i} \cdot \bb{\sigma}_{s_i}
 	+ \sum_{t_i \in \mathcal{F}_P^{\text{trac}}} |\bb{\Gamma}_{t_i}| \bar{\bb{T}}_{t_i}
 \end{eqnarray}
-where $\Gamma_P$ indicates the surface of cell $P$, and $\bb{\Gamma}_{f_i}$ indicates the area vector of face $f_i$, and vector $\bar{\bb{T}}_{t_i}$ represents the prescribed traction on the traction boundary face $t_i$.
+where $\Gamma_P$ indicates the surface of cell $P$, $\bb{\Gamma}_{f_i}$ indicates the area vector of face $f_i$, and vector $\bar{\bb{T}}_{t_i}$ represents the prescribed traction on the traction boundary face $t_i$.
 %where $\Gamma_P$ indicates the surface of cell $P$, and $\bb{\Gamma}_{f_i}$ indicates the area vector of face $f_i$.
 
 It is noted that the displacement is assumed to vary linearly within each cell; hence, the displacement gradient and stress are constant within each cell.
@@ -623,7 +623,7 @@ The $\bb{G}_P$ tensor for cell $P$ is calculated as
 	 &&+  \sum_{{d_i} \in \mathcal{F}^{\text{disp}}_P} (1 - w_{d_i}) |\bb{\Gamma}_{d_i}|  \frac{\bb{d}_{d_i} \otimes \bb{d}_{d_i}}{\bb{d}_{d_i} \cdot \bb{d}_{d_i}} \notag \\
 	 && +  \sum_{{s_i} \in \mathcal{F}^{\text{symm}}_P} (1 - w_{s_i}) |\bb{\Gamma}_{s_i}|  \frac{\bb{d}_{s_i} \otimes \bb{d}_{s_i}}{\bb{d}_{s_i} \cdot \bb{d}_{s_i}}
 \end{eqnarray}
-As the $w |\bb{\Gamma}| \ \bb{G}^{-1}_P \cdot \bb{d}/(\bb{d}\cdot \bb{d})$ vectors in Equation \ref{eq:leastSquaresGrad} are purely a function of the mesh, they can be computed once and stored.
+As the $w |\bb{\Gamma}| \ \bb{G}^{-1}_P \cdot \bb{d}/(\bb{d}\cdot \bb{d})$ vectors in Equation \ref{eq:leastSquaresGrad} are purely a function of the mesh, they can be computed once (or each time the mesh moves) and stored.
 Equation \ref{eq:leastSquaresGrad} approximates the cell-centre gradients to at least a first-order accuracy, increasing to second-order accuracy on certain smooth grids \citep{Syrakos2023};
 first-order accurate gradients are sufficient to preserve second-order accuracy of the cell-centre displacements.
 
@@ -971,33 +971,33 @@ In the current work, $\alpha$ is taken as unity in the approximate Jacobian, whi
 
 As noted in the introduction, the Jacobian-free Newton-Krylov method avoids the need to explicitly construct the Jacobian matrix by approximating its action on a solution vector using the finite difference method, repeated here:
 \begin{eqnarray} \label{eq:JF}
-	\bb{J} \bb{v} \approx \frac{\bb{F}(\bb{x} + \epsilon \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
+	\bb{J} \bb{v} \approx \frac{\bb{R}(\bb{u} + \epsilon \bb{v}) - \bb{R}(\bb{u})}{\epsilon}
 \end{eqnarray}
 
 %\hl{1}
 %Derive Jv for 2x2 system.
 The derivation of this approximation can be shown for a $2 \times 2$ system as \cite{Knoll2004}:
 \begin{eqnarray}
-	\frac{\mathbf{F}(\mathbf{x} + \epsilon \mathbf{v}) - \mathbf{F}(\mathbf{x})}{\epsilon}
+	\frac{\bb{R}(\mathbf{u} + \epsilon \mathbf{v}) - \mathbf{R}(\mathbf{u})}{\epsilon}
 	&=&
 	\begin{pmatrix}
-	\dfrac{F_1 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_1 (x_1, x_2)}{\epsilon}\\
-	\dfrac{F_2 (x_1 + \epsilon v_1, x_2 + \epsilon v_2) - F_2 (x_1, x_2)}{\epsilon}
+	\dfrac{R_1 (u_1 + \epsilon v_1, u_2 + \epsilon v_2) - R_1 (u_1, u_2)}{\epsilon}\\
+	\dfrac{R_2 (u_1 + \epsilon v_1, u_2 + \epsilon v_2) - R_2 (u_1, u_2)}{\epsilon}
 	\end{pmatrix} \notag \\
 	&\approx&
 	\begin{pmatrix}
-	\dfrac{F_1 (x_1,x_2) + \epsilon v_1 \dfrac{\partial F_1}{\partial u_1} + \epsilon v_2 \dfrac{\partial F_1}{\partial u_2} - F_1 (x_1, x_2)}{\epsilon}\\
-	\dfrac{F_2 (x_1, x_2) + \epsilon v_1 \dfrac{\partial F_2}{\partial u_1} + \epsilon v_2 \dfrac{\partial F_2}{\partial u_2}  - F_2 (x_1, x_2)}{\epsilon}
+	\dfrac{R_1 (u_1,u_2) + \epsilon v_1 \dfrac{\partial R_1}{\partial u_1} + \epsilon v_2 \dfrac{\partial R_1}{\partial u_2} - R_1 (u_1, u_2)}{\epsilon}\\
+	\dfrac{R_2 (u_1, u_2) + \epsilon v_1 \dfrac{\partial R_2}{\partial u_1} + \epsilon v_2 \dfrac{\partial R_2}{\partial u_2}  - R_2 (u_1, u_2)}{\epsilon}
 	\end{pmatrix} \notag \\
 	&\approx&
 	\begin{pmatrix}
-	v_1 \dfrac{\partial F_1}{\partial u_1} +  v_2 \dfrac{\partial F_1}{\partial u_2} \\
-	v_1 \dfrac{\partial F_2}{\partial u_1} + v_2 \dfrac{\partial F_2}{\partial u_2}
+	v_1 \dfrac{\partial R_1}{\partial u_1} +  v_2 \dfrac{\partial R_1}{\partial u_2} \\
+	v_1 \dfrac{\partial R_2}{\partial u_1} + v_2 \dfrac{\partial R_2}{\partial u_2}
 	\end{pmatrix} \notag \\
 	&\approx&
 	\bb{J} \bb{v}
 \end{eqnarray}
-where a first-order truncated Taylor series expansion about $\bb{u}$ was used to approximate $\bb{F} (\bb{x} + \epsilon \bb{v})$.
+where a first-order truncated Taylor series expansion about $\bb{u}$ was used to approximate $\bb{R} (\bb{u} + \epsilon \bb{v})$.
 %\hl{1b}
 %Choosing $\epsilon$ is important.
 As noted above, choosing an appropriate value for $\epsilon$ is non-trivial, and care must be taken to balance truncation error (reduced by decreasing $\epsilon$) and round-off error (increased by decreasing $\epsilon$).
@@ -1010,14 +1010,14 @@ As noted above, choosing an appropriate value for $\epsilon$ is non-trivial, and
 
 %The literature indicates that the choice of preconditioner for the inner linearised system has a major impact on the efficiency and robustness of the overall solution procedure.
 The purpose of preconditioning the Jacobian-free Newton-Krylov method is to reduce the number of inner linear solver iterations.
-In the current work, the GMRES linear solver is used for the inner system.
+The current work uses the GMRES linear solver for the inner system.
 %Left or right preconditioning, may be employed in a Jacobian-free context, and there are pros and cons to both.
 Using right preconditioning, the finite difference approximation of Equation \ref{eq:JF} becomes
 \begin{eqnarray}
 %	(\bb{J} \bb{P}^{-1}) (\bb{P} \delta \bb{u}) = -\bb{R}(\bb{u})
 	\bb{J} \bb{P}^{-1} \bb{v}
 	\approx
-	\frac{\bb{F}(\bb{x} + \epsilon \bb{P}^{-1} \bb{v}) - \bb{F}(\bb{x})}{\epsilon}
+	\frac{\bb{R}(\bb{u} + \epsilon \bb{P}^{-1} \bb{v}) - \bb{R}(\bb{u})}{\epsilon}
 \end{eqnarray}
 where $\bb{P}$ is the preconditioning matrix or process.
 In practice, only the action of $\bb{P}^{-1}$ on a vector is required, and $\bb{P}^{-1}$ need not be explicitly formed.
@@ -1029,14 +1029,15 @@ Concretely, the preconditioner needs to approximately solve the linear system $\
 %- many precon used in lit, we will consider ILU($k$) and MG, where MG is expected to be better, but also LU since direct solvers are popular in FE solid mechanics
 In the current work, we propose to use the compact-stencil approximate Jacobian from the segregated algorithm $\tilde{\bb{J}}$ as the preconditioning matrix $\bb{P}$ for the preconditioned Jacobian-free Newton-Krylov method.
 %\hl{Comment on literature: used before but not yet for solids}.
-This preconditioning approach can be considered as a ``physics-based" preconditioner in the classifications of \citet{Knoll2004}.
-The approach is conceptually similar to an approximation of the Jacobian of a higher-order large-stencil scheme by a compact-stencil lower-order scheme.
+This preconditioning approach can be considered a ``physics-based" preconditioner in the classifications of \citet{Knoll2004}.
+The approach is conceptually similar to approximating a higher-order large-stencil scheme Jacobian by a compact-stencil lower-order scheme.
 A benefit of the proposed approach is that existing segregated frameworks can re-use their existing matrix assembly and storage implementations.
 Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for forming this preconditioning matrix and a procedure for explicitly evaluating the residual.
-Both routines are easily implemented -- and are likely already available -- in an existing segregated framework.
+Both routines are easily implemented - and are likely already available - in an existing segregated framework.
 The only additional required procedure is an interface to an existing Jacobian-free Newton-Krylov implementation.
 %"The motivation behind this approach is that there exist numerous, legacy algorithms to solve nonlinear systems, both IVPs and BVPs. These algorithms typically were developed with some insight into the time scales or physical behavior of the problem. As a benefit of this insight, a reduced implicit system, or a sequence of segregated explicit or implicit systems may be solved in place of the fully coupled system. "
 In the current work, the PETSc package (version 3.22.2) \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
+The codes are publicly available at \url{https://github.com/solids4foam/solids4foam} on the \texttt{feature-petsc-snes} branch, and the cases and plotting scripts are available at \url{https://github.com/solids4foam/solid-benchmarks}.
 
 Several preconditioners are available in the literature, incomplete Cholesky or ILU($k$) being popular; however, multigrid methods offer the greatest potential for large-scale problems.
 As noted by \citet{Knoll2004}, algorithmic simplifications within a multigrid procedure, which may result in loss of convergence for multigrid as a solver, have a much weaker effect when multigrid is used as a preconditioner.
@@ -1075,7 +1076,7 @@ In addition, some authors %\cite{See164_and_176_in_Knoll2004}
 \cite{Knoll2004} have shown Newton convergence to be worse when the earlier iterations are solved to too tight a tolerance.
 The concept of oversolving also applies to segregated solution procedures and has been well-known since the early work of Demird\v{z}i\'{c} and co-workers \cite{Demirdzic1995}, where the residuals are typically reduced by one order of magnitude in the inner linear system.
 %The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}. \hl{Check: do we examine this?}
-In the current work, the residual is reduced by one order of magnitude in the segregated approach and three orders in the Jacobian-free Newton-Krylov approach.
+In the current work, the residual is reduced by a factor of 0.9 in the segregated approach and by three orders in the Jacobian-free Newton-Krylov approach.
 %\hl{Try for EW plastic: $-snes_ksp_ew -snes_ksp_ew_version 2 -snes_ksp_ew_rtol0 1e-4$}
 
 %Knoll2004:
@@ -1092,10 +1093,10 @@ The current work adopts three checks for determining whether convergence has bee
         \item \emph{Absolute}: Convergence is declared when $|\bb{R}(\bb{u})|$ falls below an absolute tolerance $a_{\text{tol}}$, taken here as $1\times 10^{-50}$. This acts as a failsafe in situations where the \emph{relative} criterion (below) is ineffective because the initial solution already nearly satisfies the governing equation.
         \item \emph{Relative}: Convergence is declared when $|\bb{R}(\bb{u})|$ falls below $r_{\text{tol}} \times |\bb{R}(\bb{u}_0)|$, with $|\bb{R}(\bb{u}_0)|$ denoting the residual norm at the start of the time (or loading) step. In this work, $r_{\text{tol}} = 10^{-6}$.
     \end{itemize}
-    \item Norm of the solution correction $|\delta \bb{u}|$: Convergence is declared when the norm of the change in the solution between successive iterations is less than a prescribed tolerance, $s_{\text{tol}}$.
+    \item Norm of the solution correction $|\delta \bb{u}|$: Convergence is declared when the norm of the change in the solution between successive iterations is less than $s_{\text{tol}} \times |\bb{u}|$.
 \end{itemize}
 
-Although it may seem reasonable to apply the same tolerances for both the segregated and Jacobian-free Newton-Krylov solution procedures, care must be taken with $s_{\text{tol}}$. The Jacobian-free Newton-Krylov method typically makes a small number of large corrections to the solution, whereas the segregated procedure often makes a large number of small corrections. Consequently, if the same $s_{\text{tol}}$ value were used, the segregated procedure might be declared convergent prematurely. To avoid this, $s_{\text{tol}}$ is set to zero in the present work, meaning convergence is based solely on residual reduction. Nonetheless, setting $s_{\text{tol}} > 0$ could yield a more robust procedure capable of handling potential stalling.
+Although applying the same tolerances for the segregated and Jacobian-free Newton-Krylov solution procedures may seem reasonable, care must be taken with $s_{\text{tol}}$. The Jacobian-free Newton-Krylov method typically makes a small number of large corrections to the solution, whereas the segregated procedure often makes a large number of small corrections. Consequently, if the same $s_{\text{tol}}$ value were used, the segregated procedure might be declared convergent prematurely. To avoid this, $s_{\text{tol}}$ is set to zero in the present work, meaning convergence is based solely on residual reduction. Nonetheless, setting $s_{\text{tol}} > 0$ could yield a more robust procedure capable of handling potential stalling.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1151,7 +1152,7 @@ The cases have been chosen to exhibit a variety of characteristics in terms of
 
 %In addition, through the analysis of the benchmark cases above, the effect of several parameters will be examined, including the mesh types, Rhie-Chow stabilisation scaling, preconditioner choices, linear solver settings, the effect of globalisation strategies, and multi-CPU-core parallelisation.
 %The performance of the Jacobian-free Newton-Krylov algorithm is compared with that of the segregated algorithm in terms of computational time and memory requirements.
-In all cases, the residuals are dropped by six orders of magnitude. % unless stated otherwise.
+%In all cases, the residuals are dropped by six orders of magnitude. % unless stated otherwise.
 %Metrics from a commercial finite element software (Abaqus) are included for reference \hl{ask Dylan to run Abaqus cases once we have our results}.
 Although the presented analyses aim to be extensive, % but not exhaustive;
 several common features of modern solid mechanics procedures are left for future work, including nonlinear boundary conditions (e.g., contact, fracture) and mixed formulations (e.g., incompressibility). %, where mixed formulations are required. 
@@ -1848,7 +1849,7 @@ while the frequency is calculated as the inverse of the period.
 This section compares resource requirements and the robustness of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
 Specifically, time and memory requirements are analysed, and whether the solution converged for all meshes and loading steps.
 %In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
-In all cases, the Jacobian-free Newton-Krylov approach used the generalised minimal residual method (GMRES) linear solver with the direct LU preconditioner for 2-D and the Hypre BoomerAMG multigrid preconditioner for 3-D, unless stated otherwise.
+In all cases, the Jacobian-free Newton-Krylov approach used the GMRES linear solver with the direct LU preconditioner for 2-D and the Hypre BoomerAMG multigrid preconditioner for 3-D, unless stated otherwise.
 A restart value of 30 is used for the GMRES solver, where the \emph{loose} variant of the GMRES solver is used, which retains a small number of extra solution vectors across restarts (2 in this case).
 In contrast, the segregated approach used the conjugate gradient linear solver and the incomplete Cholesky preconditioner with no infill -- equivalent to ILU(0).
 %Hypre BoomerAMG multigrid preconditioner for all cases.
