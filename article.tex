@@ -105,7 +105,8 @@ textheight=24cm, % llncs has 19.3cm
 
 \abstract
 {
-This study investigates the efficacy of Jacobian-free Newton-Krylov methods in finite-volume solid mechanics. Traditional Newton-based approaches require explicit Jacobian matrix formation and storage, which can be computationally expensive and memory-intensive.
+This study proposes a Jacobian-free Newton-Krylov approach for finite-volume solid mechanics.
+Traditional Newton-based approaches require explicit Jacobian matrix formation and storage, which can be computationally expensive and memory-intensive.
 In contrast, Jacobian-free Newton-Krylov methods approximate the Jacobian’s action using finite differences, combined with Krylov subspace solvers such as the generalised minimal residual method (GMRES), enabling seamless integration into existing segregated finite-volume frameworks without major code refactoring.
 This work proposes and benchmarks the performance of a compact-stencil Jacobian-free Newton-Krylov method against a conventional segregated approach on a suite of test cases, encompassing varying geometric dimensions, nonlinearities, dynamic responses, and material behaviours.
 Key metrics, including computational cost, memory efficiency, and robustness, are evaluated, along with the influence of preconditioning strategies and stabilisation scaling.
@@ -168,7 +169,7 @@ Similarly, if such an approach is efficient, it would naturally fit into existin
 
 As noted by \citet{Knoll2004}, Jacobian-free Newton–Krylov methods first appeared in the 1980s and early 1990s for the solution of ordinary and partial differential equations \citep{Gear1983, Chan1984, Brown1986, Brown1990}.
 \citet{Mchugh1994} and co-workers demonstrated the potential of Jacobian-free Newton-Krylov approaches for the solution of steady, incompressible, Navier-Stokes problems using a staggered finite volume formulation.
-They found the GMRES linear solver to be faster than a conjugate solver, however, the true Jacobian matrix was still evalauted by finite differencing in the construction of the preconditioning matrix.
+They found the GMRES linear solver to be faster than a conjugate gradient solver, however, the true Jacobian matrix was still evalauted by finite differencing in the construction of the preconditioning matrix.
 %%on a uniform but staggered mesh.
 %Compared several Krylov linear solvers including CG and GMRes. GMRES found to be best.
 %Implementation is simplified using a numerically evaluated Jacobian, while robustness is improved using mesh sequencing and a damped Newton iteration.
@@ -225,14 +226,122 @@ A particular benefit was the insensitivity of the Jacobian-free Newton-Krylov me
 %\citet{Nishikawa2020} JFNK with generalized conjugate residual linear solver. Approximate Jacobian for preconditioning -> variable preconditioner. Compared with a simple implicit defect-correction approach with first-order Jacobian and Gauss-Seidel linear solver.
 %JFNK is faster and uses less CPU time than IDC.
 % NOT JFNK: \citet{Nishikawa2019} pseudo time with adaptive time-step based on the NR residuals. Linear systems solved by Gauss-Seidel relaxation scheme.
-A final relevant point is the effect of numerical stabilisation (damping) on the convergence: \citet{Nishikawa2017} demonstrated that a Jacobian-free Newton-Krylov approach was less sensitive to the magnitude of the damping and remained stable for lower values of damping compared with a segregated approach.
+Another relevant point is the effect of numerical stabilisation (damping) on the convergence: \citet{Nishikawa2017} demonstrated that a Jacobian-free Newton-Krylov approach was less sensitive to the magnitude of the damping and remained stable for lower values of damping compared with a segregated approach.
 % for the alpha-damping scheme when used with a .
 %It was found that appropriate choice 
 
 
+In recent years, Jacobian-free Newton-Krylov methods have gained increasing traction in finite volume discretizations across various engineering and physics applications.
+For turbomachinery simulations, \citet{Zhang2024} developed a Jacobian-free Newton-Krylov method to improve convergence difficulties associated with simplified implicit iterative algorithms, employing a startup strategy based on an approximate Jacobian system coupled with an adaptive Courant-Friedrichs-Lewy number scheme before transitioning to full Newton iterations.
+Their approach leverages GMRES with a graph coloring-based finite difference preconditioner.
+Similarly, \citet{Zhang2024twofluid} introduced a staggered-grid JFNK solver for the two-fluid six-equation model, specifically designed to address discontinuities and ill-conditioning, using GMRES for the Krylov subspace iteration.
+In the context of Reynolds-Averaged Navier-Stokes equations, \citet{Sukas2025} utilized PETSc-based \citep{PETSc} Jacobian-free Newton-Krylov solvers with both Jacobian-free finite difference and direct Jacobian-vector products, highlighting the versatility of the approach.
+\citet{Johannes2021} explored a hybrid approach where a high-order Discontinuous Galerkin method was preconditioned using a finite volume-based multigrid solver, demonstrating effectiveness in unsteady three-dimensional compressible flow applications.
+Beyond traditional fluid dynamics, Jacobian-free Newton-Krylov methods have been successfully extended to reactive transport in porous media, as demonstrated by \citet{Amir2021}.
+Jacobian-free Newton-Krylov has also been applied in magnetohydrodynamics, where 
+\citet{Nguyen2022} proposed higher-order spatial and temporal discretisation coupled with additive Schwarz preconditioning based on block incomplete LU factorization, and \citet{Chacon2025} introduced a physics-based preconditioner leveraging Schur complement operator splitting, coupled with Newton-flexible-GMRES to improve convergence.
+
+Beyond individual applications, several multiphysics simulation frameworks incorporate Jacobian-free Newton-Krylov as a core numerical strategy.
+The Eilmer code \citep{Eilmer2023}, an open-source finite volume solver for hypersonic flow simulations, relies on Jacobian-free Newton-Krylov for robust convergence in high-speed aerothermodynamics.
+In the finite element community, MOOSE \citep{Giudicelli2024, Zhu2025, Wu2024} has emerged as a leading multiphysics framework that employs Jacobian-free Newton-Krylov via PETSc \citep{PETSc}, enabling highly scalable simulations across disciplines.
+Built on MOOSE, the BISON nuclear fuel performance code \citep{Williamson2021} uses Jacobian-free Newton-Krylov to handle tightly coupled thermomechanical and radiation transport effects in large-scale nuclear reactor simulations.
+Other FE-based solvers, such as deal.II \citep{Africa2024, Munch2024}, also integrate Jacobian-free Newton-Krylov with PETSc \citep{PETSc} for efficient nonlinear solvers.
+%In two-phase and reactive flow problems, JFNK has been particularly successful in nuclear thermal-hydraulics applications, proving effective for fully implicit coupling of phase-change and nonlinear source terms.
+The adoption of JFNK in large-scale multiphysics codes underscores its scalability: matrix-free residual evaluations scale well on distributed memory systems, and Krylov solvers can leverage multigrid and domain decomposition preconditioners to keep computational costs manageable.
+
+Jacobian-free Newton-Krylov methods have also been extended to finite difference and nodal integral methods.
+\citet{Ahmed2025} explored preconditioned Newton-Krylov approaches for Navier-Stokes equations using a nodal integral method with GMRES-based physics-aware preconditioning, demonstrating improved robustness for complex flow problems.
+In contrast, \citet{Liu2025} employed an explicit Jacobian-based Newton-Krylov solver for nuclear multiphysics coupling, arguing that the true Jacobian matrix provides a better preconditioner, enhancing stability over a purely Jacobian-free approach.
+Similarly, JFNK has been extended to immersed boundary finite element methods for cardiac mechanics \citep{Ma2024}, where BiCGSTAB was preferred over GMRES to ensure that computational time and memory requirements remain scalable.
+
+
+
+%\citet{Zhang2024} developed a Jacobian-Free Newton–Krylov finite volume method for turbomachinary problems to alleviate convergence difficulties associted with simplified implicit nonlinear iterative algorithms.
+%GMRES.
+%A low-order Jacobian matrix assembled by graph coloring and finite difference method is adopted as preconditioning matrix.
+%Startup stage and Newton stage.
+%In the startup stage, an approximate Jacobian linear system is coupled with adaptive Courant–Friedrichs–Lewy number algorithm. Then switch to full Newton (infinite time-step).
+%
+%\citet{Nguyen2022}
+%aerodynamic and magnetohydrodynamic  problems.
+%higher order time schemes and fourth-order central essentially-non-oscillatory (CENO) scheme.
+%additive Schwarz preconditioning using block-based incomplete LU decomposition
+%
+%\citet{Johannes2021}
+%high order Discontinuous Galerkin 
+%three-dimensional unsteady compressible flow applications
+%multigrid preconditioning 
+%first order Finite Volume (FV) discretization
+
+%\citet{Amir2021}
+%Reactive transport and porous media
+
+%\citet{Sukas2025}
+%compressible Reynolds averaged Navier–Stokes Equations
+%PETSc
+%can utilize both the Jacobian-free finite difference and direct approaches for the Jacobian vector product
+%FV
+
+%\citet{Chacon2025}
+%Hall magnetohydrodynamics
+%physics-based preconditioner: The preconditioner is formulated using an operator-split approximate block factorization (Schur complement), informed by physics insight
+%Newton-FGMRES => we also use FGMRES
+
+%\citet{Zhang2024twofluid}
+%staggerred grid FV
+%two-fluid six-equation (TFSE) model 
+%Jacobian-free Newton-Krylov (HRJFNK) method was proposed to solve the discontinuity, singularity, ill-conditioned problems in the TFSE model
+%GMRES
+
+
+%FV Software:
+%
+%Eilmer software: \citet{Eilmer2023}
+%An open-source multi-physics hypersonic flow solver
+%hypersonics and high-speed aerothermodynamics
+%FV
+
+%FE software
+%
+%MOOSE: \citet{Giudicelli2024} and \cite{Zhu2025} and \citet{Wu2024} => uses PETSc
+%BISON: \citet{Williamson2021} => BISON is built on top of MOOSE for nuclear fuel performance.
+%deal.ii \cite{Africa2024} => uses PETSc; \citet{Munch2024} finite-element solver for phase-field simulations of many-particle solid-state-sintering processes, up to 49k processes.
+
+%In two-phase and reactive flow models (e.g. nuclear thermal-hydraulics), JFNK has been successfully applied to solve the coupled equations fully implicitly, proving flexible in handling phase-change and other nonlinear source terms.
+%Such successes underline JFNK’s appeal for complex fluid and multiphysics problems, where assembling an exact global Jacobian is cumbersome.
+%Notably, large multiphysics codes like MOOSE/BISON have adopted JFNK to solve tightly-coupled physics (e.g. thermomechanics with phase-field models) because it avoids explicit
+%Jacobian assembly and copes well with the nonlinear coupling.
+%
+%the BISON nuclear fuel simulation code (using a finite-element JFNK approach) leverages Jacobian-free solves to handle tightly coupled thermomechanical behavior with radiation transport on large 3D meshes in parallel.
+%The success of BISON and similar large-scale applications underscores that JFNK is well-suited for parallel computing – the matrix-free residual evaluations typically scale well on distributed memory systems, and  the Krylov solver can take advantage of modern HPC libraries.
+%Moreover, as mentioned, using multigrid or domain-decomposed preconditioners keeps the cost of each Newton iteration scalable with problem size.
+%
+%\citet{Zhu2025}: hybrid approach combining FEM and DG method; liquid metal reactor
+
+
+%Other Non FV JFNK:
+%
+%\cite{Ahmed2025}
+%Nodal integral methods
+%physics-based preconditioning
+%GMRES
+%
+%\citet{Liu2025}
+%FD
+%Newton-Krylov method with the explicit Jacobian matrix (not Jacobian free!) => they find explicit Jacobian is more stable as the true Jacobian is a better preconditioner nuclear reactor nonlinear multiphysics coupling system
+%
+%\citet{Ma2024} heart mechanics
+%IBFE
+%towards cardiac mechanics problems
+%Biconjugate Gradient Stabilized (BiCGSTAB) method, not GMRES, as BiCGSTAB "ensures that the time and memory requirements do not escalate with the number of iterations in every substep"
+
+
 Although they are increasingly seen in finite volume computational fluid dynamics, Jacobian-free Newton-Krylov methods have yet to be used for finite volume solid mechanics.
-This article aims to address this point by assessing the efficacy of Jacobian-free Newton-Krylov cell-centred finite volume formulations applied to static, dynamic, linear and nonlinear solid mechanics problems.
-Particular focus is given to the use of a compact-stencil approximate Jacobian preconditioner, inspired from existing segregated solid mechanics procedures, and ease of implementation into an existing segregated finite volume framework -- OpenFOAM \citep{Weller1998}.
+This article addresses this point by being the first (to the authors' knowledge) to propose a Jacobian-free Newton-Krylov approach for finite volume solid mechanics.
+By benchmarking the Jacobian-free Newton-Krylov solver on various structural mechanics problems – including static and dynamic cases, linear elasticity and nonlinear material behavior – we assess its performance relative to the traditional segregated approach.
+%The efficacy of the proposed cell-centred formulation is assessed on several static, dynamic, linear and nonlinear solid mechanics problems.
+Particular focus is given to the use of a compact-stencil approximate Jacobian preconditioner, inspired from existing segregated solid mechanics procedures, and ease of implementation into an existing segregated finite volume framework -- the OpenFOAM-based solids4foam toolkit \citep{Cardiff2018}.
+This study explicitly addresses whether the known benefits of the Jacobian-free Newton-Krylov method (fast convergence, stability, memory savings) can be realized for finite volume solid mechanics, and what challenges might arise (for example, we report and discuss a robustness issues in elastoplastic cases, pointing to areas needing further research).
 %Novel in this paper:
 %- JKNK for FVM CSM/CSD
 %- focus on easy-of-implementation in an existing segregated code framework.
@@ -2340,7 +2449,7 @@ Financial support is gratefully acknowledged from the Irish Research Council
 through the Laureate programme, grant number IRCLA/2017/45, from Bekaert through
 the University Technology Centre (UTC phases I and II) at UCD
 (www.ucd.ie/bekaert), from I-Form, funded by Science Foundation Ireland (SFI)
-Grant Numbers {16/RC/3872} and {21/RC/10295_P2}, co-funded under European Regional Development Fund and by I-Form industry partners, and from NexSys, funded by SFI Grant Number 21/SPP/3756.
+Grant Numbers {16/RC/3872} and {21/RC/10295\_P2}, co-funded under European Regional Development Fund and by I-Form industry partners, and from NexSys, funded by SFI Grant Number 21/SPP/3756.
 Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie), and part of this work has been carried out using the UCD ResearchIT Sonic cluster which was funded by UCD IT Services and the UCD Research Office.
 %\hl{Ivan/Zeljko: add any additional acknowledgements here}
 
