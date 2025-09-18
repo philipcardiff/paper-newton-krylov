@@ -338,10 +338,14 @@ Similarly, JFNK has been extended to immersed boundary finite element methods fo
 
 Although they are increasingly seen in finite volume computational fluid dynamics, Jacobian-free Newton-Krylov methods have yet to be used for finite volume solid mechanics.
 This article addresses this point by being the first (to the authors' knowledge) to propose a Jacobian-free Newton-Krylov approach for finite volume solid mechanics.
-By benchmarking the Jacobian-free Newton-Krylov solver on various structural mechanics problems – including static and dynamic cases, linear elasticity and nonlinear material behavior – we assess its performance relative to the traditional segregated approach.
+By benchmarking the Jacobian-free Newton-Krylov solver on various structural mechanics problems – including static and dynamic cases, linear elasticity and nonlinear material behaviour – we assess its performance relative to the traditional segregated approach.
 %The efficacy of the proposed cell-centred formulation is assessed on several static, dynamic, linear and nonlinear solid mechanics problems.
-Particular focus is given to the use of a compact-stencil approximate Jacobian preconditioner, inspired from existing segregated solid mechanics procedures, and ease of implementation into an existing segregated finite volume framework -- the OpenFOAM-based solids4foam toolkit \citep{Cardiff2018}.
-This study explicitly addresses whether the known benefits of the Jacobian-free Newton-Krylov method (fast convergence, stability, memory savings) can be realized for finite volume solid mechanics, and what challenges might arise (for example, we report and discuss a robustness issues in elastoplastic cases, pointing to areas needing further research).
+Particular focus is given to the use of a compact-stencil approximate Jacobian preconditioner, inspired by existing segregated solid mechanics procedures, and ease of implementation into an existing segregated finite volume framework -- the OpenFOAM-based solids4foam toolkit \citep{Cardiff2018}.
+This study explicitly addresses whether the known benefits of the Jacobian-free Newton-Krylov method (fast convergence, stability, memory savings) can be realised for finite volume solid mechanics, and what challenges might arise (for example, we report and discuss robustness issues in elastoplastic cases, pointing to areas needing further research).
+The proposed Jacobian-free Newton-Krylov approach is benchmarked against a segregated solution procedure, which remains the standard approach in finite volume solid (and fluid) mechanics, forming the backbone of widely used codes such as OpenFOAM.
+While the limitations of segregated approaches in terms of efficiency and robustness are well known, they can still be competitive - or even preferable - in situations where Newton-type methods may be overly expensive or insufficiently robust. For example, \citet{Whelan2025} recently demonstrated that a segregated procedure was more robust than a Newton method for large-strain elastoplastic damage problems. %, where the poorly conditioned Newton tangent hindered convergence of the Newton approach. In that work, the segregated solver also employed a mixed displacement–pressure formulation to avoid volumetric locking.
+Against this backdrop, a primary motivation of the current study is to assess whether Jacobian-free Newton–Krylov methods can be adopted within such segregated frameworks with minimal disruption, thereby leveraging existing infrastructure while potentially improving robustness and efficiency
+
 %Novel in this paper:
 %- JKNK for FVM CSM/CSD
 %- focus on easy-of-implementation in an existing segregated code framework.
@@ -374,26 +378,27 @@ Assuming small strains, the linear geometry formulation is expressed in strong i
 \end{eqnarray}
 where $\Omega$ is the volume of an arbitrary body bounded by a surface $\Gamma$ with outwards pointing normal $\bb{n}$.
 The density is $\rho$, $\bb{u}$ is the displacement vector, $\bb{\sigma}_s$ is the engineering (small strain) stress tensor, and $\bb{f}_b$ is a body force per unit volume, e.g., $\rho \bb{g}$, where $\bb{g}$ is gravity.
+Total and updated Lagrangian formulations, suitable for finite strains, are shown in Appendex \ref{app:TL_UL}.
 
-More generally,  linear momentum conservation can be expressed in a nonlinear geometry form, which is suitable for finite strains.
-Two equivalent nonlinear geometry forms are common: the \emph{total} Lagrangian form:
-\begin{eqnarray} \label{eqn:momentum_TL}
-    \int_{\Omega_o} \rho_o \frac{\partial^2 \bb{u} }{\partial t^2} d\Omega_o
-    =
-    \oint_{\Gamma_o} \left( J \bb{F}^{-\text{T}} \cdot \bb{n}_o \right) \cdot \bb{\sigma} \ d\Gamma_o
-    + \int_{\Omega_o}  \bb{f}_b \, d\Omega_o
-\end{eqnarray}
-and the \emph{updated} Lagrangian form:
-\begin{eqnarray} \label{eqn:momentum_UL}
-    \int_{\Omega_u} \frac{\partial }{\partial t} \left( \rho_u \frac{\partial \bb{u} }{\partial t} \right) d\Omega_u
-    = \oint_{\Gamma_u}(j\bb{f}^{-\text{T}}\cdot{\bb{n}_u)\cdot \bb{\sigma}}\ d\Gamma_u
-    + \int_{\Omega_u}  \bb{f}_b \, d\Omega_u
-\end{eqnarray}
-where subscript $o$ indicates quantities in the initial reference configuration, and subscript $u$ indicates quantities in the updated configuration.
-The true (Cauchy) stress tensor is indicated by $\bb{\sigma}$.
-The deformation gradient is defined as $\bb{F} = \textbf{I} + (\bb{\nabla} \bb{u})^{\text{T}}$ and its determinant as $J = \text{det}(\bb{F})$.
-Similarly, the \emph{relative} deformation gradient is given in terms of the displacement \emph{increment} as $\bb{f}=\textbf{I} + \left[\bb{\nabla}(\Delta \bb{u}) \right]^{\text{T}}$ and its determinant as $j = \text{det}(\bb{f})$.
-The displacement increment is the change in displacement between the current time step and the previous time step when the time interval is discretised into a finite number of steps.
+%More generally,  linear momentum conservation can be expressed in a nonlinear geometry form, which is suitable for finite strains.
+%Two equivalent nonlinear geometry forms are common: the \emph{total} Lagrangian form:
+%\begin{eqnarray} \label{eqn:momentum_TL}
+%    \int_{\Omega_o} \rho_o \frac{\partial^2 \bb{u} }{\partial t^2} d\Omega_o
+%    =
+%    \oint_{\Gamma_o} \left( J \bb{F}^{-\text{T}} \cdot \bb{n}_o \right) \cdot \bb{\sigma} \ d\Gamma_o
+%    + \int_{\Omega_o}  \bb{f}_b \, d\Omega_o
+%\end{eqnarray}
+%and the \emph{updated} Lagrangian form:
+%\begin{eqnarray} \label{eqn:momentum_UL}
+%    \int_{\Omega_u} \frac{\partial }{\partial t} \left( \rho_u \frac{\partial \bb{u} }{\partial t} \right) d\Omega_u
+%    = \oint_{\Gamma_u}(j\bb{f}^{-\text{T}}\cdot{\bb{n}_u)\cdot \bb{\sigma}}\ d\Gamma_u
+%    + \int_{\Omega_u}  \bb{f}_b \, d\Omega_u
+%\end{eqnarray}
+%where subscript $o$ indicates quantities in the initial reference configuration, and subscript $u$ indicates quantities in the updated configuration.
+%The true (Cauchy) stress tensor is indicated by $\bb{\sigma}$.
+%The deformation gradient is defined as $\bb{F} = \textbf{I} + (\bb{\nabla} \bb{u})^{\text{T}}$ and its determinant as $J = \text{det}(\bb{F})$.
+%Similarly, the \emph{relative} deformation gradient is given in terms of the displacement \emph{increment} as $\bb{f}=\textbf{I} + \left[\bb{\nabla}(\Delta \bb{u}) \right]^{\text{T}}$ and its determinant as $j = \text{det}(\bb{f})$.
+%The displacement increment is the change in displacement between the current time step and the previous time step when the time interval is discretised into a finite number of steps.
 
 %The two forms are connected through Nanson’s formula \cite{bathe_finite_1996}, which relate the deformed area vector $\bb{\Gamma}$ with the initial area vector $\bb{\Gamma}_{o}$:
 %\begin{equation}
@@ -403,7 +408,7 @@ The displacement increment is the change in displacement between the current tim
 
 
 The governing equations are complemented by boundary conditions, with three types considered here: prescribed displacement, prescribed traction, and symmetry.
-The definition of the engineering stress ($\bb{\sigma}_s$) and true stress ($\bb{\sigma}$) in Equations \ref{eqn:momentum_lingeom}, \ref{eqn:momentum_TL} and \ref{eqn:momentum_UL} is given by a chosen mechanical law.
+The definition of the engineering stress ($\bb{\sigma}_s$) and true stress ($\bb{\sigma}$) in Equation \ref{eqn:momentum_lingeom} (and Equations \ref{eqn:momentum_TL} and \ref{eqn:momentum_UL} in Appendix \ref{app:TL_UL})  is given by a chosen mechanical law.
 Five mechanical laws are considered in this work, as briefly outlined in Appendix \ref{app:mechLaws}: linear elasticity (Hooke's law), three forms of hyperelasticity (St.\,Venant-Kirchhoff, neo-Hookean, and Guccione), and neo-Hookean $J_2$ hyperelastoplasticity.
 
 
@@ -793,36 +798,38 @@ In addition, no stabilisation term is applied on a traction boundary face $t_i$.
 %Vector $\bb{d}_f$ connects the centre of cell $P$ with the centre of cell $N_f$ in the updated configuration.
 %The first term on the right-hand side is treated implicitly, while the second term - representing non-orthogonal corrections at the face - is treated in a deferred correction manner.
 %The Rhie-Chow stabilisation term, first used for finite volume solid mechanics by  \citet{Demirdzic1995}, consists of the numerical difference between a diffusion (Laplacian) term calculated using compact and larger computational stencils.
+The form of Rhie-Chow stabilisation given in Equation \ref{eq:RhieChow} can also be equivalently expressed in the form of a \emph{jump} term, for example, as in \citet{Nishikawa2010}: this is shown in Appendix \ref{app:RhieChowJump}.
 
-Within the square braces on the right-hand side of Equation \ref{eq:RhieChow}, the first terms represent a compact stencil (two-node) approximation of the face normal gradient, while the second terms represent a larger stencil approximation.
-These two terms cancel out in the limit of mesh refinement (or if the solution varies linearly); otherwise, they produce a stabilisation effect that tends to smooth the solution fields.
-The magnitude of the stabilisation is shown in Appendix \ref{app:RhieChow} to reduce at a second-order rate (not a third-order rate as stated previously \citep{Demirdzic1995}), and hence does not affect the overall scheme's second-order accuracy.
-It is informative to note that the first term in the square bracket in Equation \ref{eq:RhieChow} can be expressed, assuming $(\bb{d}_{f_i} \cdot \bb{n}_{f_i}) > 0$, as
-\begin{eqnarray} \label{eq:RhieChow2}
-	\alpha \left[ \left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}	-  \bb{\Delta}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
-	&=&
-	\alpha \left| \frac{\bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}
-	-  \alpha \frac{\bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \notag \\
-	&=&
-	\frac{\alpha}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \left[ \left( \bb{u}_{N_{f_i}} - \bb{u}_P \right) -  \bb{d}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
-\end{eqnarray}
-Noting that $\left(\bb{\nabla} \bb{u} \right)_{f_i} = \left[ \left(\bb{\nabla} \bb{u} \right)_{N_{f_i}} + \left(\bb{\nabla} \bb{u} \right)_P \right]/2$, Equation \ref{eq:RhieChow2} can be expressed as
-\begin{eqnarray}
-	\alpha \left[ \left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}	-  \bb{\Delta}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
-	&=&
-	\frac{\alpha}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \left( \bb{u}_{N_{f_i}}^* - \bb{u}_P^* \right)
-\end{eqnarray}
-where
-\begin{eqnarray}
-	\bb{u}_P^* &=& \bb{u}_P + (\bb{d}_{f_i}/2) \cdot \left(\bb{\nabla} \bb{u} \right)_P  \\
-	\bb{u}_{N_{f_i}}^* &=& \bb{u}_{N_{f_i}} - (\bb{d}_{f_i}/2) \cdot \left(\bb{\nabla} \bb{u} \right)_{N_{f_i}}
-\end{eqnarray}
 
-So, this Rhie-Chow stabilisation can take the form of a \emph{jump} term; that is, it is a function of the jump in solution between neighbouring cells.
-The two states, $\bb{u}_P^*$ and $\bb{u}_{N_{f_i}}^*$, are evaluated halfway between $P$ and $N_{f_i}$, and it may not be at a face centre; however, as noted by \citet{Nishikawa2010}, this will not affect the second-order accuracy of the method; consequently, the user is free to choose the value of $\alpha$ for stabilisation and accuracy purposes.
-% but it doesn't matter because this team is only stabilisation and it vanishes in the grid refinement.
-%As long as it vanishes for linear functions, second-order accuracy is preserved. It means that the parameter alpha can be chosen solely for the purpose of stabilization. 
-
+%Within the square braces on the right-hand side of Equation \ref{eq:RhieChow}, the first terms represent a compact stencil (two-node) approximation of the face normal gradient, while the second terms represent a larger stencil approximation.
+%These two terms cancel out in the limit of mesh refinement (or if the solution varies linearly); otherwise, they produce a stabilisation effect that tends to smooth the solution fields.
+%The magnitude of the stabilisation is shown in Appendix \ref{app:RhieChow} to reduce at a second-order rate (not a third-order rate as stated previously \citep{Demirdzic1995}), and hence does not affect the overall scheme's second-order accuracy.
+%It is informative to note that the first term in the square bracket in Equation \ref{eq:RhieChow} can be expressed, assuming $(\bb{d}_{f_i} \cdot \bb{n}_{f_i}) > 0$, as
+%\begin{eqnarray} \label{eq:RhieChow2}
+%	\alpha \left[ \left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}	-  \bb{\Delta}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
+%	&=&
+%	\alpha \left| \frac{\bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}
+%	-  \alpha \frac{\bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \notag \\
+%	&=&
+%	\frac{\alpha}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \left[ \left( \bb{u}_{N_{f_i}} - \bb{u}_P \right) -  \bb{d}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
+%\end{eqnarray}
+%Noting that $\left(\bb{\nabla} \bb{u} \right)_{f_i} = \left[ \left(\bb{\nabla} \bb{u} \right)_{N_{f_i}} + \left(\bb{\nabla} \bb{u} \right)_P \right]/2$, Equation \ref{eq:RhieChow2} can be expressed as
+%\begin{eqnarray}
+%	\alpha \left[ \left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}	-  \bb{\Delta}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
+%	&=&
+%	\frac{\alpha}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \left( \bb{u}_{N_{f_i}}^* - \bb{u}_P^* \right)
+%\end{eqnarray}
+%where
+%\begin{eqnarray}
+%	\bb{u}_P^* &=& \bb{u}_P + (\bb{d}_{f_i}/2) \cdot \left(\bb{\nabla} \bb{u} \right)_P  \\
+%	\bb{u}_{N_{f_i}}^* &=& \bb{u}_{N_{f_i}} - (\bb{d}_{f_i}/2) \cdot \left(\bb{\nabla} \bb{u} \right)_{N_{f_i}}
+%\end{eqnarray}
+%
+%So, this Rhie-Chow stabilisation can take the form of a \emph{jump} term; that is, it is a function of the jump in solution between neighbouring cells.
+%The two states, $\bb{u}_P^*$ and $\bb{u}_{N_{f_i}}^*$, are evaluated halfway between $P$ and $N_{f_i}$, and it may not be at a face centre; however, as noted by \citet{Nishikawa2010}, this will not affect the second-order accuracy of the method; consequently, the user is free to choose the value of $\alpha$ for stabilisation and accuracy purposes.
+%% but it doesn't matter because this team is only stabilisation and it vanishes in the grid refinement.
+%%As long as it vanishes for linear functions, second-order accuracy is preserved. It means that the parameter alpha can be chosen solely for the purpose of stabilization. 
+%
 
 %All dependent variables must be specified at the initial time.
 
@@ -1263,8 +1270,9 @@ The cases have been chosen to exhibit a variety of characteristics in terms of
 %The performance of the Jacobian-free Newton-Krylov algorithm is compared with that of the segregated algorithm in terms of computational time and memory requirements.
 %In all cases, the residuals are dropped by six orders of magnitude. % unless stated otherwise.
 %Metrics from a commercial finite element software (Abaqus) are included for reference \hl{ask Dylan to run Abaqus cases once we have our results}.
-Although the presented analyses aim to be extensive, % but not exhaustive;
-several common features of modern solid mechanics procedures are left for future work, including nonlinear boundary conditions (e.g., contact, fracture) and mixed formulations (e.g., incompressibility). %, where mixed formulations are required. 
+Although the presented analyses aim to be extensive, several common features of modern solid mechanics procedures are left for future work, including nonlinear boundary conditions (e.g., contact, fracture) and mixed formulations (e.g., incompressibility). %, where mixed formulations are required. 
+
+It is noted that the benchmark cases considered in this study are modest in size compared with the largest-scale finite element studies. This choice was deliberate, as the aim here was to benchmark the Jacobian-free Newton–Krylov method against the established segregated finite volume approach under controlled and reproducible conditions, while keeping memory and runtime requirements practical. Application to much larger problems is feasible and will be the subject of future work.
 
 The remainder of this section is structured as follows:
 The proposed discretisation's accuracy and order are assessed on several test cases of varying dimensions and phenomena.
@@ -1971,6 +1979,10 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 %The finite element approach uses a coupled solution algorithm and direct linear solver, where a Newton-Raphson method is used for resolving nonlinearities.
 %\hl{Take care when comparing times between different hardware}
 
+In the AMG preconditioner, each outer GMRES iteration corresponded to a single BoomerAMG V-cycle.
+On each grid level, one pre-smoothing and one post-smoothing sweep were applied. Coarsening was performed using the HMIS strategy, which is designed to provide robust and scalable coarse grids for 3-D problems. Interpolation between levels used the extended+i scheme with truncation (\texttt{truncfactor = 0.3}) and a cap on interpolation stencil size (\texttt{P$_{max}$ = 1}), ensuring sparsity of the prolongation operator. Strong connections were defined with a threshold of 0.7, which balances coarse-grid accuracy with complexity. Aggressive coarsening was enabled (one pass with a single aggregation path), and the multigrid hierarchy was allowed up to 25 levels, though in practice far fewer were required.
+Collectively, these settings are intended to yield a relatively light but robust AMG preconditioner, consistent with recommendations from the MOOSE finite element software documentation \citep{moose_hypre_doc_2022}.
+
 Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage for all cases and all meshes, where diverged cases are indicated by the symbol $\dag$.
 Figure \ref{fig:times_memory}(a) plots the corresponding speedup on all cases as a function of the number of degrees of freedom, where the speedup is defined as the segregated clock time divided by the Jacobian-free Newton-Krylov clock time.
 The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case where the fluid domain has three degrees of freedom (two velocity components and pressure) in 2-D.
@@ -2002,6 +2014,11 @@ The largest speedup was 341 on the sixth mesh ($9\,216$ cells) of the membrane i
 	\caption{Execution times (rounded to the nearest second) and maximum memory usage for Jacobian-free Newton-Krylov (JFNK) and segregated methods (rounded to the nearest MB). $\dag$ indicates the solver diverged. }
 	\label{tab:times_memory}
 \end{table}
+
+It is observed that the computing time for some of the 3-D cases (e.g. MMS) increases superlinearly with problem size, despite the use of AMG preconditioning.
+In principle, AMG should provide optimal complexity; however, the HYPRE BoomerAMG implementation employed here is known to be sensitive to parameter choice.
+In the present work, default parameters were adopted to ensure reproducibility across cases, which may not yield the best possible scalability.
+Further tuning of AMG parameters is therefore expected to improve performance and will be the subject of future work.
 
 Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the Jacobian-free Newton-Krylov approach divided by that of the segregated approach.
 The relative memory usage is close to unity for coarse meshes (less than $10^4$ degrees of freedom), but shows a general increasing trend beyond this.
@@ -2194,11 +2211,11 @@ Figure \ref{fig:times_rhie_chow} presents the execution times and the number of 
 The memory usage is unaffected by the value of $\alpha$ and is hence not shown.
 From Figure \ref{fig:times_rhie_chow}(a), the clock time is seen to increase exponentially (linearly on a log-log plot) for all cases and all values of $\alpha$.
 For all meshes in all three cases, the lowest value of global stabilisation factor ($\alpha = 0.01$) -- corresponding to the least amount of stabilisation -- takes the greatest amount of time to converge, while the largest value of global stabilisation factor ($\alpha = 1$) is the fastest to converge.
-In the membrane i case, the largest value of  ($\alpha$) is approximage $1.5\times$ faster than the lowest value of $\alpha$.
+In the membrane i case, the largest value of  ($\alpha$) is approximately $1.5\times$ faster than the lowest value of $\alpha$.
 Nonetheless, the clock time is not a linear function of  $\alpha$, and it can be seen that $\alpha = 0.1$ requires approximately the same amount of time as $\alpha = 1$ in all cases.
-In terms of robustness, the idealised ventricle cases failed with $\alpha = 0.01$, suggesting increasing the stabilisation increases robustness.
-From Figure \ref{fig:times_rhie_chow}(b), the accumulated number of linear solver (GMRES) iterations are seen to follow the same trends as the clock times, where $\alpha = 0.01$ requires the greatest number of iterations while $\alpha = 0.1$ and $\alpha = 1$ require approximately the same number of iterations.
-In all cases, the number of iterations are seen to increase as the number of degrees of freedom increase.
+In terms of robustness, the idealised ventricle cases failed with $\alpha = 0.01$, suggesting that increasing the stabilisation increases robustness.
+From Figure \ref{fig:times_rhie_chow}(b), the accumulated number of linear solver (GMRES) iterations is seen to follow the same trends as the clock times, where $\alpha = 0.01$ requires the greatest number of iterations while $\alpha = 0.1$ and $\alpha = 1$ require approximately the same number of iterations.
+In all cases, the number of iterations is seen to increase as the number of degrees of freedom increases.
 %\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, if any cases diverged or needed a higher 'restarts' value, etc}
 %\hl{Provide insights, if any: e.g. why is one faster or slower}
 \begin{figure}[htbp]
@@ -2241,6 +2258,9 @@ In all cases, the number of iterations are seen to increase as the number of deg
 %   \caption{Stress predictions along the line \hl{XXX} for the \hl{YYY} case using different values of the Rhie-Chow stabilisation factor $\alpha$}
 %   \label{fig:rhie_chow}
 %\end{figure}
+
+The choice of the stabilisation scaling parameter $\alpha$ influences both the convergence behaviour and the pre-asymptotic accuracy of the method. Increasing $\alpha$ effectively adds diffusion to the system, which lowers the condition number and makes the linear systems easier to precondition, thereby reducing the number of iterations required for convergence. However, this benefit comes at the cost of reduced accuracy at coarse resolutions. As shown in Appendix B, the scheme remains formally second-order accurate asymptotically, and in our tests, displacement and stress predictions converged with mesh refinement for all $\alpha$ values.
+Nonetheless, the pre-asymptotic behaviour differed between choices of $\alpha$, highlighting a trade-off between solver robustness and accuracy that must be considered in practical applications.
 
 
 %%%--------------------------------------------------------------------------------------------------------------------%%
@@ -2299,11 +2319,14 @@ A \emph{strong} scaling study is performed, where the clock time to solve a fixe
 The elliptic plate (3-D, linear elastic) mesh with $2\,438\,242$ cells is chosen for the scaling analysis.
 Parallelisation adopts the standard OpenFOAM domain decomposition approach, where the mesh is decomposed into one sub-domain for each CPU core.
 In the current work, the Scotch decomposition approach \citep{Pellegrini2012} is employed.
-The Jacobian-free Newton Krylov approach uses the GMRES linear solver where the performance of the multigrid and LU preconditioners are compared.
+The Jacobian-free Newton Krylov approach uses the GMRES linear solver, where the performance of the multigrid and LU preconditioners is compared.
 The segregated approach uses the conjugate gradient solver with the incomplete (zero in-fill -- $k = 0$) Cholesky preconditioner.
 The cases are run on the MeluXina high-performance computing system, where each standard computing node contains $2\times$ AMD EPYC Rome 7H12 64c 2.6GHz CPUs with 512 GB of memory.
-In the current study, the number of CPU cores are varied from 1 to $1\,048$ ($\left[ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1\,048 \right]$).
+In the current study, the number of CPU cores is varied from 1 to $1\,048$ ($\left[ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1\,048 \right]$).
 In the ideal case, the speedup should double when the number of cores is doubled; in reality, inter-CPU-core communication reduces the parallel scaling efficiency below the ideal.
+
+It is noted that the scalability of the Jacobian-free Newton–Krylov procedure is dictated by the scalability of the underlying algorithmic components (GMRES, preconditioner) rather than the Jacobian-free formulation itself. Consequently, the present implementation does not affect this property. The purpose of the scaling study presented here is therefore twofold: first, to confirm that the Jacobian-free Newton–Krylov approach inherits the expected scalability characteristics of its components; and second, to provide a practical comparison of the runtime behaviour of Jacobian-free Newton–Krylov and segregated approaches on representative problem sizes.
+Larger problem sizes would be required for a rigorous scaling study, and hence these tests do not establish definitive scalability limits.
 
 %Two types of parallel scaling analyses are performed \cite{Knoll2004}:
 %\begin{itemize}
@@ -2319,12 +2342,12 @@ In the ideal case, the speedup should double when the number of cores is doubled
 The clock times from the strong scaling study are shown in Figure \ref{fig:parallelisation_strong}(a), where the \emph{ideal} scaling is shown for comparison as a dashed line.
 Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup, defined as the clock time on one CPU core divided by the clock time on a given number of CPU cores.
 %Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup $S$, defined as $S = \sfrac{t_1}{t_p}$, where $t_1$ is the clock time on one CPU core and $t_p$ is the clock time on $P$ CPU cores.
-The Jacobian-free Newton-Krylov approach with the multigrid preconditioner is found to be the fastest by almost an order of magnitude over the segregated approach and the Jacobian-free Newton-Krylov approach with LU preconditioner.
+The Jacobian-free Newton-Krylov approach with the multigrid preconditioner is found to be the fastest by almost an order of magnitude over the segregated approach and the Jacobian-free Newton-Krylov approach with the LU preconditioner.
 The times for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches using 1, 2, and 4 cores were not recorded due to the excessive times.
-For all approaches the speedup is seen to increase at an approximately ideal rate up to 128 cores, after which the speedup continues to increase but at a lower rate.
+For all approaches, the speedup is seen to increase at an approximately ideal rate up to 128 cores, after which the speedup continues to increase but at a lower rate.
 At 128 cores (corresponding to one full computing node), the number of cells per core is approximately 19 k; increasing the number of cores beyond 128 likely shows a less than ideal scaling for two reasons: (i) the number of cells per core is becoming small relative to the amount of inter-core communication, and (ii) inter-node communication is likely slower than intra-node communication.
-The segregated and Jacobian-free Newton-Krylov LU preconditioner approaches produce their fastest predictions at 512 cores, while the Jacobian-free Newton-Krylov multigrid preconditioner approach continues to speedup up to the maximum number of cores tested ($1\,048$), albeit $1\,048$ cores is just $2\times$ faster than 128 cores.
-At $1\,048$ cores, there is approximately 2.5 k cells per core and the inter-core communication is expected to be significant.
+The segregated and Jacobian-free Newton-Krylov LU preconditioner approaches produce their fastest predictions at 512 cores, while the Jacobian-free Newton-Krylov multigrid preconditioner approach continues to speed up to the maximum number of cores tested ($1\,048$), albeit $1\,048$ cores is just $2\times$ faster than 128 cores.
+At $1\,048$ cores, there are approximately 2.5 k cells per core, and the inter-core communication is expected to be significant.
 %In Figure \ref{fig:parallelisation_strong}(b), the time required for 1 core has been estimated for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches as $8 \times$ the time required for 8 cores; consequently, the absolute values of speedup should be ignored (or carefully interpreted) and instead the trend is of greater value.
 \begin{figure}[htbp]
 	\centering
@@ -2446,6 +2469,12 @@ The presented study highlights the potential of the Jacobian-free Newton-Krylov 
 The codes presented are publicly available at \url{https://github.com/solids4foam/solids4foam} on the \texttt{feature-petsc-snes} branch, and the cases and plotting scripts are available at \url{https://github.com/solids4foam/solid-benchmarks}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bmhead{Declaration of generative AI and AI-assisted technologies in the writing process}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+During the preparation of this work, the authors used ChatGPT and Grammarly as writing assistants.
+After using these tools, the authors reviewed and edited the content as needed and take full responsibility for the content of the publication.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bmhead{Acknowledgments}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Technical reviews and insightful comments from Hiroaki Nishikawa of the National Institute of Aerospace, Hampton, VA, USA, are greatly appreciated.
@@ -2463,6 +2492,33 @@ Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre 
 \newpage
 
 \begin{appendices}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Total and Updated Lagrangian Formulations of the Conservation of Linear Momentum}
+\label{app:TL_UL}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+More generally,  linear momentum conservation can be expressed in a nonlinear geometry form, which is suitable for finite strains.
+Two equivalent nonlinear geometry forms are common: the \emph{total} Lagrangian form:
+\begin{eqnarray} \label{eqn:momentum_TL}
+    \int_{\Omega_o} \rho_o \frac{\partial^2 \bb{u} }{\partial t^2} d\Omega_o
+    =
+    \oint_{\Gamma_o} \left( J \bb{F}^{-\text{T}} \cdot \bb{n}_o \right) \cdot \bb{\sigma} \ d\Gamma_o
+    + \int_{\Omega_o}  \bb{f}_b \, d\Omega_o
+\end{eqnarray}
+and the \emph{updated} Lagrangian form:
+\begin{eqnarray} \label{eqn:momentum_UL}
+    \int_{\Omega_u} \frac{\partial }{\partial t} \left( \rho_u \frac{\partial \bb{u} }{\partial t} \right) d\Omega_u
+    = \oint_{\Gamma_u}(j\bb{f}^{-\text{T}}\cdot{\bb{n}_u)\cdot \bb{\sigma}}\ d\Gamma_u
+    + \int_{\Omega_u}  \bb{f}_b \, d\Omega_u
+\end{eqnarray}
+where subscript $o$ indicates quantities in the initial reference configuration, and subscript $u$ indicates quantities in the updated configuration.
+The true (Cauchy) stress tensor is indicated by $\bb{\sigma}$.
+The deformation gradient is defined as $\bb{F} = \textbf{I} + (\bb{\nabla} \bb{u})^{\text{T}}$ and its determinant as $J = \text{det}(\bb{F})$.
+Similarly, the \emph{relative} deformation gradient is given in terms of the displacement \emph{increment} as $\bb{f}=\textbf{I} + \left[\bb{\nabla}(\Delta \bb{u}) \right]^{\text{T}}$ and its determinant as $j = \text{det}(\bb{f})$.
+The displacement increment is the change in displacement between the current time step and the previous time step when the time interval is discretised into a finite number of steps.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Mechanical Laws}
@@ -2675,6 +2731,42 @@ showing the leading truncation error term to reduce at a second order rate as $\
 %It is stated to be third order in \emph{Demirdzic and Muzaferija (1995), Numerical method for coupled fluid flow, heat transfer and stress analysis using unstructured moving meshes with cells of arbitrary topology, Comput. Methods Appl. Mech. Engrg. 125 (1995) 235-255.}
 %\hl{Did I make a mistake...?}
 %\hl{2nd order is fine for a second order scheme, but it would be good to clarify this point}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Expressing the Rhie-Chow Stabilisation as a 'Jump' Term}
+\label{app:RhieChowJump}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Within the square braces on the right-hand side of Equation \ref{eq:RhieChow}, the first terms represent a compact stencil (two-node) approximation of the face normal gradient, while the second terms represent a larger stencil approximation.
+These two terms cancel out in the limit of mesh refinement (or if the solution varies linearly); otherwise, they produce a stabilisation effect that tends to smooth the solution fields.
+The magnitude of the stabilisation is shown in Appendix \ref{app:RhieChow} to reduce at a second-order rate (not a third-order rate as stated previously \citep{Demirdzic1995}), and hence does not affect the overall scheme's second-order accuracy.
+It is informative to note that the first term in the square bracket in Equation \ref{eq:RhieChow} can be expressed, assuming $(\bb{d}_{f_i} \cdot \bb{n}_{f_i}) > 0$, as
+\begin{eqnarray} \label{eq:RhieChow2}
+	\alpha \left[ \left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}	-  \bb{\Delta}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
+	&=&
+	\alpha \left| \frac{\bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}
+	-  \alpha \frac{\bb{d}_{f_i}}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \notag \\
+	&=&
+	\frac{\alpha}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \left[ \left( \bb{u}_{N_{f_i}} - \bb{u}_P \right) -  \bb{d}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
+\end{eqnarray}
+Noting that $\left(\bb{\nabla} \bb{u} \right)_{f_i} = \left[ \left(\bb{\nabla} \bb{u} \right)_{N_{f_i}} + \left(\bb{\nabla} \bb{u} \right)_P \right]/2$, Equation \ref{eq:RhieChow2} can be expressed as
+\begin{eqnarray}
+	\alpha \left[ \left|\bb{\Delta}_{f_i} \right| \frac{ \bb{u}_{N_{f_i}} - \bb{u}_P}{\left|\bb{d}_{f_i}\right|}	-  \bb{\Delta}_{f_i} \cdot \left(\bb{\nabla} \bb{u} \right)_{f_i} \right]
+	&=&
+	\frac{\alpha}{\bb{d}_{f_i} \cdot \bb{n}_{f_i}} \left( \bb{u}_{N_{f_i}}^* - \bb{u}_P^* \right)
+\end{eqnarray}
+where
+\begin{eqnarray}
+	\bb{u}_P^* &=& \bb{u}_P + (\bb{d}_{f_i}/2) \cdot \left(\bb{\nabla} \bb{u} \right)_P  \\
+	\bb{u}_{N_{f_i}}^* &=& \bb{u}_{N_{f_i}} - (\bb{d}_{f_i}/2) \cdot \left(\bb{\nabla} \bb{u} \right)_{N_{f_i}}
+\end{eqnarray}
+
+So, this Rhie-Chow stabilisation can take the form of a \emph{jump} term; that is, it is a function of the jump in solution between neighbouring cells.
+The two states, $\bb{u}_P^*$ and $\bb{u}_{N_{f_i}}^*$, are evaluated halfway between $P$ and $N_{f_i}$, and it may not be at a face centre; however, as noted by \citet{Nishikawa2010}, this will not affect the second-order accuracy of the method; consequently, the user is free to choose the value of $\alpha$ for stabilisation and accuracy purposes.
+% but it doesn't matter because this team is only stabilisation and it vanishes in the grid refinement.
+%As long as it vanishes for linear functions, second-order accuracy is preserved. It means that the parameter alpha can be chosen solely for the purpose of stabilization. 
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
