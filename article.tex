@@ -1139,6 +1139,13 @@ where $\bb{P}$ is the preconditioning matrix or process.
 In practice, only the action of $\bb{P}^{-1}$ on a vector is required, and $\bb{P}^{-1}$ need not be explicitly formed.
 Concretely, the preconditioner needs to approximately solve the linear system $\bb{y} = \bb{P}^{-1} \bb{v}$.
 %Thus, while we may refer to the matrix P, operationally the algorithm only requires the action of $P^{-1}$ on a vector.
+Alternatively, left preconditioning may be applied. In this case, the finite difference approximation of Equation \ref{eq:JF} becomes
+\begin{eqnarray}
+	\bb{P}^{-1} \bb{J} \bb{v} \;\approx\; \frac{\bb{P}^{-1}\left[ \bb{R}(\bb{u}+\epsilon \bb{v}) - \bb{R}(\bb{u}) \right]}{\epsilon}
+\end{eqnarray}
+where the preconditioner acts directly on the residual evaluations. As with right preconditioning, the explicit inverse of $\bb{P}$ is not required; only the ability to approximately apply $\bb{P}^{-1}$ to a given vector is necessary.
+In practice, the choice between left and right preconditioning in Jacobian-free Newton–Krylov methods is not always straightforward. Right preconditioning preserves the true nonlinear residual for convergence checks, while left preconditioning alters the residual norm through the preconditioner. In this work we use left preconditioning, but no significant difference in convergence behaviour was observed between the two approaches.
+
 
 %\hl{3}
 %- we use approx J to form precon
