@@ -2926,7 +2926,7 @@ The body force for the manufactured solution case is \citep{Mazzanti2024}:
 \section{Analytical Expressions for the Stress and Displacement Distributions around a Spherical Cavity under Uniaxial Tensions}
 \label{app:sphericalCavity}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The analytical expressions for the stress distributions around the cavity, first derived by \citet{Southwell1926}, are
+The analytical expressions for the stress distributions around the cavity, first derived by \citet{Southwell1926}, are given in cylindrical coordinates ($r$, $\theta$, $z$) as
 \begin{eqnarray}
 	\sigma_{rr} &=&
 		\frac{T}{14 - 10\nu} \frac{a^3}{R^3}
@@ -2945,6 +2945,30 @@ The analytical expressions for the stress distributions around the cavity, first
 \end{eqnarray}
 where $a$ is the hole radius, $T$ is the distant stress applied in the $z$ direction, $\nu$ is the Poisson's ratio, $r^2 = x^2 + y^2$ is the cylinderical radial coordinate, $R^2 = r^2 + z^2$ is the spherical radial coodinate, and $x$, $y$, $z$ are the Cartesian coordinates.
 
+To obtain Cartesian stresses \(\boldsymbol{\sigma}^{\mathrm{cart}}\) we rotate the cylindrical tensor
+\(\boldsymbol{\sigma}^{\mathrm{cyl}}\) with the in-plane rotation
+\[
+Q(\theta)=
+\begin{bmatrix}
+\cos\theta & -\sin\theta & 0\\
+\sin\theta & \phantom{-}\cos\theta & 0\\
+0 & 0 & 1
+\end{bmatrix},\qquad
+\boldsymbol{\sigma}^{\mathrm{cart}} = Q\,\boldsymbol{\sigma}^{\mathrm{cyl}}\,Q^{\text{T}},\quad
+\theta=\operatorname{atan2}(y,x).
+\]
+Because \(\sigma_{r\theta}=\sigma_{\theta z}=0\), the Cartesian components reduce to
+\[
+\begin{aligned}
+\sigma_{xx} &= \sigma_{rr}\cos^2\theta + \sigma_{\theta\theta}\sin^2\theta,\\
+\sigma_{yy} &= \sigma_{rr}\sin^2\theta + \sigma_{\theta\theta}\cos^2\theta,\\
+\sigma_{xy} &= (\sigma_{rr}-\sigma_{\theta\theta})\sin\theta\cos\theta,\\
+\sigma_{xz} &= \sigma_{rz}\cos\theta,\qquad
+\sigma_{yz} = \sigma_{rz}\sin\theta,\\
+\sigma_{zz} &= \sigma_{zz}.
+\end{aligned}
+\]
+
 The displacement distributions were later derived by \citet{Goodier1933}:
 \begin{eqnarray}
 u_r &=& -\frac{A}{r^2} - \frac{3B}{r^4} + \left[ \frac{5-4\nu}{1-2\nu} \frac{C}{r^2}-9\frac{B}{r^4} \right]\cos (2\theta),\\
@@ -2957,6 +2981,28 @@ where the constants $A$, $B$ and $C$ are defined as follows:
 \frac{C}{a^3} = -\frac{T}{8\mu}\frac{5(1-2\nu)}{7-5\nu}.
 \end{equation}
 and $\mu$ is the shear modulus.
+
+Transforming the spherical-polar displacement \((u_r,u_\theta,0)\) to Cartesian
+(using \(x=r\sin\theta\cos\phi\), \(y=r\sin\theta\sin\phi\), \(z=r\cos\theta\)):
+\begin{align}
+u_x^{\text{cav}} &= u_r\sin\theta\cos\phi + u_\theta\cos\theta\cos\phi,\\
+u_y^{\text{cav}} &= u_r\sin\theta\sin\phi + u_\theta\cos\theta\sin\phi,\\
+u_z^{\text{cav}} &= u_r\cos\theta - u_\theta\sin\theta.
+\end{align}
+
+The uniform uniaxial contribution (no cavity) is
+\begin{equation}
+\mathbf u_{\infty}(\mathbf x)
+= \left(-\nu\,\frac{T}{E}\,x,\; -\nu\,\frac{T}{E}\,y,\; \frac{T}{E}\,z\right),
+\end{equation}
+with \(E\) the Young’s modulus.
+
+Hence, the total Cartesian displacement field is
+\begin{equation}
+\mathbf u(\mathbf x)
+= \big(u_x^{\text{cav}},\,u_y^{\text{cav}},\,u_z^{\text{cav}}\big)
+  + \mathbf u_{\infty}(\mathbf x).
+\end{equation}
 
 
 \end{appendices}
