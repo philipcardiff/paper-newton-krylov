@@ -89,16 +89,16 @@ textheight=24cm, % llncs has 19.3cm
 
 \title[Article Title]{A Jacobian-free Newton-Krylov method for cell-centred finite volume solid mechanics}
 
-\author*[1,2,3]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
-\author[1,2,3]{\fnm{Dylan} \sur{Armfield}}
+\author*[1]{\fnm{Philip} \sur{Cardiff}}\email{philip.cardiff@ucd.ie}
+\author[1]{\fnm{Dylan} \sur{Armfield}}
 %\author[5]{\fnm{Hiroaki} \sur{Nishikawa}}
-\author[4]{\fnm{\v{Z}eljko} \sur{Tukovi\'{c}}}
-\author[4]{\fnm{Ivan} \sur{Batisti\'{c}}}
+\author[2]{\fnm{\v{Z}eljko} \sur{Tukovi\'{c}}}
+\author[1,2]{\fnm{Ivan} \sur{Batisti\'{c}}}
 
 \affil*[1]{\orgdiv{School of Mechanical and Materials Engineering}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
-\affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
-\affil[3]{\orgdiv{SFI I-Form Centre}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
-\affil[4]{\orgdiv{Faculty of Mechanical Engineering and Naval Architecture}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
+%\affil[2]{\orgdiv{UCD Centre for Mechanics}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
+%\affil[3]{\orgdiv{SFI I-Form Centre}, \orgname{University College Dublin}, \orgaddress{\country{Ireland}}}
+\affil[2]{\orgdiv{Faculty of Mechanical Engineering and Naval Architecture}, \orgname{University of Zagreb}, \orgaddress{\country{Croatia}}}
 %\affil[5]{\orgname{National Institute of Aerospace}, \orgaddress{\country{Hampton, VA 23666, USA}}}
 
 
@@ -108,10 +108,10 @@ textheight=24cm, % llncs has 19.3cm
 This study proposes a Jacobian-free Newton-Krylov approach for finite-volume solid mechanics.
 Traditional Newton-based approaches require explicit Jacobian matrix formation and storage, which can be computationally expensive and memory-intensive.
 In contrast, Jacobian-free Newton-Krylov methods approximate the Jacobian’s action using finite differences, combined with Krylov subspace solvers such as the generalised minimal residual method (GMRES), enabling seamless integration into existing segregated finite-volume frameworks without major code refactoring.
-This work proposes and benchmarks the performance of a compact-stencil Jacobian-free Newton-Krylov method against a conventional segregated approach on a suite of test cases, encompassing varying geometric dimensions, nonlinearities, dynamic responses, and material behaviours.
+This work proposes and benchmarks the performance of a compact-stencil Jacobian-free Newton-Krylov method against a conventional segregated approach on a suite of test cases that span varying geometric dimensions, nonlinearities, dynamic responses, and material behaviours.
 Key metrics, including computational cost, memory efficiency, and robustness, are evaluated, along with the influence of preconditioning strategies and stabilisation scaling.
 Results show that the proposed Jacobian-free Newton-Krylov method outperforms the segregated approach in all linear and nonlinear elastic cases, achieving order-of-magnitude speedups in many instances; however, divergence is observed in elastoplastic cases, highlighting areas for further development.
-It is found that preconditioning choice impacts performance: a LU direct solver is fastest in small to moderately-sized cases, while a multigrid method is more effective for larger problems.
+It is found that preconditioning choice affects performance: a LU direct solver is fastest for small to moderately sized cases, while a multigrid method is more effective for larger problems.
 The findings demonstrate that Jacobian-free Newton-Krylov methods are promising for advancing finite-volume solid mechanics simulations, particularly for existing segregated frameworks where minimal modifications enable their adoption.
 The described implementations are available in the solids4foam toolbox for OpenFOAM, inviting the community to explore, extend, and compare these procedures.
 }
@@ -135,17 +135,17 @@ The described implementations are available in the solids4foam toolbox for OpenF
 %- JFNK promises the performance of Newton methods, but without the need to form the full Jacobian. Define JFNK method. Hence, an existing segregated code can easily be adapted to use JFNK without major refactoring, albeit this process is made easier by the availability of open-source JFNK implementations.
 %- this paper examines JFNK for linear and nonlinear FV CSM procedures, where the compact stencil approximate Jacobian is used for preconditioning.
 Finite volume formulations for solid mechanics are heavily influenced by their fluid mechanics counterparts, favouring fully explicit \citep{Trangenstein1991, Kluth2010, Lee2013, Haider2017} or segregated implicit \citep{Demirdzic1988, Fryer1991, Demirdzic1995, Jasak2000, Tukovic2013, Cardiff2017, Tukovic2018, Batistic2022} methods.
-Segregated approaches, where the governing equations are temporarily decomposed into scalar component equations, offer memory efficiency and simplicity of implementation, but the outer coupling Picard iterations often suffer from slow convergence.
-Explicit formulations are straightforward to implement and offer superior robustness but are only efficient for high-speed dynamics, where the physics requires small time increments.
-In contrast, the finite element community commonly employs Newton-Raphson-type solution algorithms, which necessitate repeated assembly of the Jacobian matrix and solution of the resulting block-coupled non-diagonally dominant linear system.
+Segregated approaches, where the governing equations are temporarily decomposed into scalar component equations, offer memory efficiency and implementation simplicity, but the outer-coupling Picard iterations often exhibit slow convergence.
+Explicit formulations are straightforward to implement and offer superior robustness, but are only efficient for high-speed dynamics, where the physics requires small time increments.
+In contrast, the finite element community commonly employs Newton-Raphson-type solution algorithms, which require repeated assembly of the Jacobian matrix and the solution of the resulting block-coupled, non-diagonally dominant linear system.
 A disadvantage of traditional Newton-based approaches is that they typically require explicit formation and storage of the Jacobian matrix, which can be computationally expensive and memory-intensive.
-A further disadvantage from a finite volume perspective is that extending existing code frameworks from segregated algorithms to coupled Newton-Raphson-type approaches is challenging in terms of the required assembly, storage, and solution of the resulting block-coupled system.
+A further disadvantage from a finite-volume perspective is that extending existing code frameworks from segregated algorithms to coupled Newton-Raphson-type approaches is challenging due to the required assembly, storage, and solution of the resulting block-coupled system.
 In addition, the derivation of the true Jacobian matrix is non-trivial.
-Consequently, similar block-coupled solution finite volume methods are rare in the literature \citep{Das2011, Cardiff2016, Castrillo2024}.
-The motivation of the current work is to seek the robustness and efficiency of block-coupled Newton-Raphons approaches in a way that can be easily incorporated into existing segregated solution frameworks.
-To this end, the current article proposes and examines the efficacy of \emph{Jacobian-free} Newton-Krylov methods, where the quadratic convergence of Newton methods can potentially be achieved without deriving, assembling and storing the exact Jacobian.
+Consequently, similar block-coupled finite-volume solution methods are rare in the literature \citep{Das2011, Cardiff2016, Castrillo2024}.
+The motivation for the current work is to assess the robustness and efficiency of block-coupled Newton-Raphson approaches that can be easily incorporated into existing segregated solution frameworks.
+To this end, the current article proposes and examines the efficacy of \emph{Jacobian-free} Newton-Krylov methods, where the quadratic convergence of Newton methods can be achieved without deriving, assembling, or storing the exact Jacobian.
 
-Jacobian-free Newton-Krylov methods circumvent the need for the Jacobian matrix by combining the Newton-Raphson method with Krylov subspace iterative linear solvers, such as the generalised minimal residual method (GMRES), and noticing that such Krylov solvers do not explicitly require the Jacobian matrix.
+Jacobian-free Newton-Krylov methods circumvent the need for the Jacobian matrix by combining the Newton-Raphson method with Krylov subspace iterative linear solvers, such as the generalised minimal residual method (GMRES), which do not explicitly require the Jacobian matrix.
 Instead, only the action of the Jacobian matrix on a solution-type vector is required.
 The key step in Jacobian-free Newton-Krylov methods is the approximation of products between the Jacobian matrix and a vector using the finite difference method; that is
 \begin{eqnarray}
@@ -154,9 +154,9 @@ The key step in Jacobian-free Newton-Krylov methods is the approximation of prod
 where $\bb{J}$ is the Jacobian matrix, $\bb{R}$ is the residual function of the governing equation, $\mathbf{u}$ is the current solution vector (e.g. nodal displacements), $\mathbf{v}$ is a vector (e.g., from a Krylov subspace), and $\epsilon$ is a small scalar perturbation.
 %Determining the appropriate value for $\epsilon$ requires balancing the truncation error of the finite difference approximation and round-off (numerical precision) error.
 With an appropriate choice of $\epsilon$ (balancing truncation and round-off errors), the characteristic quadratic convergence of Newton methods can be achieved without the Jacobian, hence the modifier \emph{Jacobian-free}.
-This approach promises significant memory savings over Jacobian-based methods, especially for large-scale problems, but also potentially for execution time, with appropriate choice of solution components.
+This approach promises significant memory savings over Jacobian-based methods, especially for large-scale problems, and potentially also reduced execution time, with an appropriate choice of solution components.
 
-A crucial aspect of ensuring the efficiency and robustness of the Jacobian-free Newton-Krylov method is the choice of a suitable preconditioner for the Krylov iterations.
+A crucial aspect of ensuring the efficiency and robustness of the Jacobian-free Newton-Krylov method is the selection of an appropriate preconditioner for the Krylov iterations.
 This preconditioner is often derived from the exact Jacobian matrix in traditional Newton methods.
 However, the Jacobian-free approach does not allow direct access to the full Jacobian matrix, necessitating an alternative strategy to approximate its action.
 To this end, and to extend existing segregated frameworks, this work proposes using a compact-stencil \emph{approximate} Jacobian as the preconditioner. This approximate Jacobian corresponds to the matrix typically employed in segregated solid mechanics approaches; similar approaches are successful in fluid mechanics applications \citep{Mchugh1994, Qin2000, Geuzaine2001, Pernice2001, Knoll2004, Nejat2008, Vaassen2008, Lucas2010, Nejat2011, Nishikawa2020}; however, it is unclear if such an approach is suitable for solid mechanics - a question this work aims to answer.
@@ -168,8 +168,8 @@ Similarly, if such an approach is efficient, it would naturally fit into existin
 % can be traced back to publications motivated by the solution of ODEs \citep{Brown1986} \citep{Gear1983} and publications motivated by the solution of PDEs \citep{Brown1990} ,\citep{Chen1984}. The primary motivation in all cases appears to be the ability to perform a Newton iteration without forming the Ja- cobian. Within the ODE community these methods helped to promote the use of higher-order implicit integration. The studies on PDE problems focused on the use of nonlinear preconditioning, preconditioners constructed from linear parts of the PDEs, and the addition of globalization methods.
 
 As noted by \citet{Knoll2004}, Jacobian-free Newton–Krylov methods first appeared in the 1980s and early 1990s for the solution of ordinary and partial differential equations \citep{Gear1983, Chan1984, Brown1986, Brown1990}.
-\citet{Mchugh1994} and co-workers demonstrated the potential of Jacobian-free Newton-Krylov approaches for the solution of steady, incompressible, Navier-Stokes problems using a staggered finite volume formulation.
-They found the GMRES linear solver to be faster than a conjugate gradient solver, however, the true Jacobian matrix was still evalauted by finite differencing in the construction of the preconditioning matrix.
+\citet{Mchugh1994} and co-workers demonstrated the potential of Jacobian-free Newton-Krylov methods for the solution of steady, incompressible Navier-Stokes problems using a staggered finite-volume formulation.
+They found the GMRES linear solver to be faster than the conjugate gradient solver; however, the true Jacobian matrix was still evaluated by finite differencing during preconditioner construction.
 %%on a uniform but staggered mesh.
 %Compared several Krylov linear solvers including CG and GMRes. GMRES found to be best.
 %Implementation is simplified using a numerically evaluated Jacobian, while robustness is improved using mesh sequencing and a damped Newton iteration.
@@ -178,14 +178,14 @@ They found the GMRES linear solver to be faster than a conjugate gradient solver
 %Later work, such as the approach by 
 \citet{Qin2000} later extended Jacobian-free Newton–Krylov methods to unsteady compressible Reynolds-averaged Navier–Stokes equations.
 % with the Baldwin–Lomax algebraic turbulence model.
-Once again it was found that GMRES was more robust than a conjugate gradient linear solver.
-For preconditioning, a fully matrix-free approach was proposed, based on the approximate factorization procedure of \citet{Badcock1996}.
+Once again, GMRES proved more robust than a conjugate gradient linear solver.
+For preconditioning, a fully matrix-free approach was proposed, based on the approximate factorisation procedure of \citet{Badcock1996}.
 %; at each time step is solved iteratively using a Newton/GMRES method; An effective matrix-free preconditioner is proposed to fully avoid matrix storage. GMRES(5 or 10).
 %They found GMRES to be more robust than CG. They proposed a matrix-free preconditioner so that the overall method was truly matrix-free, not just Jacobian-free.
 \citet{Geuzaine2001} examined the use of lower and higher-order discretisations for the preconditioning matrix for steady, compressible high Reynolds number flows.
 % around two-dimensional geometries, with PDE turbulence models: the one-equation Spalart– Allmaras model and the two-equation k–omega model.
-They found that the lower-order compact stencil preconditioner gave the best performance when combined with the GMRES linear solver and ILU($k$) preconditioner.
-As is common with other Newton approaches, a pseudo transient algorithm and mesh sequencing strategy were used to improve the convergence.
+They found that the lower-order compact stencil preconditioner performed best when combined with the GMRES linear solver and the ILU($k$) preconditioner.
+As is common with other Newton approaches, a pseudo-transient algorithm and mesh sequencing strategy were used to improve the convergence.
 %CC FVM.
 %pseudotransient approach to improve convergence and mesh sequencing.
 %time step is increased inversely with the Newton residual reduction.
@@ -193,21 +193,21 @@ As is common with other Newton approaches, a pseudo transient algorithm and mesh
 %The baseline preconditioning technique used in this study is an ILU(0) factorization of the distance-1 Jacobian matrix. This matrix is based on a lower-order discretization of the equations because it involves only the edge and vertex neighbors. For comparison purposes, more complex ILU(k ) factorizations and the distance-2 Jacobian matrix, namely, the matrix based on the higher-order discretization.
 %Use mesh sequencing strategy.
 %GMRES(50). ILU(2) was optimal is one case. They compare a compact and larger preconditioning matrix stencil and the compact (distance-1) method was faster.
-With the aim of exploiting mature segregated solution approaches, \citet{Pernice2001} recast the SIMPLE segregated algorithm as a method which operators on residuals, allowing it to act as the preconditioner for a Jacobian-free Newton-Krylov approach.
+With the aim of exploiting mature segregated solution approaches, \citet{Pernice2001} recast the SIMPLE segregated algorithm as a method that operates on residuals, allowing it to serve as a preconditioner for a Jacobian-free Newton-Krylov approach.
 It was found that the SIMPLE-preconditioned Jacobian-free Newton-Krylov substantially accelerated convergence for the incompressible Navier–Stokes problems examined.
 %as preconditioners, they use classical pressure-correction methods such as SIMPLE/SIMPLEC and SIMPLER fulfill this requirement.
-GMRES was the adopted linear solver, where the importance of choosing an appropriate restart parameter was noted.
-They also found a multigrid approach to be more efficient than ILU($k$) for preconditioning, where the implementation was based on the PETSc \citep{PETSc} package.
+GMRES was adopted as the linear solver, and the importance of choosing an appropriate restart parameter was noted.
+They also found that a multigrid approach was more efficient than ILU($k$) for preconditioning, with the implementation based on the PETSc \citep{PETSc} package.
 % as a preconditioner method. MG is more memory efficient than ILU.
 %Staggered grid.
 %They use Algorithm Inexact Newton Backtracking for globalisation => seems to be a form of line search.
 %SIMPLEC used as solve momentum with 5 sweeps of Gauss-Seidel and pressure with 20 sweeps. SIMPLEC is recast as a method which operators on residuals so it can be used sa a preconditioner.
 %NK-MG methods with pressure-correction smoothers substantially accelerate the convergence of the pressure-correction methods, albeit at an increase in storage cost, and their performance scales well as problem size is increased.
 
-Over the subsequent two decades, Jacobian-free Newton-Krylov methods have seen increasing application in the field of finite volume computational fluid dynamics, albeit they are still far from widespread.
+Over the subsequent two decades, Jacobian-free Newton-Krylov methods have seen increasing application in the field of finite-volume computational fluid dynamics, though they remain far from widespread.
 The use of low-order approximate Jacobians for preconditioning has been established as an efficient and robust approach, e.g. \citep{Nejat2008, Vaassen2008, Nejat2011, Nishikawa2020}.
 A particularly attractive application of the low-order preconditioning approach is for higher-order discretisations; that is, spatial discretisation of order greater than two.
-\citet{Nejat2008} demonstrated such a higher order approach for steady, inviscid compressible flows, with up to fourth order accuracy.
+\citet{Nejat2008} demonstrated such a higher-order approach for steady, inviscid compressible flows, with up to fourth-order accuracy.
 GMRES was the adopted linear solver with the ILU($k$) preconditioner and fill-in values ($k$) ranging from 2 to 4. 
 %low-order Jacobian matrix captures the essential physical information about the flow, is narrowly banded after reordering and is much better conditioned than the high-order Jacobian. approximate analytic Jacobian of the first-order flux integral; finite difference approximation to the first-order flux Jacobian; pseudo time step in start-up phase and then switch to Newton; gmres no restart ILU precon (in fill 2-4)
 %steady-state computation of inviscid compressible flows.
@@ -217,7 +217,7 @@ GMRES was the adopted linear solver with the ILU($k$) preconditioner and fill-in
 Like \citet{Vaassen2008} and many other authors, Nejat and co-workers \citep{Nejat2008, Nejat2011} proposed a special start-up phase to encourage the solution to efficiently reach the Newton method's domain of quadratic convergence.
 The use of a pseudo-transient approach combined with an adaptive time step (e.g., based on the convergence of the Newton iterations) is common.
 %\citet{Vaassen2008} A pseudo-transient at the beginning, where the time step is computed according to the switched evolution relaxation (SER) (increases the time step inversely to the residual norm reduction) - they use an approximate Jacobian for the preconditioner.
-A further promotion for the benefit of Jacobian-free Newton-Krylov methods in fluid dynamics was provided by \citet{Lucas2010}, who demonstrated order of magnitude speedups over nonlinear multigrid methods.
+A further promotion of Jacobian-free Newton-Krylov methods in fluid dynamics was provided by \citet{Lucas2010}, who demonstrated order-of-magnitude speedups over nonlinear multigrid methods.
 A particular benefit was the insensitivity of the Jacobian-free Newton-Krylov methods to changes in mesh aspect ratio, density, time step and Reynolds number.
 %enables a speed up of a factor of 10 compared to standard nonlinear multigrid for two-dimensional, large Reynolds number, unsteady flow computations.
 %stiffness induced by the maximum aspect ratio, the grid density, the physical time step and the Reynolds number. Compared to standard nonlinear multigrid, speed ups up to a factor of 25 are achieved.
@@ -226,33 +226,33 @@ A particular benefit was the insensitivity of the Jacobian-free Newton-Krylov me
 %\citet{Nishikawa2020} JFNK with generalized conjugate residual linear solver. Approximate Jacobian for preconditioning -> variable preconditioner. Compared with a simple implicit defect-correction approach with first-order Jacobian and Gauss-Seidel linear solver.
 %JFNK is faster and uses less CPU time than IDC.
 % NOT JFNK: \citet{Nishikawa2019} pseudo time with adaptive time-step based on the NR residuals. Linear systems solved by Gauss-Seidel relaxation scheme.
-Another relevant point is the effect of numerical stabilisation (damping) on the convergence: \citet{Nishikawa2017} demonstrated that a Jacobian-free Newton-Krylov approach was less sensitive to the magnitude of the damping and remained stable for lower values of damping compared with a segregated approach.
+Another relevant point is the effect of numerical stabilisation (damping) on convergence: \citet{Nishikawa2017} demonstrated that a Jacobian-free Newton-Krylov approach was less sensitive to damping magnitude and remained stable at lower damping levels than a segregated approach.
 % for the alpha-damping scheme when used with a .
 %It was found that appropriate choice 
 
 
-In recent years, Jacobian-free Newton-Krylov methods have gained increasing traction in finite volume discretizations across various engineering and physics applications.
+In recent years, Jacobian-free Newton-Krylov methods have gained increasing traction in finite volume discretisations across various engineering and physics applications.
 For turbomachinery simulations, \citet{Zhang2024} developed a Jacobian-free Newton-Krylov method to improve convergence difficulties associated with simplified implicit iterative algorithms, employing a startup strategy based on an approximate Jacobian system coupled with an adaptive Courant-Friedrichs-Lewy number scheme before transitioning to full Newton iterations.
-Their approach leverages GMRES with a graph coloring-based finite difference preconditioner.
+Their approach leverages GMRES with a graph-colouring-based finite-difference preconditioner.
 Similarly, \citet{Zhang2024twofluid} introduced a staggered-grid JFNK solver for the two-fluid six-equation model, specifically designed to address discontinuities and ill-conditioning, using GMRES for the Krylov subspace iteration.
-In the context of Reynolds-Averaged Navier-Stokes equations, \citet{Sukas2025} utilized PETSc-based \citep{PETSc} Jacobian-free Newton-Krylov solvers with both Jacobian-free finite difference and direct Jacobian-vector products, highlighting the versatility of the approach.
+In the context of Reynolds-Averaged Navier-Stokes equations, \citet{Sukas2025} utilised PETSc-based \citep{PETSc} Jacobian-free Newton-Krylov solvers with both Jacobian-free finite difference and direct Jacobian-vector products, highlighting the versatility of the approach.
 \citet{Johannes2021} explored a hybrid approach where a high-order Discontinuous Galerkin method was preconditioned using a finite volume-based multigrid solver, demonstrating effectiveness in unsteady three-dimensional compressible flow applications.
 Beyond traditional fluid dynamics, Jacobian-free Newton-Krylov methods have been successfully extended to reactive transport in porous media, as demonstrated by \citet{Amir2021}.
 Jacobian-free Newton-Krylov has also been applied in magnetohydrodynamics, where 
-\citet{Nguyen2022} proposed higher-order spatial and temporal discretisation coupled with additive Schwarz preconditioning based on block incomplete LU factorization, and \citet{Chacon2025} introduced a physics-based preconditioner leveraging Schur complement operator splitting, coupled with Newton-flexible-GMRES to improve convergence.
+\citet{Nguyen2022} proposed higher-order spatial and temporal discretisation coupled with additive Schwarz preconditioning based on block incomplete LU factorisation, and \citet{Chacon2025} introduced a physics-based preconditioner leveraging Schur complement operator splitting, coupled with Newton-flexible-GMRES to improve convergence.
 
 Beyond individual applications, several multiphysics simulation frameworks incorporate Jacobian-free Newton-Krylov as a core numerical strategy.
-The Eilmer code \citep{Eilmer2023}, an open-source finite volume solver for hypersonic flow simulations, relies on Jacobian-free Newton-Krylov for robust convergence in high-speed aerothermodynamics.
+The Eilmer code \citep{Eilmer2023}, an open-source finite-volume solver for hypersonic flow simulations, relies on Jacobian-free Newton-Krylov methods for robust convergence in high-speed aerothermodynamics.
 In the finite element community, MOOSE \citep{Giudicelli2024, Zhu2025, Wu2024} has emerged as a leading multiphysics framework that employs Jacobian-free Newton-Krylov via PETSc \citep{PETSc}, enabling highly scalable simulations across disciplines.
 Built on MOOSE, the BISON nuclear fuel performance code \citep{Williamson2021} uses Jacobian-free Newton-Krylov to handle tightly coupled thermomechanical and radiation transport effects in large-scale nuclear reactor simulations.
-Other FE-based solvers, such as deal.II \citep{Africa2024, Munch2024}, also integrate Jacobian-free Newton-Krylov with PETSc \citep{PETSc} for efficient nonlinear solvers.
+Other FE-based solvers, such as deal.II \citep{Africa2024, Munch2024} also integrate Jacobian-free Newton-Krylov with PETSc \citep{PETSc} for efficient nonlinear solvers.
 %In two-phase and reactive flow problems, JFNK has been particularly successful in nuclear thermal-hydraulics applications, proving effective for fully implicit coupling of phase-change and nonlinear source terms.
-The adoption of JFNK in large-scale multiphysics codes underscores its scalability: matrix-free residual evaluations scale well on distributed memory systems, and Krylov solvers can leverage multigrid and domain decomposition preconditioners to keep computational costs manageable.
+The adoption of JFNK in large-scale multiphysics codes underscores its scalability: matrix-free residual evaluations scale well on distributed-memory systems, and Krylov solvers can leverage multigrid and domain-decomposition preconditioners to keep computational costs manageable.
 
-Jacobian-free Newton-Krylov methods have also been extended to finite difference and nodal integral methods.
+Jacobian-free Newton-Krylov methods have also been extended to finite-difference and nodal-integral methods.
 \citet{Ahmed2025} explored preconditioned Newton-Krylov approaches for Navier-Stokes equations using a nodal integral method with GMRES-based physics-aware preconditioning, demonstrating improved robustness for complex flow problems.
-In contrast, \citet{Liu2025} employed an explicit Jacobian-based Newton-Krylov solver for nuclear multiphysics coupling, arguing that the true Jacobian matrix provides a better preconditioner, enhancing stability over a purely Jacobian-free approach.
-Similarly, JFNK has been extended to immersed boundary finite element methods for cardiac mechanics \citep{Ma2024}, where BiCGSTAB was preferred over GMRES to ensure that computational time and memory requirements remain scalable.
+In contrast, \citet{Liu2025} employed an explicit Jacobian-based Newton-Krylov solver for nuclear multiphysics coupling, arguing that the true Jacobian provides a better preconditioner, thereby enhancing stability compared to a purely Jacobian-free approach.
+Similarly, JFNK has been extended to immersed boundary finite element methods for cardiac mechanics \citep{Ma2024}, where BiCGSTAB was preferred over GMRES to ensure scalability of computational time and memory requirements.
 
 
 
@@ -336,13 +336,13 @@ Similarly, JFNK has been extended to immersed boundary finite element methods fo
 %Biconjugate Gradient Stabilized (BiCGSTAB) method, not GMRES, as BiCGSTAB "ensures that the time and memory requirements do not escalate with the number of iterations in every substep"
 
 
-Although they are increasingly seen in finite volume computational fluid dynamics, Jacobian-free Newton-Krylov methods have yet to be used for finite volume solid mechanics.
+Although they are increasingly used in finite-volume computational fluid dynamics, Jacobian-free Newton-Krylov methods have yet to be applied to finite-volume solid mechanics.
 This article addresses this point by being the first (to the authors' knowledge) to propose a Jacobian-free Newton-Krylov approach for finite volume solid mechanics.
 By benchmarking the Jacobian-free Newton-Krylov solver on various structural mechanics problems – including static and dynamic cases, linear elasticity and nonlinear material behaviour – we assess its performance relative to the traditional segregated approach.
 %The efficacy of the proposed cell-centred formulation is assessed on several static, dynamic, linear and nonlinear solid mechanics problems.
 Particular focus is given to the use of a compact-stencil approximate Jacobian preconditioner, inspired by existing segregated solid mechanics procedures, and ease of implementation into an existing segregated finite volume framework -- the OpenFOAM-based solids4foam toolkit \citep{Cardiff2018}.
 This study explicitly addresses whether the known benefits of the Jacobian-free Newton-Krylov method (fast convergence, stability, memory savings) can be realised for finite volume solid mechanics, and what challenges might arise (for example, we report and discuss robustness issues in elastoplastic cases, pointing to areas needing further research).
-The proposed Jacobian-free Newton-Krylov approach is benchmarked against a segregated solution procedure, which remains the standard approach in finite volume solid (and fluid) mechanics, forming the backbone of widely used codes such as OpenFOAM.
+The proposed Jacobian-free Newton-Krylov approach is benchmarked against a segregated solution procedure, which remains the standard in finite-volume solid (and fluid) mechanics and forms the backbone of widely used codes such as OpenFOAM.
 While the limitations of segregated approaches in terms of efficiency and robustness are well known, they can still be competitive - or even preferable - in situations where Newton-type methods may be overly expensive or insufficiently robust. For example, \citet{Whelan2025} recently demonstrated that a segregated procedure was more robust than a Newton method for large-strain elastoplastic damage problems. %, where the poorly conditioned Newton tangent hindered convergence of the Newton approach. In that work, the segregated solver also employed a mixed displacement–pressure formulation to avoid volumetric locking.
 Against this backdrop, a primary motivation of the current study is to assess whether Jacobian-free Newton–Krylov methods can be adopted within such segregated frameworks with minimal disruption, thereby leveraging existing infrastructure while potentially improving robustness and efficiency
 
@@ -352,10 +352,10 @@ Against this backdrop, a primary motivation of the current study is to assess wh
 %- explore compact approximate Jacobian as a suitable preconditioner for linear and nonlinear solid mechanics;
 %- explore multigrid as a preconditioner for JFNK
 The remainder of the paper is structured as follows:
-Section 2 summarises a typical solid mechanics mathematical model and its cell-centred finite volume discretisation.
-Section 3 presents the solution algorithms, starting with the classic segregated solution algorithm, followed by the proposed Jacobian-free Newton-Krylov solution algorithm.
-The performance of the proposed Jacobian-free Newton-Krylov approach is compared with the segregated approach on several varying benchmark cases in Section 4, where the effect of several factors are examined. %, including problem dimension, mesh, material model, nonlinear geometry, choice of preconditioner, and other solution parameter.
-Finally, the article ends with a summary of the main conclusions of the work.
+Section 2 summarises a typical solid-mechanics mathematical model and its cell-centred finite-volume discretisation.
+Section 3 presents the solution algorithms, starting with the classic segregated method and then the proposed Jacobian-free Newton-Krylov method.
+The performance of the proposed Jacobian-free Newton-Krylov approach is compared with the segregated approach across several benchmark cases in Section 4, where the effects of several factors are examined. %, including problem dimension, mesh, material model, nonlinear geometry, choice of preconditioner, and other solution parameter.
+Finally, the article concludes with a summary of the main conclusions.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -378,7 +378,7 @@ Assuming small strains, the linear geometry formulation is expressed in strong i
 \end{eqnarray}
 where $\Omega$ is the volume of an arbitrary body bounded by a surface $\Gamma$ with outwards pointing normal $\bb{n}$.
 The density is $\rho$, $\bb{u}$ is the displacement vector, $\bb{\sigma}_s$ is the engineering (small strain) stress tensor, and $\bb{f}_b$ is a body force per unit volume, e.g., $\rho \bb{g}$, where $\bb{g}$ is gravity.
-Total and updated Lagrangian formulations, suitable for finite strains, are shown in Appendex \ref{app:TL_UL}.
+Total and updated Lagrangian formulations, suitable for finite strains, are shown in Appendix \ref{app:TL_UL}.
 
 %More generally,  linear momentum conservation can be expressed in a nonlinear geometry form, which is suitable for finite strains.
 %Two equivalent nonlinear geometry forms are common: the \emph{total} Lagrangian form:
@@ -407,7 +407,7 @@ Total and updated Lagrangian formulations, suitable for finite strains, are show
 %Although the total Lagrangian approach is a viable option for wire drawing, the current work adopts the updated Lagrangian approach as developing Eulerian-type upstream and downstream conditions (Section \ref{sec:euler_BCs}) is conceptually easier in an updated Lagrangian formulation.
 
 
-The governing equations are complemented by boundary conditions, with three types considered here: prescribed displacement, prescribed traction, and symmetry.
+The governing equations are complemented by boundary conditions, which are classified into three types: prescribed displacement, prescribed traction, and symmetry.
 The definition of the engineering stress ($\bb{\sigma}_s$) and true stress ($\bb{\sigma}$) in Equation \ref{eqn:momentum_lingeom} (and Equations \ref{eqn:momentum_TL} and \ref{eqn:momentum_UL} in Appendix \ref{app:TL_UL})  is given by a chosen mechanical law.
 Five mechanical laws are considered in this work, as briefly outlined in Appendix \ref{app:mechLaws}: linear elasticity (Hooke's law), three forms of hyperelasticity (St.\,Venant-Kirchhoff, neo-Hookean, and Guccione), and neo-Hookean $J_2$ hyperelastoplasticity.
 
@@ -449,7 +449,7 @@ Neglecting the higher-order terms ($\text{H.O.T.}$) yields the strict Newton met
 %    \bb{u}_{n+1} = \bb{u}_{n} + \alpha \Delta \bb{u}
 \end{eqnarray}
 where $\bb{J} \equiv \bb{R}' \equiv \partial \bb{R}/\partial \bb{u}$ is the Jacobian matrix.
-Starting the Newton procedure requires the specification of $\bb{u}_0$.
+Starting the Newton procedure requires specifying $\bb{u}_0$.
 %is iteratively solved by linearisation about the current value of the solution, leading to a linear system and iterative update of the solution vector:
 %\begin{eqnarray}
 %    \label{eq:NewtonRaphsonA}
@@ -458,11 +458,8 @@ Starting the Newton procedure requires the specification of $\bb{u}_0$.
 %    \bb{u}_{n+1} = \bb{u}_{n} + \alpha \Delta \bb{u}
 %\end{eqnarray}
 %where subscript $n$ indicates the outer (Newton) iteration index.
-The scalar $s > 0$ can be chosen to improve convergence, for example, using a line search or under-relaxation/damping procedure, and is equal to unity in the classic Newton-Raphson approach.
+The scalar $s > 0$ can be chosen to improve convergence, for example, via a line search or an under-relaxation/damping procedure, and is set to unity in the classic Newton-Raphson approach.
 Iterations are performed over this system until the residual $\bb{R}(\bb{u}_k)$ and solution correction $\delta \bb{u}$ are sufficiently small, with appropriate normalisation.
-
-%\hl{$\Delta u$: we are using in two ways: increment and correction. Fix this!}
-%\hl{KnollKeyes give a nice concise description of Newton: check}
 
 For problems with $N$ scalar equations and $N$ scalar unknowns, the residual $\bb{R}$ and solution $\bb{u}$ vectors have dimensions of $N \times 1$. %, while the Jacobian matrix has dimensions of $N \times N$.
 %In contrast, for vector problems, like the solid mechanics problems considered in this work, the residual and solution vectors have dimensions of $N_d N \times 1$ and the Jacobian matrix has dimensions of $N_d N \times N_d N$, where $N_d$ is the geometric dimension of the problem, e.g. $N_d = 2$ for 2-D and $N_d = 3$ for 3-D.
@@ -487,12 +484,12 @@ Similarly, the Jacobian can be formed in terms of sub-matrix block coefficients.
 In the strict Newton procedure, the residuals converge at a quadratic rate when the current solution is close to the true solution; that is, the iteration error decreases proportionally to the square of the error at the previous iteration.
 Once the method gets sufficiently close to the true solution, the number of correct digits in the approximation roughly doubles with each iteration. 
 However, quadratic convergence is only possible when using the exact Jacobian.
-In contrast, a quasi-Newton method uses an approximation to the Jacobian, sacrificing strict quadratic convergence in an attempt to produce an overall more computationally efficient procedure.
+In contrast, a quasi-Newton method uses an approximation to the Jacobian, sacrificing strict quadratic convergence in exchange for a more computationally efficient overall procedure.
 From this perspective, the segregated solution algorithm commonly employed in finite volume solid mechanics can be viewed as a quasi-Newton method, where an approximate Jacobian replaces the exact Jacobian: 
 \begin{eqnarray} \label{eq:Seg}
     \bb{\tilde{J}}(\bb{u}_k) \;\delta \bb{u} = -\bb{R}(\bb{u}_k)
 \end{eqnarray}
-In this case, the approximate Jacobian $\bb{\tilde{J}}$ comes from the compact stencil discretisation of a simple diffusion (Laplacian) term inertia terms.
+In this case, the approximate Jacobian $\bb{\tilde{J}}$ comes from the inertia term and compact stencil discretisation of a simple diffusion (Laplacian) term.
 A benefit of this approach is that the inter-component coupling is removed from the Jacobian, allowing the solution of three smaller scalar systems rather than one larger vector system in 3-D (or two smaller systems in 2-D).
 
 A fully explicit procedure can also be viewed from this perspective by selecting a \emph{diagonal} approximate Jacobian $\bb{\tilde{D}}$ (only the inertia term), making the solution of the linear system trivial:
@@ -524,7 +521,7 @@ The set of all faces of cell $P$ is denoted by $\mathcal{F}_P$. This set is furt
 Each internal face $f_i \in \mathcal{F}^{\text{int}}_P$ corresponds to a neighbouring cell $N_{f_i} \in \mathcal{N}_P$, where $\mathcal{N}_P$ is the set of all neighbouring cells of $P$. The outward unit normal vector associated with an internal face $f_i$ is denoted by $\mathbf{n}_{f_i}$, while the outward unit normal vector associated with a boundary face $b_i$ is denoted by $\mathbf{n}_{b_i}$.
 The vector $\mathbf{d}_{f_i}$ connects the centroid of cell $P$ with the centroid of the neighbouring cell $N_{f_i}$, whereas the vector $\mathbf{d}_{b_i}$ connects the centroid of cell $P$ with the centroid of boundary face ${b_i}$.
 For convenience, we will also define the set of all faces of cell $P$ excluding those on a traction boundary as $\mathcal{F}_P^{\text{non-trac}} \coloneqq \mathcal{F}_P^{\text{int}} \cup \mathcal{F}_P^{\text{disp}} \cup \mathcal{F}_P^{\text{symm}}$.
-%The proposed solution discretisation follows closely the approach of \citet{cardiff_lagrangian_2017}; consequently, only an overview of the final discretised form of equations and adopted solution algorithm are given below.
+%The proposed solution discretisation follows closely the approach of \citet{cardiff_lagrangian_2017}; consequently, only an overview of the final discretised form of equations and adopted solution algorithm is given below.
 \begin{figure}[htbp]
 	\centering
 %	\subfigure[Magnitude of the manufactured displacement solution]
@@ -563,7 +560,7 @@ Consequently, volume integrals over a cell $P$ can be approximated to second-ord
 		&\approx& \bb{\phi}_P \Omega_P
 \end{eqnarray}
 where $\Omega_P$ is the volume of cell $P$ and $\int_{\Omega_P} (\bb{x} - \bb{x}_P) d\Omega_P \equiv 0$ by definition of the cell centroid.
-This approximation corresponds to the midpoint rule and one point quadrature.
+This approximation corresponds to the midpoint rule and one-point quadrature.
 
 Using Equation \ref{eq:volume_integral}, the inertia term (e.g. left-hand side term of Equation \ref{eqn:momentum_lingeom}) becomes
 \begin{eqnarray} \label{eq:inertia}
@@ -700,7 +697,7 @@ Note from Equation \ref{eq:divStressDiscret} that the stress on displacement bou
 %Note from Equation \ref{eq:divStressDiscret} that the stress on displacement boundary faces is assumed equal to the stress $\bb{\sigma}_P$ at the centroid of cell $P$.
 
 The cell-centred stress $\bb{\sigma}_P$ is calculated as a function of the displacement gradient according to the chosen mechanical law, for example, as shown in Appendix \ref{app:mechLaws}.
-The presented discretisation is second-order accurate in space for displacement if the cell-centred displacement gradients (and the stress) are at least first-order accurate in space, even if the cell faces are not flat.
+The presented discretisation is second-order accurate in space for displacement if the cell-centred displacement gradients (and the stress) are at least first-order accurate, even if the cell faces are not flat.
 To achieve this, the cell-centred displacement gradients are determined using a weighted first-neighbours least squares method \citep{Jasak1996},
 \begin{eqnarray} \label{eq:leastSquaresGrad}
 	\left(\bb{\nabla}\bb{u}\right)_P
@@ -782,7 +779,7 @@ The Rhie-Chow stabilisation term  $\mathcal{D}_P^{\text {Rhie-Chow }}$ for a cel
 \end{eqnarray}
 %which comes from the difference between Equations \ref{eq:diffusion} and \ref{eq:diffusion_exp}.
 where $\alpha > 0$ is a user-defined parameter for globally scaling the amount of stabilisation.
-Parameter $\bar{K}$ is a stiffness-type parameter that gives the stabilisation an appropriate scale and dimension.
+Parameter $\bar{K}$ is a stiffness-type parameter that gives the stabilisation term an appropriate scale and dimension.
 Here, $\bar{K} = \frac{4}{3}\mu + \kappa = 2\mu + \lambda$ following previous work \cite{Jasak2000, Cardiff2017, Cardiff2018}, where $\mu$ is the shear modulus (first Lam\'{e} parameter), $\kappa$ is the bulk modulus, and $\lambda$ is the second Lam\'{e} parameter.
 Vector $\bar{\bb{u}}_{d_i}$ represents the prescribed displacement at the centroid of displacement boundary face $d_i$.
 %where $N_f$ represents the set of faces $f$ in cell $P$, and neighbouring cell centre $N_f$ shares face $f$ with the cell $P$.
@@ -971,9 +968,9 @@ The inertia term is discretised as described in Equations \ref{eq:inertia} and \
 		\left|\bb{\Gamma}_{s_i}\right|
 \end{eqnarray}
 When a diffusion term is typically discretised using the cell-centre finite volume method, non-orthogonal corrections are included in a deferred correction manner to preserve the order of accuracy on distorted grids.
-However, in the current quasi-Newton method form, the approximate Jacobian's exact value does not affect the final converged solution, but only the convergence behaviour.
-Consequently, non-orthogonal corrections are not included in the approximate Jacobian here. However, grid distortion is appropriately accounted for in the calculation of the residual.
-Nonetheless, as a result, it is expected that the convergence behaviour of the segregated approach may degrade as mesh non-orthogonality increases.
+However, in the current quasi-Newton method, the exact value of the approximate Jacobian does not affect the final converged solution, but only the convergence behaviour.
+Consequently, non-orthogonal corrections are not included in the approximate Jacobian here. However, grid distortion is appropriately accounted for in the residual calculation.
+Nonetheless, it is expected that the convergence behaviour of the segregated approach may degrade as mesh non-orthogonality increases.
 %Similarly, the prescribed displacements from the $\mathcal{F}^{\text{disp}}_P$ boundary faces does not affect the Jacobian.
 
 The linearised system (Equation \ref{eq:Seg}) is formed for each cell in the domain, resulting in a system of algebraic equations:
@@ -1045,7 +1042,7 @@ An additional benefit from a memory and assembly perspective, is that matrices $
 From an implementation perspective, this allows a single scalar matrix to be formed and stored, where the boundary condition contributions are inserted before solving a particular component.
 
 The \emph{inner} linear sparse systems (Equations \ref{eq:segX}, \ref{eq:segY} and \ref{eq:segZ}) can be solved using any typical direct or iterative linear solver approach; however, an incomplete Cholesky pre-conditioned conjugate gradient method \cite{Jacobs1986} is often preferred as the diagonally dominant characteristic leads to good convergence characteristics.
-Algebraic multigrid can also be used to accelerate convergence.
+Algebraic multigrid can also accelerate convergence.
 %In non-linear problems, this system of equations is solved multiple times with updated coefficients in a fixed-point iteration scheme. 
 %As noted in previous articles on segregated methods, the inner system need not be solved to a tight tolerance as coefficients and source terms are approximated from the previous increment; a reduction in the residuals of one order of magnitude is typically sufficient. The outer iterations are performed until the predefined tolerance, typically $1 \times 10^{-6}$, has been achieved \cite{cardiff_lagrangian_2017}. 
 %In the current updated Lagrangian approach, the mesh is moved to the deformed configuration at the end of each time step rather than after each outer iteration.
@@ -1054,8 +1051,8 @@ Algebraic multigrid can also be used to accelerate convergence.
 %
 %The procedures have been implemented and publicly shared within the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} of the open-source OpenFOAM software.
 
-In literature, the segregated solution algorithm is typically formulated in terms of the total displacement vector (or its difference between time steps) as the primary unknown; in contrast, in the quasi-Newton interpretation presented here, the primary unknown is the correction to the displacement vector, which goes to zero at convergence.
-In the total displacement approach, the matrix is the same, and the only difference is the formulation of the right-hand side, which is calculated as the difference between the residual and the matrix times the previous solution.
+In the literature, the segregated solution algorithm is typically formulated with the total displacement vector (or its difference between time steps) as the primary unknown; in contrast, in the quasi-Newton interpretation presented here, the primary unknown is the correction to the displacement vector, which converges to zero.
+In the total displacement approach, the matrix remains the same, and the only difference is the formulation of the right-hand side, which is computed as the residual minus the matrix times the previous solution.
 Equivalence of both approaches can be seen by adding $\left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k$ to both sides of Equation \ref{eq:SegSys}:
 \begin{eqnarray} \label{eq:SegSys}
     \left[ \bb{\tilde{J}} \right]  \; \left[ \delta \bb{u} \right] + \left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k  = - \left[\bb{R}(\bb{u}_k)\right] + \left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k \notag \\
@@ -1063,7 +1060,7 @@ Equivalence of both approaches can be seen by adding $\left[ \bb{\tilde{J}} \rig
 \end{eqnarray}
 where $\left[ \bb{u} \right]_k$ is the solution field at the previous iteration, and noting that $\left[ \bb{u} \right]_{k+1} = \left[ \bb{u} \right]_k + \left[ \delta \bb{u} \right]$.
 In practice, the $\left[ \bb{\tilde{J}} \right]  \; \left[ \bb{u} \right]_k$ term on the right-hand side can be evaluated directly in terms of the discretised temporal and diffusion terms, without the need for matrix multiplication.
-In the current work, the standard total displacement segregated formulation is employed.
+In this work, the standard total-displacement segregated formulation is employed.
 %It is not expected that either formulation displays performance advantages.
 
 As a final comment, the $\alpha$ scaling factor in the stabilisation term (Equation \ref{eq:RhieChow}) need not take the same value as in the approximate Jacobian (Equation \ref{eq:diffusion}).
@@ -1083,8 +1080,6 @@ In the current work, $\alpha$ is taken as unity in the approximate Jacobian, whi
 \subsection{Jacobian-free Newton-Krylov Algorithm}
 \label{sec:JFNK_alg}
 %%--------------------------------------------------------------------------------------------------------------------%%
-
-%\hl{cite KnollKeyes2004}
 
 As noted in the introduction, the Jacobian-free Newton-Krylov method avoids the need to explicitly construct the Jacobian matrix by approximating its action on a solution vector using the finite difference method, repeated here:
 \begin{eqnarray} \label{eq:JF}
@@ -1145,7 +1140,7 @@ Alternatively, left preconditioning may be applied. In this case, the finite dif
 	\bb{P}^{-1} \bb{J} \bb{v} \;\approx\; \frac{\bb{P}^{-1}\left[ \bb{R}(\bb{u}+\epsilon \bb{v}) - \bb{R}(\bb{u}) \right]}{\epsilon}
 \end{eqnarray}
 where the preconditioner acts directly on the residual evaluations. As with right preconditioning, the explicit inverse of $\bb{P}$ is not required; only the ability to approximately apply $\bb{P}^{-1}$ to a given vector is necessary.
-In practice, the choice between left and right preconditioning in Jacobian-free Newton–Krylov methods is not always straightforward. Right preconditioning preserves the true nonlinear residual for convergence checks, while left preconditioning alters the residual norm through the preconditioner. In this work we use left preconditioning, but no significant difference in convergence behaviour was observed between the two approaches.
+In practice, the choice between left- and right-preconditioning in Jacobian-free Newton–Krylov methods is not always straightforward. Right preconditioning preserves the true nonlinear residual for convergence checks, while left preconditioning alters the residual norm through the preconditioner. In this work, we use left preconditioning, but no significant difference in convergence behaviour was observed between the two approaches.
 
 
 %\hl{3}
@@ -1154,16 +1149,16 @@ In practice, the choice between left and right preconditioning in Jacobian-free 
 In the current work, we propose to use the compact-stencil approximate Jacobian from the segregated algorithm $\tilde{\bb{J}}$ as the preconditioning matrix $\bb{P}$ for the preconditioned Jacobian-free Newton-Krylov method.
 %\hl{Comment on literature: used before but not yet for solids}.
 This preconditioning approach can be considered a ``physics-based" preconditioner in the classifications of \citet{Knoll2004}.
-The approach is conceptually similar to approximating a higher-order large-stencil scheme Jacobian by a compact-stencil lower-order scheme.
-A benefit of the proposed approach is that existing segregated frameworks can re-use their existing matrix assembly and storage implementations.
+The approach is conceptually similar to approximating the Jacobian of a higher-order, large-stencil scheme by a lower-order, compact-stencil scheme.
+A benefit of the proposed approach is that existing segregated frameworks can reuse their existing matrix assembly and storage implementations.
 Concretely, the Jacobian-free Newton-Krylov method requires only a procedure for forming this preconditioning matrix and a procedure for explicitly evaluating the residual.
 Both routines are easily implemented - and are likely already available - in an existing segregated framework.
 The only additional required procedure is an interface to an existing Jacobian-free Newton-Krylov implementation.
 %"The motivation behind this approach is that there exist numerous, legacy algorithms to solve nonlinear systems, both IVPs and BVPs. These algorithms typically were developed with some insight into the time scales or physical behavior of the problem. As a benefit of this insight, a reduced implicit system, or a sequence of segregated explicit or implicit systems may be solved in place of the fully coupled system. "
-In the current work, the PETSc package (version 3.22.2) \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} for OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
+In the current work, the PETSc package (version 3.22.2) \cite{PETSc} is used as the nonlinear solver, driven by a finite volume solver implemented in the solids4foam toolbox \citep{Cardiff2018, Tukovic2018} for the OpenFOAM toolbox \citep{Weller1998} (version OpenFOAM-v2312).
 The codes are publicly available at \url{https://github.com/solids4foam/solids4foam} on the \texttt{feature-petsc-snes} branch, and the cases and plotting scripts are available at \url{https://github.com/solids4foam/solid-benchmarks}.
 
-Several preconditioners are available in the literature, incomplete Cholesky or ILU($k$) being popular; however, multigrid methods offer the greatest potential for large-scale problems.
+Several preconditioners are available in the literature, with incomplete Cholesky and ILU($k$) being popular; however, multigrid methods offer the greatest potential for large-scale problems.
 As noted by \citet{Knoll2004}, algorithmic simplifications within a multigrid procedure, which may result in loss of convergence for multigrid as a solver, have a much weaker effect when multigrid is used as a preconditioner.
 In this work, three preconditioners are considered:
 \begin{enumerate}
@@ -1187,7 +1182,7 @@ In addition to a line search approach, a \emph{transient continuation} globalisa
 \end{eqnarray}
 where $\bb{v}^{[t]}_P$ is the velocity of cell $P$ at time $t$, and $\left( \frac{\partial \bb{v}}{\partial t} \right)^{[t]}_P$ is the acceleration.
 %$\left( \frac{\partial^2 \bb{u}}{\partial t^2} \right)_t$ 
-In this way, for highly nonlinear problems, the user can decrease the time step size $\Delta t$ as a globalisation approach to improve the performance of the Newton method.
+In this way, for highly nonlinear problems, the user can decrease the time step size $\Delta t$ as a globalisation approach to improve the Newton method's performance.
 The predictor step in Equation \ref{eq:predictor} has been chosen to be consistent with the discretisation of the inertia term (Equation \ref{eq:inertia2}).
 
 
@@ -1197,7 +1192,7 @@ The predictor step in Equation \ref{eq:predictor} has been chosen to be consiste
 A final comment on the Jacobian-free Newton-Krylov solution algorithm is the potential importance of \emph{oversolving}.
 Here, oversolving refers to solving the linear system to a tolerance that is too tight during the early Newton iterations, essentially wasting time when the solution is far from the true solution.
 In addition, some authors %\cite{See164_and_176_in_Knoll2004}
-\cite{Knoll2004} have shown Newton convergence to be worse when the earlier iterations are solved to too tight a tolerance.
+\cite{Knoll2004} has shown that Newton convergence is worse when earlier iterations are solved to too tight a tolerance.
 The concept of oversolving also applies to segregated solution procedures and has been well-known since the early work of Demird\v{z}i\'{c} and co-workers \cite{Demirdzic1995}, where the residuals are typically reduced by one order of magnitude in the inner linear system.
 %The optimal choice of residual reduction for a Jacobian-free Newton-Krylov finite volume solid mechanics procedure is explored in Section \ref{sec:test_cases}. \hl{Check: do we examine this?}
 In the current work, the residual is reduced by a factor of 0.9 in the segregated approach and by three orders in the Jacobian-free Newton-Krylov approach.
@@ -1220,7 +1215,7 @@ The current work adopts three checks for determining whether convergence has bee
     \item Norm of the solution correction $|\delta \bb{u}|$: Convergence is declared when the norm of the change in the solution between successive iterations is less than $s_{\text{tol}} \times |\bb{u}|$.
 \end{itemize}
 
-Although applying the same tolerances for the segregated and Jacobian-free Newton-Krylov solution procedures may seem reasonable, care must be taken with $s_{\text{tol}}$. The Jacobian-free Newton-Krylov method typically makes a small number of large corrections to the solution, whereas the segregated procedure often makes a large number of small corrections. Consequently, if the same $s_{\text{tol}}$ value were used, the segregated procedure might be declared convergent prematurely. To avoid this, $s_{\text{tol}}$ is set to zero in the present work, meaning convergence is based solely on residual reduction. Nonetheless, setting $s_{\text{tol}} > 0$ could yield a more robust procedure capable of handling potential stalling.
+Although applying the same tolerances for the segregated and Jacobian-free Newton-Krylov solution procedures may seem reasonable, care must be taken with $s_{\text{tol}}$. The Jacobian-free Newton-Krylov method typically makes a small number of large corrections to the solution, whereas the segregated procedure often makes a large number of small corrections. Consequently, if the same $s_{\text{tol}}$ value were used, the segregated procedure might be declared convergent prematurely. To avoid this, $s_{\text{tol}}$ is set to zero in the present work, meaning convergence is based solely on residual reduction. Nonetheless, setting $s_{\text{tol}} > 0$ could yield a more robust procedure that can handle potential stalling.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1264,7 +1259,7 @@ Although applying the same tolerances for the segregated and Jacobian-free Newto
 %	- effect of GMRES "restart": Knoll shows that lower restarts can be used with a better preconditioner
 %- mesh types: uniform mesh vs large gradients in refinement; structured vs unstructured
 
-This section compares the performance of the proposed Jacobian-free Newton-Krylov solution approach with the segregated approach on several benchmark cases.
+This section compares the performance of the proposed Jacobian-free Newton-Krylov solution approach with that of the segregated approach across several benchmark cases.
 The cases have been chosen to exhibit a variety of characteristics in terms of
 \begin{itemize}
 	\item Geometric dimension (2-D vs. 3-D),
@@ -1280,12 +1275,12 @@ The cases have been chosen to exhibit a variety of characteristics in terms of
 %Metrics from a commercial finite element software (Abaqus) are included for reference \hl{ask Dylan to run Abaqus cases once we have our results}.
 Although the presented analyses aim to be extensive, several common features of modern solid mechanics procedures are left for future work, including nonlinear boundary conditions (e.g., contact, fracture) and mixed formulations (e.g., incompressibility). %, where mixed formulations are required. 
 
-It is noted that the benchmark cases considered in this study are modest in size compared with the largest-scale finite element studies. This choice was deliberate, as the aim here was to benchmark the Jacobian-free Newton–Krylov method against the established segregated finite volume approach under controlled and reproducible conditions, while keeping memory and runtime requirements practical. Application to much larger problems is feasible and will be the subject of future work.
+It is noted that the benchmark cases considered in this study are modest in size compared with the largest-scale finite element studies. This choice was deliberate, as the aim was to benchmark the Jacobian-free Newton–Krylov method against the established segregated finite-volume approach under controlled, reproducible conditions, while keeping memory and runtime requirements practical. Application to much larger problems is feasible and will be the subject of future work.
 
 The remainder of this section is structured as follows:
 The proposed discretisation's accuracy and order are assessed on several test cases of varying dimensions and phenomena.
 %This demonstrates that the predictions are unaffected by the choice of solution algorithm.
-Subsequently, the efficiency of the Jacobian-free Newton-Krylov approach is compared with the standard segregated procedure in terms of time, memory and robustness. Finally, the effect of preconditioning strategy and stabilisation scaling is examined.
+Subsequently, the efficiency of the Jacobian-free Newton-Krylov approach is compared with the standard segregated procedure in terms of time, memory and robustness. Finally, the effects of the preconditioning strategy and stabilisation scaling are examined.
 % and, in some cases, finite element solutions.
 %the effect of several key parameters on the efficiency of the Jacobian-free Newton Krylov approach, including \hl{XXX}.
 
@@ -1294,11 +1289,9 @@ Subsequently, the efficiency of the Jacobian-free Newton-Krylov approach is comp
 \subsection{Testing the Accuracy and Order of Accuracy}
 \label{sec:accuracy}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section solely focuses on assessing the accuracy and order of accuracy of the discretisation.
-Assessment of the computational efficiency regarding time and memory requirements is left to the subsequent sections.
-In all cases where convergence is achieved, the differences between the Jacobian-free Newton-Raphson and segregated approaches are minimal;
-%No difference is seen in the predictions whether using the Jacobian-free Newton-Krylov or segregated approach, assuming convergence is achieved.
-this is expected since both approaches use the same discretisation, and the solution tolerances have been chosen to ensure the iteration errors are small.
+This section focuses solely on assessing the accuracy and the order of accuracy of the discretisation.
+Assessment of computational efficiency in terms of time and memory requirements is left to the subsequent sections.
+In all cases where convergence is achieved, the differences between the Jacobian-free Newton-Raphson and segregated approaches are minimal; this is expected, since both use the same discretisation and the solution tolerances have been chosen to ensure the iteration errors are small.
 Consequently, the results presented below (Section \ref{sec:accuracy}) have been solely generated using the Jacobian-free Newton-Raphson solution algorithm, unless stated otherwise.
 
 %\hl{Here, for the selected 4-6 cases, we should describe:}
@@ -1324,7 +1317,7 @@ A manufactured solution for displacement (Figure \ref{fig:mms_solution}) is empl
 	\end{pmatrix}
 \end{eqnarray}
 where $a_x = 2\,\mu$m, $a_y = 4\,\mu$m, and $a_z = 6\,\mu$m.
-The Cartesian coordinates are given by $x$, $y$ and $z$.
+The Cartesian coordinates are $x$, $y$, and $z$.
 The corresponding manufactured body force term ($\bb{f}_b$  in Equation \ref{eqn:momentum_lingeom}) is given in Appendix \ref{app:mms}.
 %\begin{figure}[htbp]
 %   \centering
@@ -1361,7 +1354,7 @@ The regular hexahedral meshes are created using the OpenFOAM \texttt{blockMesh} 
 %Appendix \ref{app:meshes} includes images of all three cell types for both regular and distorted configurations.
 Starting from an initial mesh spacing of $0.04$ m, six meshes of each type are created by successively halving the spacing.
 The cell numbers for the hexahedral and polyhedral meshes are 125, $1\,000$, $8\,000$, $64\,000$, $512\,000$, and $4\,096\,000$, while the tetrahedral mesh cell counts are 384, $4\,374$, $41\,154$, $355\,914$, $2\,958\,234$, and $24\,118\,074$.
-For the same average cell width, the cell counts show that the tetrahedral meshes have more cells by a factor of 3 to 6.
+For the same average cell width, the cell counts show that tetrahedral meshes have 3 to 6 times as many cells.
 %Table \ref{tab:mmsMesh} lists the average and maximum face non-orthogonality for the meshes of different cell types, where face non-orthogonality is defined as the angle made by the vector between the two adjacent cell centres across the common face and the face normal.
 %\begin{table}[htb]
 %    \centering
@@ -1391,7 +1384,7 @@ For the same average cell width, the cell counts show that the tetrahedral meshe
 Figure \ref{fig:mms_disp_accuracy}(a) shows the displacement magnitude discretisation errors ($L_2$ and $L_\infty$) as a function of the average cell width for the four mesh types (tetrahedral, polyhedral, regular and distorted hexahedral), while Figure \ref{fig:mms_disp_accuracy}(b) shows the corresponding order of accuracy plots.
 For ease of interpretation, the symbol shapes in the figures have been chosen to correspond to the cell shapes: a triangle for tetrahedra, a pentagon for polyhedra, a square for regular hexahedra, and a diamond for distorted hexahedra.
 The maximum ($L_\infty$) and average ($L_2$) displacement discretisation errors are seen to reduce at an approximately second-order rate for all mesh types, except for the $L_2$ error on the hexahedral meshes, which is approximately 2.3 on the finest grid.
-The distorted hexahedral meshes show the largest average and maximum errors but still approach second-order accuracy as the element spacing decreases.
+The distorted hexahedral meshes show the largest average and maximum errors, but still approach second-order accuracy as the element spacing decreases.
 %where, interestingly, the errors are, on average, smaller on the polyhedral meshes.
 %The reason for this is unclear but may be due to the stencil of the structured polyhedra being more isotropic and containing close neighbours.
 \begin{figure}[htbp]
@@ -1410,7 +1403,7 @@ The distorted hexahedral meshes show the largest average and maximum errors but 
 
 The predicted $\sigma_{xx}$ stress distribution for a hexahedral mesh with $512\,000$ cells is shown in Figure \ref{fig:mms_stress}(a).
 The corresponding cell-wise $\sigma_{xx}$ error distribution is shown in Figure \ref{fig:mms_stress}(b).
-The errors of greatest magnitude ($43$ kPa) occur at the boundaries, corresponding to where the local truncation error is higher. % due to the use of one-sided differencing.
+The largest errors ($43$ kPa) occur at the boundaries, where the local truncation error is highest. % due to the use of one-sided differencing.
 \begin{figure}[htbp]
 	\centering
 	\subfigure[Predicted $\sigma_{xx}$ stress distribution]
@@ -1427,7 +1420,7 @@ The errors of greatest magnitude ($43$ kPa) occur at the boundaries, correspondi
 	\label{fig:mms_stress}
 \end{figure}
 The discretisation errors in the stress magnitude as a function of cell size are shown in Figure \ref{fig:mms_stress_accuracy}(a), and the order of accuracy in Figure \ref{fig:mms_stress_accuracy}(b).
-The order of accuracy for the average ($L_2$) stress error is seen to be approximately 1.5 for the hexahedral and polyhedral meshes.
+The order of accuracy for the average ($L_2$) stress error is approximately 1.5 for both hexahedral and polyhedral meshes.
 In contrast, the average stress error order for the tetrahedral and distorted hexahedral meshes is 1.
 Similarly, the maximum ($L_\infty$) stress order of accuracy is seen to approach 1 for all mesh types.
 Unlike for the displacements, the greatest stress errors are seen in the tetrahedral rather than the distorted hexahedral meshes; however, the greatest stress maximum errors occur in the distorted hexahedral meshes.
@@ -1445,8 +1438,8 @@ Unlike for the displacements, the greatest stress errors are seen in the tetrahe
 	\label{fig:mms_stress_accuracy}
 \end{figure}
 
-The presented results agree with the theory: the least squares gradient scheme should be at least first-order accurate for random grids, with greater than first-order accuracy on regular grids due to local truncation error cancellations.
-In addition, the displacement predictions should be at least second-order accurate on all grid types as long as the gradient scheme achieves at least first-order accuracy.
+The presented results agree with the theory: the least-squares gradient scheme should be at least first-order accurate for random grids, with higher-order accuracy on regular grids due to local truncation-error cancellations.
+In addition, the displacement predictions should be at least second-order accurate on all grid types, provided the gradient scheme is at least first-order accurate.
 
 
 
@@ -1472,16 +1465,16 @@ Far from the cavity, the solid is subjected to a tensile stress $\sigma_{zz} = T
 The analytical expressions for the stress, derived by \citet{Southwell1926},  and displacement, derived by \citet{Goodier1933}, are given in Appendix \ref{app:sphericalCavity}.
 The problem is characterised by a localised stress concentration near the cavity on the plane perpendicular to the loading, which drops off rapidly away from the cavity.
 
-The computational solution domain is taken as one-eighth of a $1 \times 1 \times 1$ m cube aligned with the Cartesian axes, with one corner at the centre of the sphere.
+The computational solution domain is taken to be one-eighth of a $1 \times 1 \times 1$ m cube, aligned with the Cartesian axes, with one corner at the centre of the sphere.
 The problem is axisymmetric but is analysed here using a 3-D domain to allow a graded unstructured polyhedral mesh to be assessed.
-The analytical tractions are applied at the far boundaries of the domain to mitigate the effects of finite geometry.
+Analytical tractions are applied at the domain boundaries to mitigate the effects of the finite geometry.
 %Unstructured polyhedral meshes are employed with grading towards the cavity.
 The average cell sizes at the cavity surfaces are 100, 50, 25, 12.5, 6.25, and 3.125 mm, and the corresponding cell counts are 976, $4\,552$ (Figure \ref{fig:spherical_cavity}), $29\,611$, $213\,100$, $1\,614\,261$.
 Initially, unstructured tetrahedral meshes were generated using the Gmsh meshing utility \cite{geuzaine2009gmsh}, followed by conversion to their dual polyhedral representations using the OpenFOAM \texttt{polyDualMesh} utility.
 
 Figure \ref{fig:spherical_cavity_stress} shows the predicted axial ($zz$) stress field on the mesh with $1\,614\,261$ cells.
 The predicted mean ($L_2$) and maximum ($L_\infty$) displacement and axial stress discretisation errors as a function of the average cell width are presented in Figure \ref{fig:spherical_cavity_accuracy}.
-The mean and maximum displacement errors are seen to reduce at an approximately second-order rate, while the stress errors are seen to reduce at a first-order rate.
+The mean and maximum displacement errors are seen to decrease at approximately second-order rates, while the stress errors decrease at first-order rates.
 As seen in the previous case, the results agree with the theoretical expectations for unstructured (irregular) meshes.
 \begin{figure}[htbp]
 	\centering
@@ -1531,14 +1524,13 @@ Six successively refined hexahedral meshes are used, with cell counts of 45, 472
    \label{fig:elliptic_plate}
 \end{figure}
 
-The prediction for the equivalent (von Mises) stress in the domain are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(a), and the values along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(b).
-The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen;
-the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} are likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
+The prediction for the equivalent (von Mises) stress in the domain is shown in Figure \ref{fig:elliptic_plate_sigmaEq}(a), and the values along the line $r = \sqrt{x^2 + y^2} = 2.1$ m, $z = 0.3$ m are shown in Figure \ref{fig:elliptic_plate_sigmaEq}(b).
+The results from the finest grid in \citet{Demirdzic1997a} are given for comparison, where good agreement is seen; the small offset between the finest mesh predictions and those from \citet{Demirdzic1997a} is likely due to errors introduced when extracting the \citet{Demirdzic1997a} results using WebPlotDigitizer \citep{WebPlotDigitizer}.
 The sample values have been calculated by generating 40 uniformly spaced angles between 0 and $\nicefrac{\pi}{2}$ along the line, finding the cell of each sampled point, and extrapolating from the cell-centred value using the field gradient.
 \begin{figure}[htbp]
    \centering
    %\includegraphics[width=0.5\textwidth]{figures/elliptic_plate_sigmaEq_line.pdf} 
-	\subfigure[Equivalent stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry]
+	\subfigure[Equivalent stress distribution for the mesh with $2\,438\,242$ cells. The deformation is scaled by $1\,000$ and a translucent line indicates the outline of the undeformed geometry.]
 	{
 		\includegraphics[width=0.45\textwidth]{figures/elliptic_plate_sigmaEq}  
 	}
@@ -1665,7 +1657,7 @@ The predictions are seen to become quickly mesh-independent and fall within the 
 
 \paragraph{Case 5: Cook's membrane}
 Cook's membrane (Figure \ref{fig:cooks_membrane}) is a well-known bending-dominated benchmark case used in linear and non-linear analysis.
-The 2-D plane strain tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
+The 2-D plane-strain tapered panel (trapezoid) is fixed on one side and subjected to uniform shear traction on the opposite side.
 The vertices of the trapezoid (in mm) are (0, 0), (48, 44), (48, 60),  and (0, 44).
 %\begin{figure}[htbp]
 %   \centering
@@ -1719,7 +1711,7 @@ Eight successively refined quadrilateral meshes are considered, where the cell c
 %mesh.6 - 96x96 - 9216 CVs\\
 %mesh.7 - 192x192 - 36864 CVs
 %mesh.8 - 384x384 - 147456 CVs
-The problem is solved quasi-statically, and there are no body forces.
+The problem is solved quasi-statically, with no body forces.
 The linear elastic case is solved in one loading increment, whereas the hyperelastic and hyperelastoplastic cases use 30 equally sized loading increments.
 
 
@@ -1776,7 +1768,7 @@ The reference point is taken as the top right point -- $(48,60)$ mm -- in the el
    \label{fig:cooksMembrane_disp}
 \end{figure}
 
-The results shown for the hyperelastoplastic case were generated using the segregated solution procedure as the Jacobian-free Newton-Krylov approach diverged for six of the eight mesh densities, as discussed further in Section \ref{sec:resource_requirements}.
+The results shown for the hyperelastoplastic case were generated using the segregated solution procedure, as the Jacobian-free Newton-Krylov approach diverged for six of the eight mesh densities, as discussed further in Section \ref{sec:resource_requirements}.
 %Discussion of the relative convergence and robustness of the Jacobian-free Newton-Krylov and segregated methods is left to Section \ref{sec:resource_requirements}.
 
 %No difference is seen in the predictions whether using the Jacobian-free Newton-Krylov or segregated approach, assuming convergence is achieved.
@@ -1800,8 +1792,8 @@ A sudden, constant traction $\bb{T} = \left(50, 50, 0 \right)$ kPa is applied to
 %A sudden, constant traction $\bb{T} = \left(\sfrac{|\bb{T}|}{\sqrt{2}}\right) \left(1, 1, 0 \right)$ Pa is applied to the upper surface, where the magnitude $|\bb{T}|$ is defined in terms of a dimensionless load factor $\mathcal{F}$ as
 %In the current study, $\mathcal{F} = 1$.
 A neo-Hookean hyperelastic material is assumed with $E = 15.293$ MPa, $\nu = 0.3$ and density $\rho = 1000$ kg m$^{-3}$, while the area $A = 0.04$ m$^2$ and the second moment of area $I = \nicefrac{1}{7\,500}$ m$^4$. %0.0001333
-The geometric and material parameters were chosen for the first natural frequency to be 1 Hz in the small strain limit.
-The magnitude of the applied traction is chosen here to test the robustness of the solution procedures when large rotations and strains are present.
+The geometric and material parameters were chosen to yield a first natural frequency of 1 Hz in the small-strain limit.
+The magnitude of the applied traction is chosen here to test the robustness of the solution procedures under large rotations and strains.
 Four succesively refined hexahedral meshes are generated using the OpenFOAM \texttt{blockMesh} utility, with cell counts of 270, $2\,160$, $17\,280$ and $138\,240$.
 %A fixed time step size of 0.001617274174 s is chosen, corresponding to a Courant number of six on the mesh with $2\,160$ cells.
 %A fixed time step size of 1 ms is chosen.
@@ -1851,7 +1843,7 @@ The corresponding displacement magnitude of the centre of the upper surface of t
 %%%%%%%%%%%%
 
 \paragraph{Case 7: Axial Turbine Blade}
-This 3-D, quasi-static, small strain, linear elastic case consists of a twisted axial turbine blade (Figure \ref{fig:turbine_blade}) with the Cartesian axis-aligned bounding box $105.55\times177.628\times336.5$ mm.
+This 3-D, quasi-static, small-strain, linear elastic case consists of a twisted axial turbine blade (Figure \ref{fig:turbine_blade}) with the Cartesian axis-aligned bounding box $105.55\times177.628\times336.5$ mm.
 This case demonstrates the application of the proposed approach to an industrially-relevant geometry.
 The blade is constrained at the rotation axis end and subjected to a centrifugal body force $\bb{f}_b = \rho \omega^2 \bb{r}$ kg m$^{-2}$ s$^{-2}$.
 The scalar rotational velocity $\omega = \frac{2\pi \text{RPM}}{60}$ is defined here about the $x$ axis, where $\text{RPM} = 720$.
@@ -1925,7 +1917,7 @@ The total simulation time is 20 s, and the time-step size is 0.5 ms.
 \end{figure}
 
 Figure \ref{fig:hronTurek-results} shows the velocity field in the fluid region and displacement magnitude in the solid region at $t = 4.42$ s, corresponding to a peak in the vertical displacement of the plate free-end oscillation.
-The fluid is seen to accelerate as it passes the cylinder, with regular vortices being thrown off the plate, causing it to oscillate.
+The fluid accelerates as it passes the cylinder, with regular vortices being shed from the plate, causing it to oscillate.
 \begin{figure}[htbp]
    \centering
 	   \includegraphics[width=\textwidth]{figures/hronTurek-results} 
@@ -1971,14 +1963,14 @@ while the frequency is calculated as the inverse of the period.
 \subsection{Resource Requirements and Robustness}
 \label{sec:resource_requirements}
 %%--------------------------------------------------------------------------------------------------------------------%%
-This section compares resource requirements and the robustness of the Jacobian-free Newton-Krylov and segregated approaches on the cases presented in Section \ref{sec:accuracy}.
+This section compares the resource requirements and robustness of the Jacobian-free Newton-Krylov and segregated approaches across the cases presented in Section \ref{sec:accuracy}.
 Specifically, time and memory requirements are analysed, and whether the solution converged for all meshes and loading steps.
 %In some cases, time and memory requirements from finite element software \hl{Abaqus} are given for reference.
 In all cases, the Jacobian-free Newton-Krylov approach used the GMRES linear solver with the direct LU preconditioner for 2-D and the Hypre BoomerAMG multigrid preconditioner for 3-D, unless stated otherwise.
 A restart value of 30 is used for the GMRES solver, where the \emph{loose} variant of the GMRES solver is used, which retains a small number of extra solution vectors across restarts (2 in this case).
 In contrast, the segregated approach used the conjugate gradient linear solver and the incomplete Cholesky preconditioner with no infill -- equivalent to ILU(0).
 %Hypre BoomerAMG multigrid preconditioner for all cases.
-Time and memory requirements are implementation and hardware-specific; nonetheless, it is insightful to see the relative performances of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
+Time and memory requirements are implementation- and hardware-specific; nonetheless, it is insightful to compare the relative performance of the Jacobian-free Newton-Krylov and segregated approaches on the same hardware and within the same implementation framework.
 Clock times and memory usage (measured with the GNU time utility) were generated using a Mac Studio with an M1 Ultra CPU on one core, where the code was built with the Clang compiler (version 16.0.0).
 %\hl{Present data for one hardware first, and give comparison after.}
 Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parallelisation}.
@@ -1988,16 +1980,17 @@ Examination of multi-CPU-core parallelisation is left to Section \ref{sec:parall
 %\hl{Take care when comparing times between different hardware}
 
 In the AMG preconditioner, each outer GMRES iteration corresponded to a single BoomerAMG V-cycle.
-On each grid level, one pre-smoothing and one post-smoothing sweep were applied. Coarsening was performed using the HMIS strategy, which is designed to provide robust and scalable coarse grids for 3-D problems. Interpolation between levels used the extended+i scheme with truncation (\texttt{truncfactor = 0.3}) and a cap on interpolation stencil size (\texttt{P$_{max}$ = 1}), ensuring sparsity of the prolongation operator. Strong connections were defined with a threshold of 0.7, which balances coarse-grid accuracy with complexity. Aggressive coarsening was enabled (one pass with a single aggregation path), and the multigrid hierarchy was allowed up to 25 levels, though in practice far fewer were required.
-Collectively, these settings are intended to yield a relatively light but robust AMG preconditioner, consistent with recommendations from the MOOSE finite element software documentation \citep{moose_hypre_doc_2022}.
+On each grid level, one pre-smoothing and one post-smoothing sweep were applied.
+Coarsening was performed using the HMIS strategy, which provides robust, scalable coarse grids for 3-D problems. Interpolation between levels used the extended+i scheme with truncation (\texttt{truncfactor = 0.3}) and a cap on interpolation stencil size (\texttt{P$_{max}$ = 1}), ensuring sparsity of the prolongation operator. Strong connections were defined with a threshold of 0.7, which balances coarse-grid accuracy with complexity. Aggressive coarsening was enabled (one pass with a single aggregation path), and the multigrid hierarchy was allowed up to 25 levels, though in practice far fewer were required.
+Collectively, these settings aim to yield a relatively light yet robust AMG preconditioner, consistent with recommendations in the MOOSE finite element software documentation \citep{moose_hypre_doc_2022}.
 
 Table \ref{tab:times_memory} lists the wall clock times (time according to a clock on the wall) and maximum memory usage for all cases and all meshes, where diverged cases are indicated by the symbol $\dag$.
 Figure \ref{fig:times_memory}(a) plots the corresponding speedup on all cases as a function of the number of degrees of freedom, where the speedup is defined as the segregated clock time divided by the Jacobian-free Newton-Krylov clock time.
-The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case where the fluid domain has three degrees of freedom (two velocity components and pressure) in 2-D.
-Speedup is only calculated for clock times greater than 2 seconds to avoid the comparison of small numbers.
+The number of degrees of freedom is $2 \times$ the cell count in 2-D cases and $3 \times$ in 3-D cases, except in the fluid-solid interaction case, where the fluid domain has three degrees of freedom (two velocity components and pressure) in 2-D.
+Speedup is calculated only for clock times greater than 2 seconds to avoid comparing small numbers.
 In all cases where convergence was achieved, the Jacobian-free Newton-Krylov approach was faster (speedup $> 1$), with speedups of one or two orders of magnitude in many cases.
 Additionally, it can be observed from Figure \ref{fig:times_memory}(a) that the speedup increases as the number of degrees of freedom increases.
-The largest speedup was 341 on the sixth mesh ($9\,216$ cells) of the membrane i (2-D, linear elastic) case, while the lowest speed was 1 and occurred in the manufacctured solution coarser meshes.
+The largest speedup was 341 on the sixth mesh ($9\,216$ cells) of the membrane i (2-D, linear elastic) case, while the lowest speed was 1 and occurred in the manufactured solution coarser meshes.
 %Excluding the fluid-solid interaction, where the majority of degrees of freedom are placed in the fluid region, the next lowest speed-up was 1.66 and occurred on a coarse mesh in the membrane ii (2-D, hyperelastic) case.
 \begin{table}[!htbp]
 	\centering
@@ -2023,20 +2016,21 @@ The largest speedup was 341 on the sixth mesh ($9\,216$ cells) of the membrane i
 	\label{tab:times_memory}
 \end{table}
 
-It is observed that the computing time for some of the 3-D cases (e.g. MMS) increases superlinearly with problem size, despite the use of AMG preconditioning.
+It is observed that the computational time for some 3-D cases (e.g., MMS) increases superlinearly with problem size, despite the use of AMG preconditioning.
 In principle, AMG should provide optimal complexity; however, the HYPRE BoomerAMG implementation employed here is known to be sensitive to parameter choice.
 In the present work, default parameters were adopted to ensure reproducibility across cases, which may not yield the best possible scalability.
 Further tuning of AMG parameters is therefore expected to improve performance and will be the subject of future work.
 
-Figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the Jacobian-free Newton-Krylov approach divided by that of the segregated approach.
+Figure \ref{fig:speedup_rel_mem}(a) shows the \emph{speedup} for each case, defined as the ratio of the time taken by the segregated solver to the time taken by the proposed Jacobian-free Newton-Krylov method.
+Similarly, figure \ref{fig:speedup_rel_mem}(b) shows the \emph{relative memory} usage, defined here as the maximum memory usage of the Jacobian-free Newton-Krylov approach divided by that of the segregated approach.
 The relative memory usage is close to unity for coarse meshes (less than $10^4$ degrees of freedom), but shows a general increasing trend beyond this.
 % indicating there is no significant increase in memory requirements when switching from a segregated approach to a Jacobian-free Newton-Krylov approach.
 %In addition, unlike for the speedup, there is no general trend in the relative memory usage as the number of degrees of freedom increases.
-The maximum value for relative memory was 3.6 and occurred in the second-finest mesh for the spherical cavity case.
+The maximum relative memory value was 3.6 and occurred in the second-finest mesh for the spherical cavity case.
 %, although for all other meshes in this case, the value was less than one (between 0.82 and 0.95).
-The variations in the relative memory trends between cases can likely be attributed to the variable memory usage of the GMRES linear solver in the Jacobian-free Newton-Krylov, where the number of stored directions can vary depending on the ease of convergence.
+The variations in the relative memory trends across cases are likely due to the variable memory usage of the GMRES linear solver in the Jacobian-free Newton-Krylov, where the number of stored directions can vary depending on convergence.
 In addition, the memory usage of the multigrid preconditioner can vary depending on the geometry and cell types.
-The effect of the preconditioner and linear solver settings are examined further in Section \ref{sec:preconditioner}.
+The effect of the preconditioner and linear solver settings is examined further in Section \ref{sec:preconditioner}.
 \begin{figure}[htbp]
    \centering
 	\subfigure[Speedup]
@@ -2062,8 +2056,8 @@ The effect of the preconditioner and linear solver settings are examined further
 % Cantilever: m1 = 1.00133; m2 = 1.00731; m3 = 1.02502; m4 = 1.74552
 % FSI: m1 = 2.00182; m2 = 2.81157; m3 = 2.89065 
 
-Regarding robustness, the Jacobian-free Newton-Krylov approach converged in all cases bar one, requiring less than five outer Newton iterations on average in all converged cases.
-The only case where the Jacobian-free Newton-Krylov approach failed to converge was for the membrane iii problem, the only elastoplastic case examined.
+Regarding robustness, the Jacobian-free Newton-Krylov approach converged in all cases except one, requiring, on average, fewer than 5 outer Newton iterations.
+The only case in which the Jacobian-free Newton-Krylov approach failed to converge was the membrane iii problem, the only elastoplastic case examined.
 For the failed meshes, approximately 80\% of the total load was reached before the linear solver diverged.
 The cause of this divergence is likely related to the proposed compact preconditioner matrix -- which is formulated based on small \emph{elastic} strains -- being a poor approximation of the true Jacobian for large plastic strains.
 Interestingly, convergence problems were not encountered in the hyperelastic cases (membrane ii, ventricle, cantilever, fluid-solid interaction), demonstrating that the proposed compact \emph{linear elastic} preconditioner matrix is suitable for such large strain, large rotation hyperelastic cases.
@@ -2073,9 +2067,8 @@ In both cases where the segregated approach failed, large elastic strains and la
 It is interesting to note that the same linear elastic preconditioner matrix works well with the Jacobian-free Newton-Krylov approach for hyperelastic cases but not for the segregated approach, while the opposite is true for elastoplastic cases.
 
 Regarding geometric dimension, the same general trends are observed in 2-D and 3-D, with no major distinctions in behaviour.
-The same can be said for geometric nonlinearity (small strain vs. large strain) with similar speed-ups for both linear elastic and hyperelastic cases.
-One observation worth highlighting is the lower speedup seen for the method of manufactured solutions case (3-D, linear elastic): a possible explanation is that the segregated approach has previously been seen to be efficient on geometry with low aspect ratios (ratio of maximum to minimum dimensions) and minimal bending deformation;
-in this case, the aspect ratio is at its minimum (unity) and bending deformation is localised.
+The same can be said for geometric nonlinearity (small-strain vs. large-strain) with similar speed-ups in both linear elastic and hyperelastic cases.
+One observation worth highlighting is the lower speedup seen for the method of manufactured solutions case (3-D, linear elastic): a possible explanation is that the segregated approach has previously been seen to be efficient on geometry with low aspect ratios (ratio of maximum to minimum dimensions) and minimal bending deformation; in this case, the aspect ratio is at its minimum (unity) and bending deformation is localised.
 In contrast, in the other 3-D linear elastic cases (elliptic plate, membrane i), the aspect ratios are greater than unity and more widespread bending is present, and the segregated approach performs worse relative to the Jacobian-free Newton-Krylov approach. 
 
 
@@ -2124,10 +2117,10 @@ This section examines the effect of preconditioning strategy on the performance 
 %In addition, the effect of the restart parameter for the GMRES linear solver is also examined.
 Three choices of preconditioning procedure are compared:
 \begin{itemize}
-	\item \textbf{LU} - The \emph{MUltifrontal Massively Parallel sparse direct Solver} (MUMPS) \citep{MUMPS:1, MUMPS:2} LU decomposition direct solver. A direct solver is expected to be the more robust but may suffer from excessive time and memory requirements for larger numbers of unknowns.
-	\item \textbf{ILU($k$)} - Incomplete LU decomposition with $k$ fill-in. ILU($k$) is expected to have lower memory requirements than the LU direct solver but at the expense of robustness.
+	\item \textbf{LU} - The \emph{MUltifrontal Massively Parallel sparse direct Solver} (MUMPS) \citep{MUMPS:1, MUMPS:2} LU decomposition direct solver. A direct solver is expected to be more robust but may suffer from excessive time and memory requirements for larger numbers of unknowns.
+	\item \textbf{ILU($k$)} - Incomplete LU decomposition with $k$ fill-in. ILU($k$) is expected to have lower memory requirements than the LU direct solver, but at the expense of robustness.
 	As the system of unknowns becomes larger, the number of ILU($k$) iterations is expected to increase. As the fill-in factor $k$ increases, ILU($k$) approaches the robustness of a LU direct solver. In the current section, $k = 5$ for all cases examined.
-	\item \textbf{Algebraic multigrid} - The Hypre Boomerang \citep{hypre} parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near linear scaling of time and memory requirements.
+	\item \textbf{Algebraic multigrid} - The Hypre Boomerang \citep{hypre} parallelised multigrid preconditioner. Multigrid approaches have the potential to offer superior performance than other methods for larger problems, with near-linear scaling of time and memory requirements.
 \end{itemize}
 
 An additional consideration when selecting a preconditioner is its ability to scale in parallel as the number of CPU cores increases.
@@ -2135,16 +2128,17 @@ From this perspective, the iterative approaches (ILU($k$) and multigrid) are exp
 
 The preconditioning approaches are compared in three cases: membrane i (2-D, linear elastic), elliptic plate (3-D, linear elastic), and idealised ventricle (3-D, hyperelastic).
  Figure \ref{fig:times_memory} compares the clock times and maximum memory requirements for the three preconditioning approaches as a function of degrees of freedom.
- Examining the clock times, the LU preconditioner is seen to be faster for all meshes in the membrane i and idealised ventricle cases, while the multigrid approach is faster for all meshes in the elliptic plate cases.
+ Examining the clock times, the LU preconditioner is faster for all meshes in the membrane i and idealised ventricle cases, whereas the multigrid approach is faster for all meshes in the elliptic plate cases.
 The LU approach was found to be up to $5.4 \times$ faster in the membrane i case than the multigrid approach, and $1.8 \times$ faster in the idealised ventricle case.
 In contrast, the multigrid was up to $1.4 \times$ faster than the LU approach in the elliptic plate case.
 %A potential explanation for why LU approach was faster in the membrane i and idealised ventricle
 % for the elliptic plate case
-The ILU(5) approach is seen to be slowest in all cases, in addition, the ILU(5) approach diverged on the idealised ventricle finest mesh; lower values of fill-in $k$ were found to cause divergence to occur earlier in the idealised ventricle case.
+The ILU(5) approach is the slowest in all cases.
+In addition, the ILU(5) approach diverged on the finest idealised ventricle mesh; lower values of fill-in $k$ led to earlier divergence in this case.
 
 Regarding memory usage, below approximately $50$ k degrees of freedom, the memory usage is the same for all three approaches (approximately $80$ MB), corresponding to the solver's minimum memory overhead.
-For greater numbers of degrees of freedom, the LU approach uses the greatest amount of memory for both 3-D cases (idealised ventricle, elliptic plate), while the ILU(5) uses the least.
-In contrast, the LU approach uses the smallest amount of memory for the 2-D cases (membrane i) examined.
+For greater numbers of degrees of freedom, the LU approach requires the most memory in both 3-D cases (idealised ventricle, elliptic plate), while the ILU(5) requires the least.
+In contrast, the LU approach requires the least memory for the 2-D cases (membrane i) examined.
 The rate of memory increase is seen to be much steeper for the LU approach on the 3-D cases than the multigrid and ILU(5) approaches, with the LU results for the finest meshes not shown as they required more than the maximum available memory (64 GB).
 %\begin{itemize}
 %	\item \hl{Ventricle finesh mesh: ILU5 diverges and LU requires too much memory}
@@ -2205,7 +2199,7 @@ The rate of memory increase is seen to be much steeper for the LU approach on th
 %%--------------------------------------------------------------------------------------------------------------------%%
 This section highlights the impact of the global scaling factor $\alpha$ in the Rhie-Chow stabilisation (Equation \ref{eq:RhieChow}) on the performance of the proposed Jacobian-free Newton Krylov method.
 As described in Section \ref{sec:discretisation}, the stabilisation term is introduced to quell zero-energy modes (oscillations) in the discrete solution, such as checkerboarding.
-As the amount of stabilisation increases (increasing $\alpha$), these numerical modes are quelled, and the solution stabilises; however, at some point, further increases in the amount of stabilisation reduce the accuracy of the discretisation due to over-smoothing.
+As the amount of stabilisation increases (increasing $\alpha$), these numerical modes are quelled, and the solution stabilises; however, at some point, further increases in stabilisation reduce the discretisation accuracy due to over-smoothing.
 A less obvious consequence of changing the stabilisation magnitude is its effect on the convergence of the linear solver in the Jacobian-free Newton-Krylov solution procedure.
 This section examines this effect.
 %Consequently, a good choice of the stabilisation global scaling factor $\alpha$ is sufficiently high to quell oscillations but not higher.
@@ -2223,7 +2217,7 @@ In the membrane i case, the largest value of  ($\alpha$) is approximately $1.5\t
 Nonetheless, the clock time is not a linear function of  $\alpha$, and it can be seen that $\alpha = 0.1$ requires approximately the same amount of time as $\alpha = 1$ in all cases.
 In terms of robustness, the idealised ventricle cases failed with $\alpha = 0.01$, suggesting that increasing the stabilisation increases robustness.
 From Figure \ref{fig:times_rhie_chow}(b), the accumulated number of linear solver (GMRES) iterations is seen to follow the same trends as the clock times, where $\alpha = 0.01$ requires the greatest number of iterations while $\alpha = 0.1$ and $\alpha = 1$ require approximately the same number of iterations.
-In all cases, the number of iterations is seen to increase as the number of degrees of freedom increases.
+In all cases, the number of iterations increases with the number of degrees of freedom.
 %\hl{Comment on the results: e.g. fastest, slowest, most/least iterations, if any cases diverged or needed a higher 'restarts' value, etc}
 %\hl{Provide insights, if any: e.g. why is one faster or slower}
 \begin{figure}[htbp]
@@ -2267,7 +2261,7 @@ In all cases, the number of iterations is seen to increase as the number of degr
 %   \label{fig:rhie_chow}
 %\end{figure}
 
-The choice of the stabilisation scaling parameter $\alpha$ influences both the convergence behaviour and the pre-asymptotic accuracy of the method. Increasing $\alpha$ effectively adds diffusion to the system, which lowers the condition number and makes the linear systems easier to precondition, thereby reducing the number of iterations required for convergence. However, this benefit comes at the cost of reduced accuracy at coarse resolutions. As shown in Appendix B, the scheme remains formally second-order accurate asymptotically, and in our tests, displacement and stress predictions converged with mesh refinement for all $\alpha$ values.
+The choice of the stabilisation scaling parameter $\alpha$ influences both the convergence behaviour and the pre-asymptotic accuracy of the method. Increasing $\alpha$ effectively adds diffusion to the system, lowering the condition number and making the linear systems easier to precondition, thereby reducing the number of iterations required for convergence. However, this benefit comes at the cost of reduced accuracy at coarse resolutions. As shown in Appendix B, the scheme remains formally second-order accurate asymptotically, and in our tests, displacement and stress predictions converged with mesh refinement for all $\alpha$ values.
 Nonetheless, the pre-asymptotic behaviour differed between choices of $\alpha$, highlighting a trade-off between solver robustness and accuracy that must be considered in practical applications.
 
 
@@ -2322,19 +2316,19 @@ Nonetheless, the pre-asymptotic behaviour differed between choices of $\alpha$, 
 \subsection{Parallelisation}
 \label{sec:parallelisation}
 %%--------------------------------------------------------------------------------------------------------------------%%
-In this final analysis, the multi-CPU-core parallel scaling performance of the proposed Jacobian-free Newton Krylov method is compared with the segregated approach.
+In this final analysis, the multi-CPU-core parallel scaling performance of the proposed Jacobian-free Newton-Krylov method is compared with that of the segregated approach.
 A \emph{strong} scaling study is performed, where the clock time to solve a fixed-size problem is measured as the number of CPU cores is increased.
 The elliptic plate (3-D, linear elastic) mesh with $2\,438\,242$ cells is chosen for the scaling analysis.
-Parallelisation adopts the standard OpenFOAM domain decomposition approach, where the mesh is decomposed into one sub-domain for each CPU core.
+Parallelisation uses the standard OpenFOAM domain decomposition approach, where the mesh is decomposed into one sub-domain per CPU core.
 In the current work, the Scotch decomposition approach \citep{Pellegrini2012} is employed.
 The Jacobian-free Newton Krylov approach uses the GMRES linear solver, where the performance of the multigrid and LU preconditioners is compared.
 The segregated approach uses the conjugate gradient solver with the incomplete (zero in-fill -- $k = 0$) Cholesky preconditioner.
 The cases are run on the MeluXina high-performance computing system, where each standard computing node contains $2\times$ AMD EPYC Rome 7H12 64c 2.6GHz CPUs with 512 GB of memory.
 In the current study, the number of CPU cores is varied from 1 to $1\,048$ ($\left[ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1\,048 \right]$).
-In the ideal case, the speedup should double when the number of cores is doubled; in reality, inter-CPU-core communication reduces the parallel scaling efficiency below the ideal.
+In the ideal case, the speedup should double when the number of cores doubles; in reality, inter-CPU communication reduces parallel scaling efficiency below the ideal.
 
 It is noted that the scalability of the Jacobian-free Newton–Krylov procedure is dictated by the scalability of the underlying algorithmic components (GMRES, preconditioner) rather than the Jacobian-free formulation itself. Consequently, the present implementation does not affect this property. The purpose of the scaling study presented here is therefore twofold: first, to confirm that the Jacobian-free Newton–Krylov approach inherits the expected scalability characteristics of its components; and second, to provide a practical comparison of the runtime behaviour of Jacobian-free Newton–Krylov and segregated approaches on representative problem sizes.
-Larger problem sizes would be required for a rigorous scaling study, and hence these tests do not establish definitive scalability limits.
+Larger problem sizes would be required for a rigorous scaling study; hence, these tests do not establish definitive scalability limits.
 
 %Two types of parallel scaling analyses are performed \cite{Knoll2004}:
 %\begin{itemize}
@@ -2352,7 +2346,7 @@ Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup, defi
 %Figure \ref{fig:parallelisation_strong}(b) shows the corresponding speedup $S$, defined as $S = \sfrac{t_1}{t_p}$, where $t_1$ is the clock time on one CPU core and $t_p$ is the clock time on $P$ CPU cores.
 The Jacobian-free Newton-Krylov approach with the multigrid preconditioner is found to be the fastest by almost an order of magnitude over the segregated approach and the Jacobian-free Newton-Krylov approach with the LU preconditioner.
 The times for the segregated and Jacobian-free Newton-Krylov LU preconditioner approaches using 1, 2, and 4 cores were not recorded due to the excessive times.
-For all approaches, the speedup is seen to increase at an approximately ideal rate up to 128 cores, after which the speedup continues to increase but at a lower rate.
+For all approaches, the speedup increases approximately at an ideal rate up to 128 cores, after which it continues to increase but at a lower rate.
 At 128 cores (corresponding to one full computing node), the number of cells per core is approximately 19 k; increasing the number of cores beyond 128 likely shows a less than ideal scaling for two reasons: (i) the number of cells per core is becoming small relative to the amount of inter-core communication, and (ii) inter-node communication is likely slower than intra-node communication.
 The segregated and Jacobian-free Newton-Krylov LU preconditioner approaches produce their fastest predictions at 512 cores, while the Jacobian-free Newton-Krylov multigrid preconditioner approach continues to speed up to the maximum number of cores tested ($1\,048$), albeit $1\,048$ cores is just $2\times$ faster than 128 cores.
 At $1\,048$ cores, there are approximately 2.5 k cells per core, and the inter-core communication is expected to be significant.
@@ -2374,7 +2368,7 @@ At $1\,048$ cores, there are approximately 2.5 k cells per core, and the inter-c
 \end{figure}
 
 As a final observation, the effect of hardware can be highlighted by comparing the time required for 1 core when using the multigrid preconditioner: the case required $2\,048$ s on the MeluXina system (EPYC Rome CPU), while it required $988$ s on a Mac Studio (M1 Ultra CPU) system as presented in Section \ref{sec:resource_requirements} -- over twice as fast.
-The difference in performance can be primarily attributed to the unified memory architecture of the M1 Ultra, which provides significantly greater memory bandwidth compared to the DDR4 memory used in the MeluXina compute nodes.
+The performance difference can primarily be attributed to the unified memory architecture of the M1 Ultra, which provides significantly greater memory bandwidth than the DDR4 memory used in the MeluXina compute nodes.
 %This high-bandwidth memory enables faster data access for memory-intensive tasks, such as those encountered in the serial OpenFOAM simulations.
 
 %The difference in performance can be primarly attributed to two factors: (i) the higher clock speed of the CPU (3.2 vs 2.4 GHz), and (ii) the unified memory architecture of the M1 Ultra CPU likely provides greater memory bandwidth.
@@ -2423,20 +2417,20 @@ The difference in performance can be primarily attributed to the unified memory 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions} \label{sec:conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A Jacobian-free Newton-Krylov solution algorithm has been proposed for solid mechanics problems discretised using the cell-centred finite volume method.
-A compact-stencil discretisation of the diffusion term is proposed as the preconditioner matrix, allowing a straightforward extension of existing segregated solution frameworks.
+A Jacobian-free Newton-Krylov solution algorithm has been proposed for solid-mechanics problems discretised using the cell-centred finite-volume method.
+A compact-stencil discretisation of the diffusion term is proposed as the preconditioner, enabling a straightforward extension of existing segregated solution frameworks.
 The key conclusions of the work are:
 \begin{itemize}
 	\item \textbf{Efficiency of Jacobian-free Newton-Krylov approach}: The proposed Jacobian-free Newton-Krylov solution algorithm has been shown to be faster than a conventional segregated solution algorithm for all linear and nonlinear elastic test cases examined. In particular, speedups of one order of magnitude were seen in many cases, with a maximum speedup of 341 in the 2-D linear elastic Cook's membrane case.
 
 	\item \textbf{Additional memory overhead}: The Jacobian-free Newton-Krylov approach has been shown to have approximately the same memory requirements as a segregated solution algorithm for less than $10^4$ degrees of freedom, but generally increases beyond this.
-	The greatest memory increase was found to be 3.6 and occured in the spherical cavity case. Nonetheless, these differences are likely attributed to the different linear solver and preconditioner used in the Jacobian-free Newton-Krylov approach (GMRESS with multigrid or LU decomposition) compared to the segregated approach (conjugate gradient with zero in-fill Cholesky decomposition).
+	The greatest memory increase was 3.6 and occurred in the spherical cavity case. Nonetheless, these differences are likely due to the different linear solvers and preconditioners used in the Jacobian-free Newton-Krylov approach (GMRESS with multigrid or LU decomposition) compared to the segregated approach (conjugate gradient with zero-infill Cholesky decomposition).
 	
 	\item \textbf{Applicability to existing segregated frameworks}: By employing a compact-stencil diffusion approximation of the Jacobian as the preconditioner, the proposed Jacobian-free Newton-Krylov approach can be integrated into existing segregated finite volume frameworks with minimal modifications to the existing code base, in particular if existing publicly available Jacobian-free Newton-Krylov solvers (e.g., PETSc) are used.
 
 %	\item \textbf{Benchmark performance}: On a range of benchmark cases, the method maintained accuracy and robustness across different dimensions, geometries, and material behaviours, proving its versatility.
 
-	\item \textbf{Choice of preconditioning approach}: It has been shown that the LU direct solver preconditioning approach is faster than multigrid and ILU($k$) approaches for 2-D cases and moderately-sized 3-D problems; however, for larger 3-D problems the multigrid approach is the fastest while also requiring less memory than the direct LU approach. In addition, the multigrid approach is seen to show approximate ideal scaling in a parallel strong scaling study.
+	\item \textbf{Choice of preconditioning approach}: It has been shown that the LU direct solver preconditioning approach is faster than multigrid and ILU($k$) approaches for 2-D cases and moderately-sized 3-D problems; however, for larger 3-D problems, the multigrid approach is the fastest while also requiring less memory than the direct LU approach. In addition, the multigrid approach shows approximate ideal scaling in a parallel strong-scaling study.
 	
 	\item \textbf{Rhie-Chow stabilisation}: The magnitude of the Rhie-Chow stabilisation term is shown to affect the speed and robustness of the Jacobian-free Newton-Krylov approach, where $\alpha = 0.1$ and $1$ are seen to outperform $\alpha = 0.01$.
 
@@ -2446,22 +2440,22 @@ The key conclusions of the work are:
 %Future work:
 %- Modifying the compact preconditioner matrix to account for plasticity would allow the method to work in the failed cases, but this will be left for future studies.
 %- Including non-orthogonality in the preconditioner.
-%- Compare with a full Jacobian approach:  avoids the storage and computational costs associated with forming the full Jacobian matrix, offering significant advantages for large-scale and complex problems.
+%- Compare with a full Jacobian approach: avoids the storage and computational costs of forming the full Jacobian matrix, offering significant advantages for large-scale, complex problems.
 %- Use Picard as initial step for JFNK: It is not sufficiently robust: this can be seen in some of the test cases where it diverges, e.g hyperelastic cases. In other cases, convergence is quick so initialisation is not needed. So Picard could work if made more robust (maybe add pseudo time). Add this comment to the conclusions.
 %- Higher-order discretisations, where the same compact preconditioning matrix is used
 %- Monolithic FSI framework, where both fluid and solid are solved in a monolithic JFNK manner
 
 The presented study highlights the potential of the Jacobian-free Newton-Krylov method in finite-volume solid mechanics simulations, yet several areas for future exploration remain:
 \begin{enumerate}
-	\item{Enhanced preconditioning for plasticity}: While the proposed \emph{elastic} compact-stencil preconditioning matrix has been shown to perform well in linear and nonlinear elastic scenarios, it fails in cases exhibiting plasticity, where a segregated approach succeeds. Future studies will explore modifications to the compact preconditioning matrix to extend the applicability of the proposed approach to small and large strain elastoplasticity.
+	\item{Enhanced preconditioning for plasticity}: While the proposed \emph{elastic} compact-stencil preconditioning matrix has been shown to perform well in linear and nonlinear elastic scenarios, it fails in cases exhibiting plasticity, where a segregated approach succeeds. Future studies will explore modifications to the compact preconditioning matrix to extend the applicability of the proposed approach to both small- and large-strain elastoplasticity.
 
 	\item{Incorporation of non-orthogonality in the preconditioner}: The current preconditioning matrix does not account for non-orthogonal contributions in distorted meshes. Including these effects in future work could further enhance robustness, particularly for complex geometries.
 
 	\item{Comparison with full Jacobian approaches}: A comparison with a fully coupled Jacobian-based method would provide greater insights into the trade-offs between computational cost, memory usage, and convergence performance. Such a study could highlight the specific advantages of the Jacobian-free Newton-Krylov approach for large-scale, nonlinear problems.
 
-	\item{Globalisation strategies}: The robustness and efficiency of the proposed Jacobian-free Newton-Krylov approach could be improved for nonlinear problems by using a segregated approach as an initialisation phase for each loading step. In its current form, the segregated approach would not be generally suitable as it is less robust on several nonlinear hyperelastic problems; however, modifications such as introducing pseudo-time-stepping (introducing a pseudo-time damping term), may enhance its robustness and suitability for these scenarios.
+	\item{Globalisation strategies}: The robustness and efficiency of the proposed Jacobian-free Newton-Krylov approach could be improved for nonlinear problems by using a segregated approach as an initialisation phase for each loading step. In its current form, the segregated approach would not be generally suitable as it is less robust on several nonlinear hyperelastic problems; however, modifications such as introducing pseudo-time-stepping (introducing a pseudo-time damping term) may enhance its robustness and suitability for these scenarios.
 
-	\item{Higher-order discretisations}: Future work will explore the application of the proposed linear elastic compact-stencil Jacobian-free Newton-Krylov approach to higher-order finite volume discretisations. Using the same compact-stencil preconditioning matrix for these discretisations could yield efficient and accurate solutions for problems requiring increased fidelity.
+	\item{Higher-order discretisations}: Future work will explore the application of the proposed linear elastic compact-stencil Jacobian-free Newton-Krylov approach to higher-order finite volume discretisations. Using the same compact-stencil preconditioning matrix across these discretisations could yield efficient, accurate solutions for problems requiring higher fidelity.
 
 	\item{Development of a monolithic fluid-solid interaction framework}: Extending the Jacobian-free Newton-Krylov method to a fully monolithic fluid-solid interaction framework presents a promising avenue. In this approach, both fluid and solid domains would be solved simultaneously using a unified Jacobian-free Newton-Krylov method, potentially improving stability and performance in highly nonlinear coupled problems.
 \end{enumerate}
@@ -2480,7 +2474,7 @@ The codes presented are publicly available at \url{https://github.com/solids4foa
 \bmhead{Declaration of generative AI and AI-assisted technologies in the writing process}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 During the preparation of this work, the authors used ChatGPT and Grammarly as writing assistants.
-After using these tools, the authors reviewed and edited the content as needed and take full responsibility for the content of the publication.
+The authors reviewed and edited the content as needed and take full responsibility for the publication's content.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bmhead{Acknowledgments}
@@ -2488,11 +2482,10 @@ After using these tools, the authors reviewed and edited the content as needed a
 Technical reviews and insightful comments from Hiroaki Nishikawa of the National Institute of Aerospace, Hampton, VA, USA, are greatly appreciated.
 This project has received funding from the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme (Grant Agreement No. 101088740).
 Financial support is gratefully acknowledged from the Irish Research Council
-through the Laureate programme, grant number IRCLA/2017/45, from Bekaert through
-the University Technology Centre (UTC phases I and II) at UCD
-(www.ucd.ie/bekaert), from I-Form, funded by Science Foundation Ireland (SFI)
-Grant Numbers {16/RC/3872} and {21/RC/10295\_P2}, co-funded under European Regional Development Fund and by I-Form industry partners, and from NexSys, funded by SFI Grant Number 21/SPP/3756.
-Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie), and part of this work has been carried out using the UCD ResearchIT Sonic cluster which was funded by UCD IT Services and the UCD Research Office.
+through the Laureate programme, grant number IRCLA/2017/45, from Bekaert through the University Technology Centre (UTC phases I and II) at UCD
+(www.ucd.ie/bekaert), from I-Form, funded by Research Ireland (formerly Science Foundation Ireland)
+Grant Numbers {16/RC/3872} and {21/RC/10295\_P2}, co-funded under European Regional Development Fund and by I-Form industry partners, and from NexSys, Grant Number 21/SPP/3756.
+Additionally, the authors wish to acknowledge the DJEI/DES/SFI/HEA Irish Centre for High-End Computing (ICHEC) for the provision of computational facilities and support (www.ichec.ie), and part of this work has been carried out using the UCD ResearchIT Sonic cluster, which was funded by UCD IT Services and the UCD Research Office.
 %\hl{Ivan/Zeljko: add any additional acknowledgements here}
 
 
@@ -2524,7 +2517,7 @@ where subscript $o$ indicates quantities in the initial reference configuration,
 The true (Cauchy) stress tensor is indicated by $\bb{\sigma}$.
 The deformation gradient is defined as $\bb{F} = \textbf{I} + (\bb{\nabla} \bb{u})^{\text{T}}$ and its determinant as $J = \text{det}(\bb{F})$.
 Similarly, the \emph{relative} deformation gradient is given in terms of the displacement \emph{increment} as $\bb{f}=\textbf{I} + \left[\bb{\nabla}(\Delta \bb{u}) \right]^{\text{T}}$ and its determinant as $j = \text{det}(\bb{f})$.
-The displacement increment is the change in displacement between the current time step and the previous time step when the time interval is discretised into a finite number of steps.
+The displacement increment is the change in displacement between the current and previous time steps when the time interval is discretised into a finite number of steps.
 
 
 
@@ -2541,7 +2534,7 @@ The definition of engineering stress $\bb{\sigma}_s$ for linear elasticity can b
 	&=& \mu \bb{\nabla} \bb{u} + \mu \left( \bb{\nabla} \bb{u}\right)^{\text{T}} + \lambda \left(\bb{\nabla} \cdot \bb{u} \right) \textbf{I}
 \end{eqnarray}
 where $\lambda$ is the first Lam\'{e} parameter, and $\mu$ is the second Lam\'{e} parameter, synonymous with the shear modulus.
-The Lam\'{e} parameters can be expressed in term of the Young's modulus ($E$) and Poisson's ratio $\nu$ as
+The Lam\'{e} parameters can be expressed in terms of the Young's modulus ($E$) and Poisson's ratio $\nu$ as
 \begin{eqnarray}
 	\mu = \frac{E}{2(1 + \nu)}, \quad \lambda = \frac{E \nu}{(1+\nu)(1 - 2\nu)}
 \end{eqnarray}
@@ -2575,7 +2568,7 @@ The bulk modulus can be expressed in terms of the Young's modulus ($E$) and Pois
 \begin{eqnarray}
 	\kappa = \frac{E}{3(1 - 2\nu)}
 \end{eqnarray}
-The volume-preserving component of the elastic left Cauchy--Green deformation tensor is $\boldsymbol{b}$ is given as
+The volume-preserving component of the elastic left Cauchy--Green deformation tensor, $\boldsymbol{b}$, is given as
 \begin{eqnarray}
 	\bar{\bb{b}} = J^{-2/3} \bb{b} = J^{-2/3} \bb{F} \cdot \bb{F}^{\text{T}}
 \end{eqnarray}
